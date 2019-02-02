@@ -19,11 +19,14 @@ Install node packages for server
 
 Then:
   [Install packages] - npm install mongodb socket.io --save
-    [Change directory] - cd <nodejs>
+    [Change directory] - cd <server>
       [Run server.js] - node server.js
+    [Change directroy] - cd ../client
+      [Run client (electron)] - npm start
 ```
 
 ## Built With
 
 * [NodeJS] - Server
 * [MongoDB] - Database
+* [ElectronJS] - Application
