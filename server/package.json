@@ -1,0 +1,16 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Server for the client.",
+  "main": "server.js",
+  "dependencies": {
+    "mongodb": "^2.2.33",
+    "socket.io": "^2.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "server.js"
+  },
+  "author": "Joe Mitchell",
+  "license": "ISC"
+}

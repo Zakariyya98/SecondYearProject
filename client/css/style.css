@@ -1,0 +1,59 @@
+#messages {
+    height : 300px;
+    overflow-y : scroll;
+}
+
+#clear {
+    margin-top : 25px;
+    width : 48%;
+}
+
+#submit {
+    margin-top : 25px;
+    width : 48%;
+    float : right;
+}
+
+.confirmed {
+    font-size : 11pt;
+    text-transform: uppercase;
+    background-color : lightgreen;
+    color : #222222;
+}
+
+.failed {
+    background-color : #222222;
+    color : red;
+
+}
+
+.chat-message {
+    height : auto;
+    width : 100%;
+    position : relative;
+    padding : 2px 5px 2px 5px;
+    border-radius : 2px;
+}
+
+.message-info {
+    font-size : 6px;
+    color : lightslategrey;
+    position: absolute;
+    left : 0;
+    top: -5px;
+    padding-left : 5px;
+    padding-right : 5px;
+    width : 100%;
+}
+
+.message {
+    padding : 10px 0 10px 0;
+    overflow-wrap : break-word;
+    text-align: left;
+}
+
+.self-message { 
+    width:100%;
+    position: relative;
+    text-align:right;
+}

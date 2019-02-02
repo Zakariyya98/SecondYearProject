@@ -1,0 +1,20 @@
+{
+  "name": "test-chat",
+  "version": "1.0.0",
+  "description": "Collaborative Work Platform",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [
+    "Electron",
+    "quick",
+    "start"
+  ],
+  "author": "Joe Mitchell",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^4.0.3",
+    "socket.io": "^2.2.0"
+  }
+}
