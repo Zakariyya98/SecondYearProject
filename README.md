@@ -25,6 +25,11 @@ Then:
       [Run client (electron)] - npm start
 ```
 
+```
+Within the main directory
+mongod --dbpath server/db --port 4001
+```
+
 ## Built With
 
 * [NodeJS] - Server

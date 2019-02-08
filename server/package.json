@@ -4,7 +4,8 @@
   "description": "Server for the client.",
   "main": "server.js",
   "dependencies": {
-    "mongodb": "^2.2.33",
+    "mongodb": "^2.2.36",
+    "npm": "^6.7.0",
     "socket.io": "^2.2.0"
   },
   "devDependencies": {},

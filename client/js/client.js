@@ -33,6 +33,15 @@
             var connLabel = element('conn-status');
             connLabel.innerText = 'Connection Confirmed!';
             connLabel.setAttribute('class', 'confirmed');
+
+            var groupName = window.location.search;
+            if(!groupName){
+                groupName = 'chats';
+            }else{
+                groupName = groupName.substr(1);
+            }
+            socket.emit('group', groupName );
+
         })
 
         socket.on('output', function(data){
