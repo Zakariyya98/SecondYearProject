@@ -6,7 +6,7 @@ let win
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({width: 1200, height: 800})
+  win = new BrowserWindow({width: 1200, height: 800, minHeight : 400, minWidth : 900, frame : false})
   //query existing cookies
   session.defaultSession.cookies.get({}, (error, cookies) => {
     console.log(error, cookies)

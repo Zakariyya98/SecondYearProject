@@ -1,3 +1,8 @@
+html, body {
+    background-color : #222222;
+    height : 100%;
+    width : 100%;
+}
 #messages {
     height : 300px;
     overflow-y : scroll;
@@ -25,6 +30,82 @@
     background-color : #222222;
     color : red;
 
+}
+
+/* basic size style presets */
+.w100 { width : 100%; }
+.w75 { width : 75%; }
+.w50 { width : 50%; }
+.w25 { width : 25%; }
+
+.h100 { height : 100%; }
+.h75 { height : 75%; }
+.h50 { height : 50%; }
+.h25 { height : 25%; }
+
+.flex-item-fill {
+    flex: 1 0 auto;
+}
+
+.group-selector {
+    position : relative;
+    flex : 0 0 75px;
+    background-color : #4e6d55;
+}
+
+.group-channels {
+    flex : 0 0 300px;
+    background-color : #60bf80;
+}
+
+.project-editor {
+    background-color : #479961;
+    height : 50px;
+    
+}
+.main-content {
+    background-color : #f1f2f2;
+}
+
+.tool-selector {
+    height : 50px;
+    background-color: #ececec;
+}
+
+.group {
+    position : absolute;
+    background-color : #f1f2f2;
+    width : 50px;
+    height : 50px;
+    border-radius : 50%;
+    padding : 10px;
+    top : 10px;
+    left : 50%;
+    transform:translate(-50%);
+}
+
+.title {
+    display:inline-block;
+    font-size : 18px;
+    color : #f1f2f2;
+    font-weight : 700;
+    padding : 0 15px 0 15px;
+}
+
+.click {
+    cursor : pointer;
+}
+
+.dark {
+    color : #222222;
+}
+
+.text-center {
+    text-align : center;
+}
+
+.center-vertical-50 {
+    line-height : 50px;
 }
 
 .chat-message {

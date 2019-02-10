@@ -1,20 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+        integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <!-- main style -->
     <link rel='stylesheet' href='css/style.css'>
-    <title>CollaboPlatform</title>
+    <!-- icons -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
+        crossorigin="anonymous">
+    <title>ColoPalo</title>
 </head>
-<body>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6 offset-md-3 col-sm-12">
+
+<body style='-webkit-app-region: drag'>
+    <div class="container-fluid d-flex h-100" style='padding-left : 0 !important; padding-right : 0 !important;'>
+        
+        <!-- group selector -->
+        
+        <div class="h-100 group-selector">
+            <div class='group'></div>
+            <div class='group'></div>
+            <div class='group'></div>
+            <div class='group'></div>
+        </div>
+
+        <!-- group channel selector -->
+
+        <div class="h-100 group-channels">
+            <div class='project-editor center-vertical-50'>
+                <div class='title' style='width:90%;'>Project Name</div>
+                <i class="fas fa-caret-square-down" style='color:#f1f2f2; cursor:pointer;'></i>
+            </div>
+        </div>
+
+        <!-- main content -->
+
+        <div class="flex-item-fill main-content h-100">
+            <div class='tool-selector d-flex'>
+                <span class='title dark center-vertical-50 text-center click'>Scrum Management Tool</span>
+                <span class='title dark center-vertical-50 text-center click'>Kanban Board</span>
+                <span class='title dark center-vertical-50 text-center click'>Make A Request</span>
+            </div>
+
+            <!-- chat -->
+
+            <div class='container-fluid'>
                 <div class='text-center'>
                     <h1>
-                            CPlatformOWO
+                        CPlatformOWO
                     </h1>
                     <h2 id='conn-status'>Connecting...</h2>
                 </div>
@@ -36,8 +73,30 @@
         </div>
     </div>
 
+    <!-- Insert this line above script imports  -->
+    <script>
+        if (typeof module === 'object') {
+            window.module = module;
+            module = undefined;
+        }
+    </script>
+
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+        crossorigin="anonymous"></script>
+    <!-- bootstrap -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+        crossorigin="anonymous"></script>
+    <!-- socket.io -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="js/client.js"></script>
-    
+
+    <!-- Insert this line after script imports -->
+    <script>
+        if (window.module) module = window.module;
+    </script>
+
 </body>
+
 </html>
