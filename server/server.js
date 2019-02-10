@@ -1,6 +1,8 @@
 const mongo = require('mongodb').MongoClient;
 const client = require('socket.io').listen(4000).sockets;
 
+var connections = new Map();
+
 // Connect to mongo
 mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
     if(err){
@@ -12,12 +14,22 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
     // Connect to Socket.io
     client.on('connection', function(socket){
         //let the user know they are connected
-        console.log(socket.client.id);
-        //socket.emit('confirmation');
+        //console.log(socket.client.id);
+
         socket.emit('confirmation');
 
         socket.on('group', function(group){
 
+            if(connections[group]){//if a connection for the group already exists
+                //adds client to the list of connections
+                connections[group].push(socket.id);
+            }else{
+                //creates key value pair of group and an array of clients
+                connections[group] = [socket.id];
+            }
+            
+
+            console.log(socket.client.id);
             console.log(group);
         
             let chat = db.collection(group);
@@ -47,7 +59,12 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 } else {
                     // Insert message
                     chat.insert({name: name, message: message}, function(){
-                        client.emit('output', [data]);
+
+                        connections[group].forEach(function(user){
+                            client.to(user).emit('output', [data]);
+                        });
+                        //client.to(socket.id).emit('output', [data]);
+                        //client.emit('output', [data]);
 
                         // Send status object
                         sendStatus({
@@ -66,11 +83,19 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                     socket.emit('cleared');
                 });
             });
+
+            socket.on('disconnect', function(){
+                //console.log('disconnect');
+                //removes individual connection from array 
+                var index = connections[group].indexOf(socket.id);
+                if (index > -1) {
+                    connections[group].splice(index, 1);
+                }
+            });
+
+
         });
 
-        client.on('connection', function(socket){
-
-        });
 
     });
 
