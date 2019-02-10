@@ -1,12 +1,16 @@
 // Modules to control application life and create native browser window
 const {app, BrowserWindow, session} = require('electron')
+const { ipcMain } = require('electron')
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
+let signUpWindow
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({width: 1200, height: 800, minHeight : 400, minWidth : 900, frame : false})
+  win = new BrowserWindow({width: 1200, height: 800, minHeight : 400, minWidth : 900, frame : false, show:false})
+  signUpWindow = new BrowserWindow({width:1200,height:800,modal:true,frame:false})
   //query existing cookies
   session.defaultSession.cookies.get({}, (error, cookies) => {
     console.log(error, cookies)
@@ -18,9 +22,16 @@ function createWindow () {
 
   // and load the index.html of the app.
   win.loadFile('./index.html')
+  signUpWindow.loadFile('./login.html')
 
   // Open the DevTools.
   win.webContents.openDevTools()
+
+  //Displaying the index page and hidding the login page
+  ipcMain.on('switchPage', function() {
+      win.show()
+      signUpWindow.hide()
+  })
 
   // Emitted when the window is closed.
   win.on('closed', function () {

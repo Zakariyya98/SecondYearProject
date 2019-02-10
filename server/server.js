@@ -11,12 +11,37 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
 
     console.log('MongoDB connected...');
 
+    // Read from the database and console output
+    let cursor = db.collection('Profiles').find();
+    cursor.each(function(err, doc) {
+        console.log(doc);
+    });
+
     // Connect to Socket.io
     client.on('connection', function(socket){
         //let the user know they are connected
         //console.log(socket.client.id);
 
         socket.emit('confirmation');
+
+        //Check user email and password
+        socket.on('login', function(data){
+          let email = data.email;
+          let password = data.password;
+          var userDetails = {Email: email, Password: password};
+          let cursor = db.collection('Profiles');
+          cursor.findOne(userDetails,function(err,result){
+            var boolValue = true;
+            if (err) throw err;
+              //console.log(result== null)
+            else if(result == null){
+              boolValue = false;
+              socket.emit('login', boolValue);
+            }else{
+              socket.emit('login', boolValue);
+            }
+          });
+        });
 
         socket.on('group', function(group){
 
@@ -27,11 +52,11 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 //creates key value pair of group and an array of clients
                 connections[group] = [socket.id];
             }
-            
+
 
             console.log(socket.client.id);
             console.log(group);
-        
+
             let chat = db.collection(group);
             // Create function to send status
             sendStatus = function(s){
@@ -47,6 +72,11 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 socket.emit('output', res);
             });
 
+            // Notifying other clients when someone is typing
+            socket.on('typing', function(data){
+              socket.broadcast.emit('typing',data)
+            });
+
             // Handle input events
             socket.on('input', function(data){
                 let name = data.name;
@@ -58,6 +88,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                     sendStatus('Please enter a name and message');
                 } else {
                     // Insert message
+                    socket.broadcast.emit('clearTyping');
                     chat.insert({name: name, message: message}, function(){
 
                         connections[group].forEach(function(user){
@@ -86,7 +117,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
 
             socket.on('disconnect', function(){
                 //console.log('disconnect');
-                //removes individual connection from array 
+                //removes individual connection from array
                 var index = connections[group].indexOf(socket.id);
                 if (index > -1) {
                     connections[group].splice(index, 1);

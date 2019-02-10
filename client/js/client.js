@@ -55,16 +55,16 @@
                     message.setAttribute('class', 'message');
                     message_content.setAttribute('value', data[x].name);
                     message_info.setAttribute('class', 'message-info');
-                    
+
                     if(data[x].name === s_username) {
                         message_content.setAttribute('class', 'chat-message self-message');
                     } else {
                         message_content.setAttribute('class', 'chat-message other-message');
-                        
+
                     }
                     message_content.textContent = data[x].message;
                     message_info.textContent = data[x].name + ' sent - 5:07pm';
-                    
+
                     message.appendChild(message_content);
                     message_content.appendChild(message_info);
                     messages.appendChild(message);
@@ -87,6 +87,22 @@
                 textarea.value = '';
             }
         });
+
+        //Send information when someone is typing
+        textarea.addEventListener('keypress', function(){
+          socket.emit('typing', username.value);
+        });
+
+        //Display who is typing
+        socket.on('typing', function(data){
+          feedback.innerHTML = '<p><em>' + data + ' is typing a message...</em></p>';
+        });
+
+        //Clear who is clearTyping
+        socket.on('clearTyping',function(){
+          feedback.innerHTML = "";
+        });
+
         // Handle Input
         textarea.addEventListener('keydown', function(event){
             if(event.which === 13 && event.shiftKey == false){

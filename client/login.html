@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link rel='stylesheet' href='css/style.css'>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <title>Login Page</title>
+</head>
+<body style="background-color : #FFFFFF">
+    <div class="container-fluid no-padding">
+
+        <div class="row">
+            <div class="col-sm-7">
+              <div class="image-container" style="background-image: url('images/log.jpg');">
+             </div>
+           </div>
+
+            <div class="col-sm-5">
+                <!--<p class="h2 text-center">Login to continue</p>-->
+                <div class="center"><h2>Login to continue</h2></div>
+                <div id="incorrect" class="left"><small id="notifyingText">Incorrect Email or Password!</small></div>
+                <form class="container was-validated" novalidate="">
+                    <div id="emailForm" class="form-group">
+
+                        <input type="email" id="emailInput" class="form-control inputHeight" placeholder="Email">
+                        <div id="emailWarn" class="text-danger warning">
+                        <small>Email is required!</small>
+                        <!-- <span class="fas fa-exclamation form-control-feedback"></span> -->
+                        </div>
+                    </div>
+                    <div id="passForm" class="form-group">
+                        <input type="password" id="passInput" class="form-control inputHeight" placeholder="Password">
+                        <div id="passWarn" class="text-danger warning">
+                        <small>Password is required!</small>
+                        </div>
+                    </div>
+                    <div class="form-group form-check">
+                      <div class="checkbox">
+                        <label style="font-size: 1.5em">
+                          <input type="checkbox" value="" checked>
+                          <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                          Remember me
+                        </label>
+                      </div>
+                        <!--<label><input type="checkbox" class="form-check-input"/>Remember me</label>-->
+
+                        <a id='signUp' href="#" style="float:right">Forgot Password?</a>
+                    </div>
+                    <button id="login" class="btn btn-success btn-lg btn-block">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script src="js/login.js"></script>
+
+</body>
+</html>

@@ -19,6 +19,14 @@ html, body {
     float : right;
 }
 
+#emailWarn {
+  display:none;
+}
+
+#passWarn {
+  display:none;
+}
+
 .confirmed {
     font-size : 11pt;
     text-transform: uppercase;
@@ -61,7 +69,7 @@ html, body {
 .project-editor {
     background-color : #479961;
     height : 50px;
-    
+
 }
 .main-content {
     background-color : #f1f2f2;
@@ -133,8 +141,110 @@ html, body {
     text-align: left;
 }
 
-.self-message { 
+.self-message {
     width:100%;
     position: relative;
     text-align:right;
+}
+
+.inputHeight {
+  height: 80px;
+}
+
+.center {
+  text-align: center;
+  margin-top: 200px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 70%;
+  padding: 6px;
+}
+
+.left {
+  margin-left: 20px;
+  display:none;
+  color:red;
+}
+
+.checkbox label:after{
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.checkbox .cr{
+    position: relative;
+    display: inline-block;
+    border: 2px solid #a9a9a9;
+    border-radius: .25em;
+    width: 1.3em;
+    height: 1.3em;
+    float: left;
+    margin-right: .5em;
+}
+
+.cr {
+    border-radius: 50%;
+}
+
+.checkbox .cr .cr-icon{
+    position: absolute;
+    font-size: .8em;
+    line-height: 0;
+    top: 50%;
+    left: 0%;
+}
+
+.cr .cr-icon {
+    margin-left: 0.04em;
+}
+
+.checkbox label input[type="checkbox"]{
+    display: none;
+}
+
+.checkbox label input[type="checkbox"] + .cr > .cr-icon{
+    transform: scale(3) rotateZ(-20deg);
+    opacity: 0;
+    transition: all .3s ease-in;
+}
+
+.checkbox label input[type="checkbox"]:checked + .cr > .cr-icon{
+    transform: scale(1) rotateZ(0deg);
+    opacity: 1;
+}
+
+.checkbox label input[type="checkbox"]:disabled + .cr{
+    opacity: .5;
+}
+
+.image-container{
+ height: 800px;
+ width: 100%;
+ background-size: cover;
+}
+
+.no-padding {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.fa-exclamation {
+  width: 15px;
+  margin: -32px 5px;
+  float: right;
+}
+
+input {
+	outline: none;
+	border: none;
+}
+
+label {
+  display: block;
+  padding-left: 15px;
+  text-indent: 5px;
+}
+input:focus {
+  border-color: transparent !important;
 }
