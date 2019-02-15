@@ -2,7 +2,7 @@
   'use strict';
   var crypto = require('crypto');
   const { ipcRenderer } = require('electron');
-  window.$ = window.jQuery = require("jquery");
+  // window.$ = window.jQuery = require("jquery");
 
   var element = function(id){
     return document.getElementById(id);

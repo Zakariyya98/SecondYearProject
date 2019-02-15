@@ -31,14 +31,14 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
           var userDetails = {Email: email, Password: password};
           let cursor = db.collection('Profiles');
           cursor.findOne(userDetails,function(err,result){
-            var boolValue = true;
+            var success = true;
             if (err) throw err;
               //console.log(result== null)
             else if(result == null){
-              boolValue = false;
-              socket.emit('login', boolValue);
+              success = false;
+              socket.emit('login', success);
             }else{
-              socket.emit('login', boolValue);
+              socket.emit('login', success);
             }
           });
         });

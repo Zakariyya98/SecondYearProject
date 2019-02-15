@@ -1,3 +1,6 @@
+const remote = require('electron').remote;
+const ipc= require('electron').ipcRenderer;
+
 (function(){
     var element = function(id){
         return document.getElementById(id);
@@ -12,7 +15,6 @@
     var sendBtn = element('submit');
 
     var s_username = 'joe';
-
 
     // Set default status
     var statusDefault = status.textContent;
@@ -114,10 +116,6 @@
                 event.preventDefault();
             }
         })
-        // Handle Chat Clear
-        clearBtn.addEventListener('click', function(){
-            socket.emit('clear');
-        });
 
         sendBtn.addEventListener('click', function() {
             socket.emit('input', {
@@ -127,9 +125,22 @@
             event.preventDefault();
         });
 
-        // Clear Message
-        socket.on('cleared', function(){
-            messages.textContent = '';
-        });
+        $('#addNewGroup').on('click', function() {
+            ipc.send('createGroupWindow');
+        })
+
+        ipc.on('addNewGroup', (event, args) => {
+            var group = document.createElement('div');
+            group.setAttribute('class', 'group');
+
+            $('#addNewGroup').before(group);
+
+            console.log('new group has been added...');
+        })
+
+        //get console updates from app
+        ipc.on('update', (event, args) => {
+            console.log(args);
+        })
     }
 })();

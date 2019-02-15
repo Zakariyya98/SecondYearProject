@@ -55,10 +55,18 @@ html, body {
     flex: 1 0 auto;
 }
 
+.scroll {
+    overflow-y: scroll;
+}
+
 .group-selector {
     position : relative;
     flex : 0 0 75px;
     background-color : #4e6d55;
+}
+
+.group-selector:first-child {
+    padding-top : 10px !important;
 }
 
 .group-channels {
@@ -81,15 +89,25 @@ html, body {
 }
 
 .group {
-    position : absolute;
+    position:relative;
     background-color : #f1f2f2;
     width : 50px;
     height : 50px;
     border-radius : 50%;
     padding : 10px;
-    top : 10px;
-    left : 50%;
-    transform:translate(-50%);
+    margin : 0 auto 10px auto;
+    /* top : 10px; */
+    /* left : 50%; */
+    /* transform:translate(-50%); */
+}
+
+.group i {
+    position : absolute;
+    color : #479961;
+    font-size : 24px;
+    left:51%;
+    top:50%;
+    transform:translate(-50%, -50%);
 }
 
 .title {
