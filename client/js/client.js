@@ -1,6 +1,24 @@
 const remote = require('electron').remote;
 const ipc= require('electron').ipcRenderer;
 
+function createGroup(args) {
+    //create new group and group tag
+    var group = document.createElement('div');
+    var groupName = document.createElement('span');
+
+    //set styling attributes and values
+    group.setAttribute('class', 'group');
+    group.setAttribute('groupName', args.groupName);
+    group.setAttribute('style', 'background-color : ' + args.backgroundColor + '; color : ' + args.fontColor + ';');
+    groupName.innerHTML = String(args.groupName).toUpperCase()[0];
+    
+    // add elements in correct place in dom
+    group.appendChild(groupName);
+    $('#addNewGroup').before(group);
+
+    console.log('new group has been added...');
+}
+
 (function(){
     var element = function(id){
         return document.getElementById(id);
@@ -125,21 +143,22 @@ const ipc= require('electron').ipcRenderer;
             event.preventDefault();
         });
 
+        $(document).on('click', '.group', function() {
+            $('#project-name').text($(this).attr('groupname'));
+        })
+
         $('#addNewGroup').on('click', function() {
             ipc.send('createGroupWindow');
         })
 
+        //create a new group
         ipc.on('addNewGroup', (event, args) => {
-            var group = document.createElement('div');
-            group.setAttribute('class', 'group');
-
-            $('#addNewGroup').before(group);
-
-            console.log('new group has been added...');
+            createGroup(args);
         })
 
         //get console updates from app
         ipc.on('update', (event, args) => {
+            
             console.log(args);
         })
     }
