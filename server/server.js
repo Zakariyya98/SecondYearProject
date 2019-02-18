@@ -46,8 +46,10 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
         socket.on('group', function(group){
 
             if(connections[group]){//if a connection for the group already exists
-                //adds client to the list of connections
-                connections[group].push(socket.id);
+                if(!connections[group].includes(socket.id)){
+                    //adds client to the list of connections
+                    connections[group].push(socket.id);
+                }
             }else{
                 //creates key value pair of group and an array of clients
                 connections[group] = [socket.id];
@@ -88,6 +90,17 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                     sendStatus('Please enter a name and message');
                 } else {
                     // Insert message
+
+                    if(message.substring(0,9) == '!announce'){//announcement
+
+                        connections[group].forEach(function(user){
+                            if(user != socket.id){//announce to everyone but the sender
+                                client.to(user).emit('announcement', message.substring(9));
+                            }
+                        });
+
+                    }
+
                     socket.broadcast.emit('clearTyping');
                     chat.insert({name: name, message: message}, function(){
 

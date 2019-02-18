@@ -108,6 +108,10 @@ function createGroup(args) {
             }
         });
 
+        socket.on('announcement', function(message){
+            alert(message);
+        });
+
         //Send information when someone is typing
         textarea.addEventListener('keypress', function(){
           socket.emit('typing', username.value);
