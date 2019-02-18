@@ -19,6 +19,7 @@
     "socket.io": "^2.2.0"
   },
   "devDependencies": {
-    "electron": "^4.0.5"
+    "electron": "^4.0.5",
+    "electron-builder": "latest"
   }
 }
