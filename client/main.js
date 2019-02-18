@@ -17,9 +17,9 @@ function createWindow () {
   //signUpWindow.loadFile('./login.html')
 
   // Open the DevTools.
-  win.webContents.openDevTools()
+  //win.webContents.openDevTools()
 
-  //Displaying the index page and hidding the login page
+  //Displaying the index page and hidding the login page -- DO NOT HIDE THE WINDOW! CLOSE IT
   ipc.on('switchPage', function() {
       win.show()
       //signUpWindow.hide()
@@ -79,5 +79,5 @@ ipc.on('createGroupWindow', (event, arg) => {
 })
 
 ipc.on('addNewGroup', (event, args) => {
-  win.webContents.send('addNewGroup', 'groupname');
+  win.webContents.send('addNewGroup', args);
 })

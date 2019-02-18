@@ -17,22 +17,20 @@
 </head>
 <!-- TODO
     -build taskbar (Dragable)
-    -make buttons load different content in main window
-    -allow creation of a new group (frontend only) -->
-<body style='-webkit-app-region: drag'>
+    -make buttons load different content in main window -->
+<body style='-webkit-app-region: nodrag'>
+
+    <!-- taskbar -->
+    
+    <div style='-webkit-app-region : drag; width:100%; height : 20px; 'id='taskbar' class='taskbar'>
+        <!-- add taskbar stuff here -->
+    </div>
+
     <div class="container-fluid d-flex h-100" style='padding-left : 0 !important; padding-right : 0 !important;'>
+        
         <!-- group selector -->
 
         <div id='groups' class="h-100 group-selector scroll">
-            <div class='group'>
-                
-            </div>
-            <div class='group'>
-                
-            </div>
-            <div class='group'>
-                
-            </div>
             <div id='addNewGroup' class='group'>
                 <i class="fas fa-plus-circle"></i>
             </div>
@@ -42,7 +40,7 @@
 
         <div class="h-100 group-channels scroll">
             <div class='project-editor center-vertical-50'>
-                <div class='title' style='width:90%;'>Project Name</div>
+                <div class='title' style='width:90%;' id='project-name'>Project Name</div>
                 <i class="fas fa-caret-square-down" style='color:#f1f2f2; cursor:pointer;'></i>
             </div>
         </div>
@@ -51,6 +49,7 @@
 
         <div class="flex-item-fill main-content h-100 scroll">
             <div class='tool-selector d-flex'>
+                <span class='title dark center-vertical-50 text-center click'>Chat</span>
                 <span class='title dark center-vertical-50 text-center click'>Scrum Management Tool</span>
                 <span class='title dark center-vertical-50 text-center click'>Kanban Board</span>
                 <span class='title dark center-vertical-50 text-center click'>Make A Request</span>
@@ -70,14 +69,13 @@
                     <br>
                     <div class="card">
                         <div id="messages" class="card-block">
-
                         </div>
                         <div id="feedback"> </div>
                     </div>
                     <br>
                     <textarea id="textarea" class="form-control" placeholder="Enter message..."></textarea>
                 </div>
-                <button id="submit" class="btn btn-success">Send</button>
+                <button id="submit" class="btn-custom">Send</button>
                 <div id="status"></div>
             </div>
         </div>

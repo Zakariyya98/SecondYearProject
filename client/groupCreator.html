@@ -11,9 +11,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <h1 style='text-align:center; color : white'>HELLO</h1>
+    <div class='container'>
+        <p class='group-title dark text-center'>Create a Group</p>
+        <div class='form-group'>
+            <label>
+                <span class='label-text'>Group Name</span>
+                <input type='text' class='form-control' id='groupNameInput'>
+            </label>
 
-    <button id='click'>Create new Group</button>
+        </div>
+        <div class='template-view'>
+            <label>Background Color</label>
+            <input type='color' class='form-control color-input' id='backgroundColorInput'>
+            <label>Font Color</label>
+            <input type='color' class='form-control color-input' id='fontColorInput'>
+
+            <div class='group-view'>
+                <div class='group group-template' id='group-template'>
+                    <span>T</span>
+                </div>
+            </div>
+        </div>
+        <button id='createGroupButton' class='btn-custom'>Create Group</button>  
+        
+        
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src='js/groupCreator.js'></script>

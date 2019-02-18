@@ -1,5 +1,4 @@
 html, body {
-    background-color : #222222;
     height : 100%;
     width : 100%;
 }
@@ -13,18 +12,24 @@ html, body {
     width : 48%;
 }
 
-#submit {
-    margin-top : 25px;
-    width : 48%;
-    float : right;
-}
-
 #emailWarn {
   display:none;
 }
 
 #passWarn {
   display:none;
+}
+
+input[type='text'] {
+    border : 0;
+    border-bottom : 2px solid #f1f2f2;
+    border-radius : 0;
+}
+
+input[type='text']::after {
+    content : '';
+    width : 100%;
+    border-bottom : 1px solid #f1f2f2;
 }
 
 .confirmed {
@@ -40,16 +45,15 @@ html, body {
 
 }
 
-/* basic size style presets */
-.w100 { width : 100%; }
-.w75 { width : 75%; }
-.w50 { width : 50%; }
-.w25 { width : 25%; }
-
-.h100 { height : 100%; }
-.h75 { height : 75%; }
-.h50 { height : 50%; }
-.h25 { height : 25%; }
+.hidden {
+    display : none;
+    position : absolute;
+    top : auto;
+    left : 100000000%;
+    width : 1px;
+    height : 1px;
+    overflow : hidden;
+}
 
 .flex-item-fill {
     flex: 1 0 auto;
@@ -96,9 +100,7 @@ html, body {
     border-radius : 50%;
     padding : 10px;
     margin : 0 auto 10px auto;
-    /* top : 10px; */
-    /* left : 50%; */
-    /* transform:translate(-50%); */
+    cursor : pointer;
 }
 
 .group i {
@@ -110,6 +112,46 @@ html, body {
     transform:translate(-50%, -50%);
 }
 
+.group span {
+    position : absolute;
+    top : 50%;
+    left : 50%;
+    transform : translate(-50%, -50%);
+    font-size : 24px;
+    font-weight : 700;
+}
+/* group editor view */
+.template-view {
+    position : relative;
+    height : 14em;
+}
+
+.group-title {
+    font-size : 24px;
+    font-weight : 700;
+    padding : 10px;
+}
+
+.group-view {
+    position : absolute;
+    left : 50%;
+    top : 10%;
+}
+
+.group-template {
+    height : 10em;
+    width : 10em;
+}
+
+.group-template span {
+    font-size : 72px;
+}
+
+.color-input { 
+    width : 40%;
+    height : 50px;
+}
+
 .title {
     display:inline-block;
     font-size : 18px;
@@ -118,12 +160,42 @@ html, body {
     padding : 0 15px 0 15px;
 }
 
+.btn-custom {
+    border : 0;
+    margin-top : 1em;
+    width : 100%;
+    background-color : #60bf80;
+    color : #f1f2f2;
+    transition: ease .3s;
+}
+
+.btn-custom:hover {
+    background-color : lightgreen;
+    color : #222222;
+}
+
 .click {
     cursor : pointer;
 }
 
 .dark {
     color : #222222;
+}
+
+label {
+    display : block;
+    position : relative;
+}
+
+.label-text {
+    position : absolute;
+    top : -0.2em;
+    padding : 9px;
+    transition : ease .3s;
+}
+
+.label-active {
+    top : -2.2em;
 }
 
 .text-center {
@@ -163,106 +235,4 @@ html, body {
     width:100%;
     position: relative;
     text-align:right;
-}
-
-.inputHeight {
-  height: 80px;
-}
-
-.center {
-  text-align: center;
-  margin-top: 200px;
-  margin-left: auto;
-  margin-right: auto;
-  width: 70%;
-  padding: 6px;
-}
-
-.left {
-  margin-left: 20px;
-  display:none;
-  color:red;
-}
-
-.checkbox label:after{
-    content: '';
-    display: table;
-    clear: both;
-}
-
-.checkbox .cr{
-    position: relative;
-    display: inline-block;
-    border: 2px solid #a9a9a9;
-    border-radius: .25em;
-    width: 1.3em;
-    height: 1.3em;
-    float: left;
-    margin-right: .5em;
-}
-
-.cr {
-    border-radius: 50%;
-}
-
-.checkbox .cr .cr-icon{
-    position: absolute;
-    font-size: .8em;
-    line-height: 0;
-    top: 50%;
-    left: 0%;
-}
-
-.cr .cr-icon {
-    margin-left: 0.04em;
-}
-
-.checkbox label input[type="checkbox"]{
-    display: none;
-}
-
-.checkbox label input[type="checkbox"] + .cr > .cr-icon{
-    transform: scale(3) rotateZ(-20deg);
-    opacity: 0;
-    transition: all .3s ease-in;
-}
-
-.checkbox label input[type="checkbox"]:checked + .cr > .cr-icon{
-    transform: scale(1) rotateZ(0deg);
-    opacity: 1;
-}
-
-.checkbox label input[type="checkbox"]:disabled + .cr{
-    opacity: .5;
-}
-
-.image-container{
- height: 800px;
- width: 100%;
- background-size: cover;
-}
-
-.no-padding {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.fa-exclamation {
-  width: 15px;
-  margin: -32px 5px;
-  float: right;
-}
-
-input {
-	outline: none;
-	border: none;
-}
-
-label {
-  display: block;
-  padding-left: 15px;
-  text-indent: 5px;
-}
-input:focus {
-  border-color: transparent !important;
 }
