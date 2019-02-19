@@ -3,7 +3,9 @@ const ipc= require('electron').ipcRenderer;
 const socket = io('http://localhost:4000');
 let s_username = 'joe';
 let connConfirmed = false;
+let previousGroup = '';
 let groupName = '';
+let usersTyping = [];
 
 function createGroup(args) {
     //create new group and group tag
@@ -12,6 +14,7 @@ function createGroup(args) {
 
     //set styling attributes and values
     group.setAttribute('class', 'group');
+    group.setAttribute('id', 'group');
     group.setAttribute('groupName', args.groupName);
     group.setAttribute('style', 'background-color : ' + args.backgroundColor + '; color : ' + args.fontColor + ';');
     groupName.innerHTML = String(args.groupName).toUpperCase()[0];
@@ -23,19 +26,38 @@ function createGroup(args) {
     console.log('new group has been added...');
 }
 
+function setStatus(s) {
+    $('#status').text(s);
+
+    setTimeout(function() {
+        $('#status').text('');
+    }, 3000);
+}
+
+function UpdateUserTyping() {
+    var message = '';
+    if(usersTyping.length > 1) {
+        usersTyping.forEach(user => {
+            message += user + ', ';
+        })
+        message += ' are typing';
+    } else {
+        message = usersTyping[0] + ' is typing a message';
+    }
+    $('#feedback').text(message);
+}
+
+function RemoveUserTyping(user) {
+    for (let index = 0; index < usersTyping.length; index++) {
+        if(usersTyping[index] == user) {
+            usersTyping.splice(index, 1);
+            break;
+        }
+    }
+}
+
 $(document).ready(function() {
     $('#dynamic-content').load('./Content/Chat.html');
-
-    // var setStatus = function(s){
-    //     var statusDefault = status.innerText;
-    //     // Set status
-    //     status.innerText = statusDefualt;
-    //     if(s !== statusDefault){
-    //         var delay = setTimeout(function(){
-    //             setStatus(s);
-    //         }, 4000);
-    //     }
-    // }
 
     if(socket !== undefined) {
         socket.on('confirmation', function() {
@@ -46,6 +68,7 @@ $(document).ready(function() {
                 groupName = groupName.substr(1);
             }
             socket.emit('group', groupName );
+            socket.emit('refreshChat');
             connConfirmed = true;
         });
 
@@ -55,16 +78,25 @@ $(document).ready(function() {
     
         //Display who is typing
         socket.on('typing', function(data){
-            $('#feedback').html = '<p><em>' + data + ' is typing a message...</em></p>';
+            if(!usersTyping.includes(data)) { 
+                usersTyping.push(data); 
+                UpdateUserTyping();
+            }
         });
      
-        //Clear who is clearTyping
-        socket.on('clearTyping',function(){
-            $('#feedback').html = '';
+        //Clear who was typing
+        socket.on('clearTyping',function(user){
+            //remove user who was typing
+            if(usersTyping.length > 1) {
+                RemoveUserTyping();
+                UpdateUserTyping();
+            } else {
+                usersTyping = [];
+                $('#feedback').text('');
+            }
         });
     
         socket.on('output', function(data){
-            console.log(data);
             if(data.length){
                 var messages = document.getElementById('messages');
                 for(var x = 0;x < data.length;x++){
@@ -91,6 +123,9 @@ $(document).ready(function() {
                     messages.appendChild(message);
                     messages.insertBefore(message, messages.lastChild);
                 }
+
+                messages.scrollTop = messages.scrollHeight;
+
             } else {
                 var message = document.createElement('div');
                 message.setAttribute('class', 'chat-message');
@@ -104,24 +139,28 @@ $(document).ready(function() {
             // get message status
             setStatus((typeof data === 'object')? data.message : data);
         });
-
-        
     }
-
-    
 
     $(document).on('click', '#navigator a', function(e) {
         e.preventDefault();
         $('#dynamic-content').load(e.target.href);
         if(e.target.href.includes('Chat')) {
-            socket.emit('group', groupName);
+            socket.emit('refreshChat');
         }
     })
 
-    $(document).on('click', '.group', function() {
-        $('#project-name').text($(this).attr('groupname'));
-    })
+    $(document).on('click', '#group', function() {
+        var group = $(this).attr('groupname');
+        previousGroup = groupName;
+        groupName = group;
 
+        socket.emit('group', groupName, previousGroup);
+        socket.emit('refreshChat');
+
+        $('#project-name').text(groupName);
+       
+        
+    })
 
     $('#addNewGroup').on('click', function() {
         ipc.send('createGroupWindow');

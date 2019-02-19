@@ -20,6 +20,91 @@ html, body {
   display:none;
 }
 
+/* scrum tool css -- start */
+#task-table {
+    table-layout: auto;
+}
+
+.hide {
+    visibility: hidden;
+    display : none;
+    height : 0px !important;
+}
+
+.tabs {
+    display: flex;
+    width : 100%;
+    border-bottom : 1px solid lightgrey;
+    margin-bottom : 20px;
+    margin-top : 20px;
+}
+
+
+.tab {
+    background-color : lightgreen;
+    color : #222222;
+    border-radius : 5px 5px 0 0;
+    padding : 0 .5rem 0 .5rem;
+    height : 30px;
+    margin-left : 5px;
+}
+
+.sprint-select {
+    border : 0;
+}
+
+.sprint-select:hover, .sprint-select:focus, .sprint-select:active {
+    background-color : darkseagreen !important;
+}
+
+.section-header {
+    padding : 10px 0 10px 0;
+}
+
+.progress {
+    margin-bottom : 20px;
+    position : relative;
+}
+
+.progress-bar {
+    background-color : lightgreen;
+}
+
+.bar-tooltip {
+    position: absolute;
+    left: 50%;
+    transform : translate(-50%);
+}
+
+.table-container {
+    height : 500px;
+    overflow : scroll;
+}
+
+.table-container table tr {
+    max-height : 50px;
+}
+
+.table-add {
+    cursor: pointer;
+    width : calc(100% - 10px);
+    margin: 5px auto 5px auto;
+    border: 0;
+    background-color : #eceeef;
+    text-decoration: underline;
+    border-radius : 2px;
+}
+
+.table-remove {
+    cursor: pointer;
+}
+
+.table-selector {
+    border : 0;
+    background-color : transparent;
+}
+/* scrumm tool css -- end */
+
 input[type='text'] {
     border : 0;
     border-bottom : 2px solid #f1f2f2;

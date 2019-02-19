@@ -19,6 +19,10 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
 
     // Connect to Socket.io
     client.on('connection', function(socket){
+        console.log('----------------------')
+        console.log('-   USER_CONNECTED   -')
+        console.log('----------------------')
+
         //let the user know they are connected
         socket.emit('confirmation');
 
@@ -41,8 +45,22 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
           });
         });
 
-        socket.on('group', function(group){
+        socket.on('group', function(group, previousGroup){
+            //delete user from previous group
+            if(previousGroup != undefined && connections[previousGroup].includes(socket.id)) {
+                for (let index = 0; index < connections[previousGroup].length; index++) {
+                    if(connections[previousGroup][index] == socket.id) {
+                        connections[previousGroup].splice(index, 1);
+                        console.log('Removed client: ' + socket.id + ' from group ' + previousGroup);
+                        break;
+                    }
+                }
 
+                console.log(connections);
+            }
+
+            console.log('attempting to add user ' + socket.id + ' to group ' + group);
+            //add user to new group
             if(connections[group]){//if a connection for the group already exists
                 if(!connections[group].includes(socket.id)){
                     //adds client to the list of connections
@@ -53,9 +71,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 connections[group] = [socket.id];
             }
 
-
-            console.log(socket.client.id);
-            console.log(group);
+            console.log(connections);
 
             let chat = db.collection(group);
             // Create function to send status
@@ -63,18 +79,26 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 socket.emit('status', s);
             }
 
-            // Get chats from mongo collection (limited to 100 documents);
-            chat.find().limit(100).sort({_id:1}).toArray(function(err, res){
-                if(err){
-                    throw err;
-                }
-                // Tell the client to output the information (chat history)
-                socket.emit('output', res);
-            });
+            socket.emit('status', 'you are now connected to group ' + group);
 
+            socket.on('refreshChat', function() {
+                // Get chats from mongo collection (limited to 100 documents);
+                chat.find().limit(100).sort({_id:1}).toArray(function(err, res){
+                    if(err){
+                        throw err;
+                    }
+                    // Tell the client to output the information (chat history)
+                    socket.emit('output', res);
+                });
+            })
+            
             // Notifying other clients when someone is typing
             socket.on('typing', function(data){
-              socket.broadcast.emit('typing',data)
+                connections[group].forEach(function(user){
+                    if(user != socket.id){//announce to everyone but the sender
+                        client.to(user).emit('typing', data);
+                    }
+                });
             });
 
             // Handle input events
@@ -101,9 +125,8 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
 
                     }
 
-                    socket.broadcast.emit('clearTyping');
+                    socket.broadcast.emit('clearTyping', name);
                     chat.insert({name: name, message: message}, function(){
-
                         connections[group].forEach(function(user){
                             client.to(user).emit('output', [data]);
                         });
@@ -135,10 +158,6 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 if (index > -1) {
                     connections[group].splice(index, 1);
                 }
-            });
-
-            socket.on('update-chat', function() {
-                socket.emit('output');
             });
 
 

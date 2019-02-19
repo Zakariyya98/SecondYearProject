@@ -2,11 +2,16 @@ $(document).ready(function() {
 
     //Send information when someone is typing
     $('#textarea').on('keypress', function(){
-        socket.emit('typing', username.value);
+        if($(this).val() === '') {
+            RemoveUserTyping();
+        } else {
+            socket.emit('typing', username.value);
+        }
+        
     });
 
-    // Handle Input
-    $('textarea').on('keydown', function(event){
+    // Handle Input -- user text message
+    $('#textarea').on('keydown', function(event){
         if(event.which === 13 && event.shiftKey == false){
             // Emit to server input
             socket.emit('input', {
@@ -14,6 +19,7 @@ $(document).ready(function() {
                 message:textarea.value
             });
             event.preventDefault();
+            $(this).val('');
         }
     })
 
@@ -23,9 +29,6 @@ $(document).ready(function() {
             message:textarea.value
         });
         event.preventDefault();
+        $('#textarea').val('');
     });
-});
-
-$(window).on('unload', function() {
-    alert('chat closed');
 });
