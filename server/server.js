@@ -20,8 +20,6 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
     // Connect to Socket.io
     client.on('connection', function(socket){
         //let the user know they are connected
-        //console.log(socket.client.id);
-
         socket.emit('confirmation');
 
         //Check user email and password
@@ -83,6 +81,8 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             socket.on('input', function(data){
                 let name = data.name;
                 let message = data.message;
+
+                console.log(name + ' sent the message: ' + message);
 
                 // Check for name and message
                 if(name == '' || message == ''){

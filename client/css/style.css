@@ -123,7 +123,7 @@ input[type='text']::after {
 /* group editor view */
 .template-view {
     position : relative;
-    height : 14em;
+    height : 12em;
 }
 
 .group-title {
