@@ -63,7 +63,7 @@ app.on('activate', function () {
 function createGroupWindow() {
   let groupWindow = new BrowserWindow({width : 400, height : 400, parent : win,
     center : true, title : 'Create a new Group', resizable : false});
-  groupWindow.loadFile('./GroupCreator.html');
+  groupWindow.loadFile('./groupCreator.html');
 
   groupWindow.on('close', function() {
     groupWindow = null;

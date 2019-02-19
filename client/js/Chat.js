@@ -7,7 +7,6 @@ $(document).ready(function() {
 
     // Handle Input
     $('textarea').on('keydown', function(event){
-        console.log('hello');
         if(event.which === 13 && event.shiftKey == false){
             // Emit to server input
             socket.emit('input', {

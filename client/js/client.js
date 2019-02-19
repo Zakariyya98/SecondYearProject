@@ -3,6 +3,7 @@ const ipc= require('electron').ipcRenderer;
 const socket = io('http://localhost:4000');
 let s_username = 'joe';
 let connConfirmed = false;
+let groupName = '';
 
 function createGroup(args) {
     //create new group and group tag
@@ -23,36 +24,30 @@ function createGroup(args) {
 }
 
 $(document).ready(function() {
-    var setStatus = function(s){
-        var $status = $('#status');
-        var $statusDefault = $status.text();
-        // Set status
-        $status.text(s);
-        if(s !== $statusDefault){
-            var delay = setTimeout(function(){
-                setStatus($statusDefault);
-            }, 4000);
-        }
-    }
+    $('#dynamic-content').load('./Content/Chat.html');
+
+    // var setStatus = function(s){
+    //     var statusDefault = status.innerText;
+    //     // Set status
+    //     status.innerText = statusDefualt;
+    //     if(s !== statusDefault){
+    //         var delay = setTimeout(function(){
+    //             setStatus(s);
+    //         }, 4000);
+    //     }
+    // }
 
     if(socket !== undefined) {
         socket.on('confirmation', function() {
-            connConfirmed = true;
-        });
-
-        if(connConfirmed) {
-            var connLabel = $('#conn-status');
-            connLabel.text('Connection Confirmed!');
-            connLabel.attr('class', 'confirmed');
-
-            var groupName = window.location.search;
+            groupName = window.location.search;
             if(!groupName){
                 groupName = 'chats';
             }else{
                 groupName = groupName.substr(1);
             }
             socket.emit('group', groupName );
-        }
+            connConfirmed = true;
+        });
 
         socket.on('announcement', function(message){
             alert(message);
@@ -62,13 +57,14 @@ $(document).ready(function() {
         socket.on('typing', function(data){
             $('#feedback').html = '<p><em>' + data + ' is typing a message...</em></p>';
         });
-    
+     
         //Clear who is clearTyping
         socket.on('clearTyping',function(){
             $('#feedback').html = '';
         });
     
         socket.on('output', function(data){
+            console.log(data);
             if(data.length){
                 var messages = document.getElementById('messages');
                 for(var x = 0;x < data.length;x++){
@@ -107,15 +103,19 @@ $(document).ready(function() {
         socket.on('status', function(data){
             // get message status
             setStatus((typeof data === 'object')? data.message : data);
-        }); 
+        });
+
+        
     }
 
-    $('#dynamic-content').load('./Content/Chat.html');
     
 
     $(document).on('click', '#navigator a', function(e) {
         e.preventDefault();
         $('#dynamic-content').load(e.target.href);
+        if(e.target.href.includes('Chat')) {
+            socket.emit('group', groupName);
+        }
     })
 
     $(document).on('click', '.group', function() {

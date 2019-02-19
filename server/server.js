@@ -137,6 +137,10 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 }
             });
 
+            socket.on('update-chat', function() {
+                socket.emit('output');
+            });
+
 
         });
 
