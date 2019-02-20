@@ -20,13 +20,10 @@
         //extra task count from table for each user
     //style
 
-let $TASKS = $('#task-table');
-let $PROGRESS_BAR = $('#progress-bar');
-
 //fetch an element
 var element = function(id) {
     return document.getElementById(id);
-    }
+}
 
 // function updateTaskTable() {
 //     var task_table = element('task-table'); //get the task table element's body
@@ -86,7 +83,9 @@ function countCompletedTasks() {
 }
 
 function updateProgress() {
-    var TASKS = $TASKS.find('tr').length - 2;
+    var TASKS = $('#task-table').find('tr').length - 2;
+    var $PROGRESS_BAR = $('#progress-bar');
+
     if(TASKS != 0) {
         $PROGRESS_BAR.stop();
 
@@ -140,6 +139,8 @@ function checkSubmissionDate($submitted, $deadline, $parent) {
 }
 
 $(document).ready(function() {
+    let $PROGRESS_BAR = $('#progress-bar');
+
     //updateTaskTable(); //add fields to the table
     
     window.setTimeout(updateProgress, 1500); //call the updateProgress 1.5s after load

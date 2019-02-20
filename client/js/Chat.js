@@ -16,7 +16,8 @@ $(document).ready(function() {
             // Emit to server input
             socket.emit('input', {
                 name:username.value,
-                message:textarea.value
+                message:textarea.value,
+                group:groupName
             });
             event.preventDefault();
             $(this).val('');
@@ -26,7 +27,8 @@ $(document).ready(function() {
     $('#submit').on('click', function(event) {
         socket.emit('input', {
             name:username.value,
-            message:textarea.value
+            message:textarea.value,
+            group:groupName
         });
         event.preventDefault();
         $('#textarea').val('');

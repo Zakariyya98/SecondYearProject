@@ -61,14 +61,10 @@ $(document).ready(function() {
 
     if(socket !== undefined) {
         socket.on('confirmation', function() {
-            groupName = window.location.search;
-            if(!groupName){
-                groupName = 'chats';
-            }else{
-                groupName = groupName.substr(1);
-            }
+            groupName = 'chats';
+            
             socket.emit('group', groupName );
-            socket.emit('refreshChat');
+            socket.emit('refreshChat', groupName);
             connConfirmed = true;
         });
 
@@ -145,7 +141,7 @@ $(document).ready(function() {
         e.preventDefault();
         $('#dynamic-content').load(e.target.href);
         if(e.target.href.includes('Chat')) {
-            socket.emit('refreshChat');
+            socket.emit('refreshChat', groupName);
         }
     })
 
@@ -155,11 +151,15 @@ $(document).ready(function() {
         groupName = group;
 
         socket.emit('group', groupName, previousGroup);
-        socket.emit('refreshChat');
+        socket.emit('refreshChat', groupName);
 
         $('#project-name').text(groupName);
        
-        
+        try {
+            document.getElementById('messages').innerHTML = '';
+        } catch (error) {
+            console.log(error);
+        }
     })
 
     $('#addNewGroup').on('click', function() {
