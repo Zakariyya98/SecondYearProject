@@ -58,6 +58,7 @@ function RemoveUserTyping(user) {
 }
 
 $(document).ready(function() {
+    //load the chat by default
     $('#dynamic-content').load('./Content/Chat.html');
 
     if(socket !== undefined) {
@@ -81,6 +82,7 @@ $(document).ready(function() {
             }
         });
 
+        //set the user's groups when the connect
         socket.on('updateGroups', function(groups) {
             if(groups.length > 0) {
                 groups.forEach(group => {
@@ -101,7 +103,8 @@ $(document).ready(function() {
                 $('#feedback').text('');
             }
         });
-    
+        
+        //when receiving a new message in your group
         socket.on('output', function(data){
             if(data.length){
                 var messages = document.getElementById('messages');
@@ -142,11 +145,11 @@ $(document).ready(function() {
         });
         // Get Status From Server
         socket.on('status', function(data){
-            // get message status
             setStatus((typeof data === 'object')? data.message : data);
         });
     }
 
+    //dynamically load the content when clicking on a navigation link
     $(document).on('click', '#navigator a', function(e) {
         e.preventDefault();
         $('#dynamic-content').load(e.target.href);
@@ -155,16 +158,17 @@ $(document).ready(function() {
         }
     })
 
+    //when you join a group you are part of
     $(document).on('click', '#group', function() {
         var group = $(this).attr('groupname');
         previousGroup = groupName;
-        groupName = group;
 
-        socket.emit('group', groupName, previousGroup);
-        socket.emit('refreshChat', groupName);
+        socket.emit('group', group, previousGroup,);
+        socket.emit('refreshChat', group);
 
-        $('#project-name').text(groupName);
+        $('#project-name').text(group);
        
+        //try to refresh the chat  
         try {
             document.getElementById('messages').innerHTML = '';
         } catch (error) {
@@ -172,21 +176,33 @@ $(document).ready(function() {
         }
     })
 
+    //create group creator window when clicking on add new group button
     $('#addNewGroup').on('click', function() {
+        $('#page-mask').fadeTo(500, 0.7);
         ipc.send('createGroupWindow');
     })
 
     //create a new group
     ipc.on('addNewGroup', (event, args) => {
-        createGroup(args);
-        //insert group into user
-        socket.emit('addUserToGroup', {username: s_username, group: args.groupName});
-
+        //only create group if succesfully created
+        socket.emit('checkGroupExists', args.groupName, function(data) {
+            if(!data){
+                createGroup(args);
+                socket.emit('addUserToGroup', {username: s_username, group: args.groupName});
+            } else{
+                alert('A group with that name already exists!');
+            }
+        });
     })
 
     //get console updates from app
     ipc.on('update', (event, args) => {
         console.log(args);
+    })
+
+    //fades the background to make popup window more prominent
+    ipc.on('fadeMask', (event, args) => {
+        $('#page-mask').fadeOut(500);
     })
 
 });

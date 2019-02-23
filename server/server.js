@@ -128,18 +128,22 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
 
         socket.on('addUserToGroup', function(data) {
             //add group to user's group list.
-            //needs verification, only add group if it doesnt exist already.
             let cursor = db.collection('Profiles');
-            cursor.update({username:data.username}, {$push : {groups : data.group}});
+            cursor.update({username:data.username}, {$addToSet : {groups : data.group}});
         });
 
-        // Handle clear
-        // socket.on('clear', function(data){
-        //     // Remove all chats from collection
-        //     chat.remove({}, function(){
-        //         // Emit cleared
-        //         socket.emit('cleared');
-        //     });
-        // });
+        socket.on('checkGroupExists', function(group, fn) {
+            //check if a group exists
+            db.listCollections().toArray(function(err, collections) {
+                if (err) return cb(err);
+                
+                collections.forEach(collection => {
+                    if(collection.name == group){
+                        fn(true);
+                    }
+                })
+                fn(false);
+              });
+        });
     });
 });

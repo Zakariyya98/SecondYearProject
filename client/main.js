@@ -67,6 +67,7 @@ function createGroupWindow() {
 
   groupWindow.on('close', function() {
     groupWindow = null;
+    win.webContents.send('fadeMask');
   })
 }
 
