@@ -1,7 +1,7 @@
 const ipc= require('electron').ipcRenderer;
 
 const socket = io('http://localhost:4000');
-let s_username = 'joe';
+let s_username = 'Joe';
 let connConfirmed = false;
 let previousGroup = '';
 let groupName = '';
@@ -16,7 +16,8 @@ function createGroup(args) {
     group.setAttribute('class', 'group');
     group.setAttribute('id', 'group');
     group.setAttribute('groupName', args.groupName);
-    group.setAttribute('style', 'background-color : ' + args.backgroundColor + '; color : ' + args.fontColor + ';');
+    // group.setAttribute('style', 'background-color : ' + args.backgroundColor + '; color : ' + args.fontColor + ';');
+    group.setAttribute('style', 'background-color : #222222; color : white');
     groupName.innerHTML = String(args.groupName).toUpperCase()[0];
     
     // add elements in correct place in dom
@@ -61,10 +62,10 @@ $(document).ready(function() {
 
     if(socket !== undefined) {
         socket.on('confirmation', function() {
-            groupName = 'chats';
+            // groupName = 'chats';
             
-            socket.emit('group', groupName );
-            socket.emit('refreshChat', groupName);
+            // socket.emit('group', groupName );
+            // socket.emit('refreshChat', groupName);
             connConfirmed = true;
         });
 
@@ -77,6 +78,15 @@ $(document).ready(function() {
             if(!usersTyping.includes(data)) { 
                 usersTyping.push(data); 
                 UpdateUserTyping();
+            }
+        });
+
+        socket.on('updateGroups', function(groups) {
+            if(groups.length > 0) {
+                groups.forEach(group => {
+                    var args = {groupName : group, backgroundColor : 'black', fontColor : 'white'};
+                    createGroup(args);
+                })
             }
         });
      
@@ -169,6 +179,9 @@ $(document).ready(function() {
     //create a new group
     ipc.on('addNewGroup', (event, args) => {
         createGroup(args);
+        //insert group into user
+        socket.emit('addUserToGroup', {username: s_username, group: args.groupName});
+
     })
 
     //get console updates from app

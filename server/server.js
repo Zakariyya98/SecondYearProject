@@ -1,6 +1,7 @@
 const mongo = require('mongodb').MongoClient;
 const client = require('socket.io').listen(4000).sockets;
 
+var msg = require('./log.js'); //server status library created by Joe
 // var connections = new Map();
 
 // Connect to mongo
@@ -9,20 +10,30 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
         throw err;
     }
 
-    console.log('MongoDB connected...');
+    msg.important("mongodb_connected");
 
     // Read from the database and console output
-    let cursor = db.collection('Profiles').find();
-    cursor.each(function(err, doc) {
-        console.log(doc);
-    });
+    let cursor = db.collection('Profiles');
+    cursor.find().toArray(function(err, docs) {
+        if(docs.length == 0) {
+            msg.log("There are currently no documents available.");
+        } else if(docs.length >= 1) {
+            msg.list(docs);
+        }
+    })
+    
 
     // Connect to Socket.io
     client.on('connection', function(socket){
-        console.log('----------------------')
-        console.log('-   USER_CONNECTED   -')
-        console.log('----------------------')
+        msg.important("user_connected");
 
+        //check for user groups
+        let cursor = db.collection('Profiles');
+        cursor.findOne({username: "Joe"}, function(err, doc) {
+            if(err) throw err;
+            
+            socket.emit('updateGroups', doc.groups);
+        })
         //let the user know they are connected
         socket.emit('confirmation');
 
@@ -51,45 +62,21 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
         });
 
         socket.on('group', function(group, previousGroup){
-            //delete user from previous group
-            // if(previousGroup != undefined && connections[previousGroup].includes(socket.id)) {
-            //     for (let index = 0; index < connections[previousGroup].length; index++) {
-            //         if(connections[previousGroup][index] == socket.id) {
-            //             connections[previousGroup].splice(index, 1);
-            //             socket.leave(previousGroup);
-            //             console.log('Removed client: ' + socket.id + ' from group ' + previousGroup);
-            //             break;
-            //         }
-            //     }
-
-            //     console.log(connections);
-            // }
+            //if the user was part of a previous group, remove from the current group
             if(previousGroup != undefined) {
                 socket.leave(previousGroup);
-
-                console.log('removing user : ' + socket.id + ' from group ' + group);
+                msg.log('removing user : ' + socket.id + ' from group ' + group);
             }
             
-
-            console.log('attempting to add user ' + socket.id + ' to group ' + group);
-            //add user to new group
-            // if(connections[group]){//if a connection for the group already exists
-            //     if(!connections[group].includes(socket.id)){
-            //         //adds client to the list of connections
-            //         connections[group].push(socket.id);
-            //         socket.join(group);
-            //     }
-            // }else{
-            //     //creates key value pair of group and an array of clients
-            //     connections[group] = [socket.id];
-            // }
-
+            //add user to the desired group (creates a group if doesn't exist)
+            msg.log('attempting to add user ' + socket.id + ' to group ' + group);
             socket.join(group);
-
+            //send message to user saying which group they are connected to (status)
             socket.emit('status', 'you are now connected to group ' + group);
         });
 
         socket.on('refreshChat', function(group) {
+            //updates the chat for the user
             let chat = db.collection(group);
             // Get chats from mongo collection (limited to 100 documents);
             chat.find().limit(100).sort({_id:1}).toArray(function(err, res){
@@ -117,7 +104,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             let group = data.group;
             let chat = db.collection(group);
 
-            console.log(name + ' sent the message: ' + message + '::' + group);
+            msg.log(name + ' sent the message: ' + message + '::' + group);
 
             // Check for name and message
             if(name == '' || message == '' || group == ''){
@@ -128,31 +115,22 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
 
                 if(message.substring(0,9) == '!announce'){//announcement
                     client.to(group).emit('announcement', message.substring(9));
-                    // connections[group].forEach(function(user){
-                    //     if(user != socket.id){//announce to everyone but the sender
-                    //         // client.to(user).emit('announcement', message.substring(9));
-
-                    //     }
-                    // });
-
                 }
 
                 // socket.broadcast.emit('clearTyping', name);
                 chat.insert({name: name, message: message}, function(){
                     client.to(group).emit('output', [data]);
-                    // connections[group].forEach(function(user){
-                    //     client.to(user).emit('output', [data]);
-                    // });
-                    //client.to(socket.id).emit('output', [data]);
-                    //client.emit('output', [data]);
-
-                    // Send status object
-                    // sendStatus({
-                    //     message: 'Message sent',
-                    //     clear: true
-                    // });
+                    
+                    sendStatus("Messagae succesfully sent.");
                 });
             }
+        });
+
+        socket.on('addUserToGroup', function(data) {
+            //add group to user's group list.
+            //needs verification, only add group if it doesnt exist already.
+            let cursor = db.collection('Profiles');
+            cursor.update({username:data.username}, {$push : {groups : data.group}});
         });
 
         // Handle clear
@@ -162,15 +140,6 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
         //         // Emit cleared
         //         socket.emit('cleared');
         //     });
-        // });
-
-        // socket.on('disconnect', function(){
-        //     //console.log('disconnect');
-        //     //removes individual connection from array
-        //     var index = connections[group].indexOf(socket.id);
-        //     if (index > -1) {
-        //         connections[group].splice(index, 1);
-        //     }
         // });
     });
 });

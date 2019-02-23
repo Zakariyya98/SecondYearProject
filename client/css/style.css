@@ -118,15 +118,13 @@ input[type='text']::after {
 }
 
 .confirmed {
-    font-size : 11pt;
-    text-transform: uppercase;
-    background-color : lightgreen;
+    background-color : #baffc9;
     color : #222222;
 }
 
 .failed {
-    background-color : #222222;
-    color : red;
+    background-color : #ffb3ba;
+    color : #222222;
 
 }
 
@@ -169,7 +167,7 @@ input[type='text']::after {
 
 }
 .main-content {
-    background-color : #f1f2f2;
+    background-color : #fcfcfc;
 }
 
 .tool-selector {
