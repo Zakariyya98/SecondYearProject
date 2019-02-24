@@ -26,15 +26,6 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
     // Connect to Socket.io
     client.on('connection', function(socket){
         msg.important("user_connected");
-
-        //check for user groups
-        let cursor = db.collection('Profiles');
-        cursor.findOne({username: "Joe"}, function(err, doc) {
-            if(err) throw err;
-            
-            socket.emit('updateGroups', doc.groups);
-        })
-        //let the user know they are connected
         socket.emit('confirmation');
 
         // Create function to send status
@@ -65,7 +56,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             //if the user was part of a previous group, remove from the current group
             if(previousGroup != undefined) {
                 socket.leave(previousGroup);
-                msg.log('removing user : ' + socket.id + ' from group ' + group);
+                msg.log('removing user : ' + socket.id + ' from group ' + previousGroup);
             }
             
             //add user to the desired group (creates a group if doesn't exist)
@@ -101,10 +92,12 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
         socket.on('input', function(data){
             let name = data.name;
             let message = data.message;
+            //get the current epoch time for timestamp
+            let timestamp = data.timestamp;
             let group = data.group;
             let chat = db.collection(group);
 
-            msg.log(name + ' sent the message: ' + message + '::' + group);
+            msg.log(name + ' sent the message: ' + message + '::' + group + '::' + timestamp);
 
             // Check for name and message
             if(name == '' || message == '' || group == ''){
@@ -112,38 +105,52 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 sendStatus('Please enter a name and message and make sure you are connected to a group');
             } else {
                 // Insert message
-
                 if(message.substring(0,9) == '!announce'){//announcement
                     client.to(group).emit('announcement', message.substring(9));
                 }
 
                 // socket.broadcast.emit('clearTyping', name);
-                chat.insert({name: name, message: message}, function(){
+                chat.insert({name: name, message: message, timestamp : timestamp}, function(){
                     client.to(group).emit('output', [data]);
                     
-                    sendStatus("Messagae succesfully sent.");
+                    sendStatus("Message succesfully sent.");
                 });
             }
         });
 
-        socket.on('addUserToGroup', function(data) {
-            //add group to user's group list.
-            let cursor = db.collection('Profiles');
-            cursor.update({username:data.username}, {$addToSet : {groups : data.group}});
-        });
+        //fetch all groups the user is a member of 
+        socket.on('fetchUserGroups', function(username) {
+            //open group data collection
+            let groups = db.collection('GroupData'); 
+            //search for groups contain the user
+            groups.find({members : [username]}).toArray(function(err, res) {
+                socket.emit('updateGroups', res);
+            });
+        })
+
+        socket.on('createGroup', function(data, fn) {
+            //get the groupdata collection
+            let groupdata = db.collection('GroupData');
+            //add the user who created the group to the memberslist
+            data.members = [data.username];
+            //create the group data document
+            groupdata.insert(data, function() {
+                msg.important('group created :: ' + data.groupName);
+                fn(true);
+            })
+        })
 
         socket.on('checkGroupExists', function(group, fn) {
             //check if a group exists
-            db.listCollections().toArray(function(err, collections) {
-                if (err) return cb(err);
-                
-                collections.forEach(collection => {
-                    if(collection.name == group){
-                        fn(true);
-                    }
-                })
-                fn(false);
-              });
+            db.collection('GroupData').findOne({groupName : group}, function(err, res){
+                if(err) throw err;
+                //if it didnt find the group, return false
+                if(res == null) {
+                    fn(false);
+                } else {
+                    fn(true);
+                }
+            })
         });
     });
 });

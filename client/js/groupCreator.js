@@ -19,7 +19,6 @@ $(document).ready(function() {
             alert('Please enter a group name');
         } else {
             ipc.send('addNewGroup', {groupName : $groupName.val(), backgroundColor : $backgroundColor.val(), fontColor : $fontColor.val()});
-    
             var win = remote.getCurrentWindow();
             win.close();
         }

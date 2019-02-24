@@ -17,6 +17,7 @@ $(document).ready(function() {
             socket.emit('input', {
                 name:username.value,
                 message:textarea.value,
+                timestamp:Date.now(),
                 group:groupName
             });
             event.preventDefault();

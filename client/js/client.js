@@ -2,7 +2,6 @@ const ipc= require('electron').ipcRenderer;
 
 const socket = io('http://localhost:4000');
 let s_username = 'Joe';
-let connConfirmed = false;
 let previousGroup = '';
 let groupName = '';
 let usersTyping = [];
@@ -16,8 +15,8 @@ function createGroup(args) {
     group.setAttribute('class', 'group');
     group.setAttribute('id', 'group');
     group.setAttribute('groupName', args.groupName);
-    // group.setAttribute('style', 'background-color : ' + args.backgroundColor + '; color : ' + args.fontColor + ';');
-    group.setAttribute('style', 'background-color : #222222; color : white');
+    group.setAttribute('style', 'background-color : ' + args.backgroundColor + '; color : ' + args.fontColor + ';');
+    // group.setAttribute('style', 'background-color : #222222; color : white');
     groupName.innerHTML = String(args.groupName).toUpperCase()[0];
     
     // add elements in correct place in dom
@@ -59,15 +58,12 @@ function RemoveUserTyping(user) {
 
 $(document).ready(function() {
     //load the chat by default
-    $('#dynamic-content').load('./Content/Chat.html');
+    // $('#dynamic-content').load('./Content/Chat.html');
 
     if(socket !== undefined) {
         socket.on('confirmation', function() {
-            // groupName = 'chats';
-            
-            // socket.emit('group', groupName );
-            // socket.emit('refreshChat', groupName);
-            connConfirmed = true;
+            //update the user's groups
+            socket.emit('fetchUserGroups', s_username);
         });
 
         socket.on('announcement', function(message){
@@ -85,9 +81,12 @@ $(document).ready(function() {
         //set the user's groups when the connect
         socket.on('updateGroups', function(groups) {
             if(groups.length > 0) {
+                //set current group to first group -- maybe change this later to be the 
+                //group the user was last in (user settings);
+                groupName = groups[0].groupName;
+                socket.emit('group', groupName)
                 groups.forEach(group => {
-                    var args = {groupName : group, backgroundColor : 'black', fontColor : 'white'};
-                    createGroup(args);
+                    createGroup(group);
                 })
             }
         });
@@ -125,7 +124,16 @@ $(document).ready(function() {
     
                     }
                     message_content.textContent = data[x].message;
-                    message_info.textContent = data[x].name + ' sent - 5:07pm';
+                    //add timestamp to message
+                    var actualTime = new Date(data[x].timestamp);
+                    //if message was not sent on the same day
+                    if(actualTime.toLocaleDateString() != new Date(Date.now()).toLocaleDateString()) {
+                        //set timestamp to data
+                        actualTime = actualTime.toLocaleString();
+                    } else {
+                        actualTime = "Today, " + actualTime.toLocaleTimeString().substr(0,5);
+                    }
+                    message_info.textContent = data[x].name + ' sent - ' + actualTime;
     
                     message.appendChild(message_content);
                     message_content.appendChild(message_info);
@@ -162,9 +170,10 @@ $(document).ready(function() {
     $(document).on('click', '#group', function() {
         var group = $(this).attr('groupname');
         previousGroup = groupName;
+        groupName = group;
 
         socket.emit('group', group, previousGroup,);
-        socket.emit('refreshChat', group);
+        // socket.emit('refreshChat', group);
 
         $('#project-name').text(group);
        
@@ -187,8 +196,17 @@ $(document).ready(function() {
         //only create group if succesfully created
         socket.emit('checkGroupExists', args.groupName, function(data) {
             if(!data){
-                createGroup(args);
-                socket.emit('addUserToGroup', {username: s_username, group: args.groupName});
+                args.username = s_username; //temp
+                // create core group data document
+                socket.emit('createGroup', args, function(success) {
+                    if(success) {
+                        //create front end grouping
+                        createGroup(args);
+                        alert('group succesfully created!');
+                    } else {
+                        alert('group could not be created!');
+                    }
+                });
             } else{
                 alert('A group with that name already exists!');
             }
