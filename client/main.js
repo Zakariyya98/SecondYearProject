@@ -9,12 +9,12 @@ let win
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({width: 1200, height: 800, minHeight : 400, minWidth : 900, frame : false, show:true, title : "Collaborative Work Platform"})
-  //signUpWindow = new BrowserWindow({width:1200,height:800,modal:true,frame:false})
+  win = new BrowserWindow({width: 1200, height: 800, minHeight : 400, minWidth : 900, frame : false, show:false, title : "Collaborative Work Platform"})
+  signUpWindow = new BrowserWindow({width:400,height:400,modal:true,frame:false})
 
   // and load the index.html of the app.
   win.loadFile('./index.html')
-  //signUpWindow.loadFile('./login.html')
+  signUpWindow.loadFile('./login.html')
 
   // Open the DevTools.
   //win.webContents.openDevTools()
@@ -22,7 +22,12 @@ function createWindow () {
   //Displaying the index page and hidding the login page -- DO NOT HIDE THE WINDOW! CLOSE IT
   ipc.on('switchPage', function() {
       win.show()
-      //signUpWindow.hide()
+      signUpWindow.hide()
+  })
+
+  ipc.on('closePage',function(){
+      win.close()
+      signUpWindow.close()
   })
 
   // Emitted when the window is closed.

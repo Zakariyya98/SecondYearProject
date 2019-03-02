@@ -9,51 +9,47 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <title>Login Page</title>
 </head>
-<body style="background-color : #FFFFFF">
-    <div class="container-fluid no-padding">
+<body style="overflow-y: hidden; background-color : #222222;-webkit-app-region:drag;">
 
-        <div class="row">
-            <div class="col-sm-7">
-              <div class="image-container" style="background-image: url('images/log.jpg');">
-             </div>
-           </div>
+  <div style="background-color:#222222; height:1px">
+    <button style="-webkit-app-region:no-drag;" id="close-btn">x</button>
+  </div>
 
-            <div class="col-sm-5">
-                <!--<p class="h2 text-center">Login to continue</p>-->
-                <div class="center"><h2>Login to continue</h2></div>
-                <div id="incorrect" class="left"><small id="notifyingText">Incorrect Email or Password!</small></div>
-                <form class="container was-validated" novalidate="">
-                    <div id="emailForm" class="form-group">
+  <div style="color : #FFFFFF; margin-top:45px; -webkit-app-region:drag;" class="text-center"><h2>Login to continue</h2></div>
 
-                        <input type="email" id="emailInput" class="form-control inputHeight" placeholder="Email">
-                        <div id="emailWarn" class="text-danger warning">
-                        <small>Email is required!</small>
-                        <!-- <span class="fas fa-exclamation form-control-feedback"></span> -->
-                        </div>
-                    </div>
-                    <div id="passForm" class="form-group">
-                        <input type="password" id="passInput" class="form-control inputHeight" placeholder="Password">
-                        <div id="passWarn" class="text-danger warning">
-                        <small>Password is required!</small>
-                        </div>
-                    </div>
-                    <div class="form-group form-check">
-                      <div class="checkbox">
-                        <label style="font-size: 1.5em">
-                          <input type="checkbox" value="" checked>
-                          <span class="cr"><i class="cr-icon fa fa-check"></i></span>
-                          Remember me
-                        </label>
-                      </div>
-                        <!--<label><input type="checkbox" class="form-check-input"/>Remember me</label>-->
+  <div id="incorrect" style="margin-left: 20px;display:none;" class="text-danger warning"><small></small></div>
 
-                        <a id='signUp' href="#" style="float:right">Forgot Password?</a>
-                    </div>
-                    <button id="login" class="btn btn-success btn-lg btn-block">Login</button>
-                </form>
-            </div>
-        </div>
+  <form class="container was-validated" novalidate="">
+    <div id="emailForm" class="form-group">
+
+      <input id="emailInput" style="border-radius:40px;-webkit-app-region: no-drag;" type:"email" class="form-control" placeholder="Email">
+      <div id="emailWarn" class="text-danger warning">
+        <small>Email is required!</small>
+      </div>
     </div>
+
+    <div id="passForm" class="form-group">
+      <input id="passInput" style="border-radius:40px;-webkit-app-region: no-drag;" type="password" class="form-control" placeholder="Password">
+      <div id="passWarn" class="text-danger warning">
+        <small>Password is required!</small>
+      </div>
+    </div>
+
+    <div class="form-group form-check">
+      <div class="checkbox">
+        <label style="font-size: 1.0em; color: #FFFFFF;-webkit-app-region: no-drag;">
+        <input type="checkbox" value="" checked>
+        <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+        Remember me
+        </label>
+      </div>
+      <a id='forgotPass' href="forgottenPass.html" style="float:right;-webkit-app-region: no-drag;">Forgot Password?</a>
+    </div>
+
+    <button id="login" style="border-radius: 40px;-webkit-app-region: no-drag;" class="btn btn-success btn-md btn-block">Login</button>
+  </form>
+
+    <a href="signUp.html" style="float:left; margin-left:20px;-webkit-app-region: no-drag;">or sign up</a>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
     <script src="js/login.js"></script>
 

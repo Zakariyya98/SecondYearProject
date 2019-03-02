@@ -1,5 +1,25 @@
 const mongo = require('mongodb').MongoClient;
 const client = require('socket.io').listen(4000).sockets;
+'use strict';
+const crypto = require('crypto');
+const async = require('async');
+const nodemailer = require("nodemailer");
+var connections = new Map();
+var express = require('express');
+var app = express();
+const path = require('path');
+var router  = express.Router();
+var bodyParser = require("body-parser");
+
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+//Creating HTTP Server on port 3000
+app.listen(3000, function () {
+    console.log('HTTP server started on port 3000 ....')
+});
+//Send index page to the server
+app.use('/', router);
 
 var msg = require('./log.js'); //server status library created by Joe
 // var connections = new Map();
@@ -12,6 +32,75 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
 
     msg.important("mongodb_connected");
 
+    //When user click on the sent link in his email account checks wether the token is expired
+    router.get('/reset/:token', function(req, res) {
+        let cursor = db.collection('Profiles');
+        cursor.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+          if (!user) {
+          res.send('Password reset token is invalid or has expired.');
+        }else{ //if the token is valid redirects the user to the reset password page
+            res.sendFile(path.join(__dirname+'/../client/reset.html'));
+          }
+        });
+    });
+
+    //When the user clicks reset button it checks wether the token is valid and if so it sends an email Notifying the user
+    router.post('/reset/:token', function(req, res) {
+      async.waterfall([
+        function(done) {
+          let cursor = db.collection('Profiles');
+          cursor.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+            if (!user) {
+            res.send('Password reset token is invalid or has expired.');
+            }
+            //Hash and Salt the new password passed by the user
+            if(req.body.password === req.body.repeatPassword) {
+              var salt = genRandomString(16);
+              var passwordData = sha512(req.body.password, salt);
+              var tokenQuery = { resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } };
+              var newValues = { $set: { resetPasswordToken: undefined,
+                                        resetPasswordExpires: undefined,
+                                        Password: passwordData.passwordHash,
+                                        Salt: passwordData.salt } };
+              db.collection("Profiles").updateOne(tokenQuery, newValues, function (err, res) {
+                    done(err, user);
+              });
+            }else { //Notifying the user that password are not the same
+              console.log('Passwords do not match!');
+              res.send('Passwords do not match use the link again!');
+
+            }
+          });
+        },
+        //When user has typed a new password it sends and email
+        function(user, done) {
+          let transporter = nodemailer.createTransport({
+              service: 'Gmail',
+              auth: {
+                  user: 'chatappelectron@gmail.com', // generated ethereal user
+                  pass: 'H@$hAnd$a!t.' // generated ethereal password
+              },
+          });
+
+        var mailOptions = {
+          from: '"Chat App" <chatappelectron@gmail.com>', // sender address
+          to: user.Email, // list of receivers
+          subject: 'Your password has been changed',
+          text: 'Hello ,'+ user.Name +'\n\n' +
+            'This is a confirmation that the password for your account '+ user.Email +' has just been changed.\n'
+          };
+          //this pack all of the information above and sends it to the given email
+          let info = transporter.sendMail(mailOptions, function(err) {
+            res.send('Password Reset');
+            console.log('Password successfully reset!');
+            done(err);
+          });
+        }
+      ], function (err) {
+          if (err) return next(err);
+      });
+    });
+
     // Read from the database and console output
     let cursor = db.collection('Profiles');
     cursor.find().toArray(function(err, docs) {
@@ -20,8 +109,24 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
         } else if(docs.length >= 1) {
             msg.list(docs);
         }
-    })
-    
+    });
+
+    //Create a random string for hash and salt
+    var genRandomString = function(length){
+    return crypto.randomBytes(Math.ceil(length/2))
+            .toString('hex') /** convert to hexadecimal format */
+            .slice(0,length);   /** return required number of characters */
+          };
+
+    var sha512 = function(password, salt){
+      var hash = crypto.createHmac('sha512', salt); /** Hashing algorithm sha512 */
+      hash.update(password);
+      var value = hash.digest('hex');
+      return {
+        salt:salt,
+        passwordHash:value
+      };
+    };
 
     // Connect to Socket.io
     client.on('connection', function(socket){
@@ -37,19 +142,122 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
         socket.on('login', function(data){
           let email = data.email;
           let password = data.password;
-          var userDetails = {Email: email, Password: password};
+          var userEmail = {Email: email};
           let cursor = db.collection('Profiles');
-          cursor.findOne(userDetails,function(err,result){
-            var success = true;
+
+          //Search the database for match
+          cursor.findOne(userEmail,function(err,result){
+            var success = 1;
             if (err) throw err;
-              //console.log(result== null)
             else if(result == null){
-              success = false;
+              success = 0;
               socket.emit('login', success);
+            //If email match is found but the passwords don't match
             }else{
-              socket.emit('login', success);
+              var userSalt = result.Salt;
+              var userHashSalt = sha512(password, userSalt);
+              var userDetails = {Email: email, Password: userHashSalt.passwordHash};
+
+              cursor.findOne(userDetails,function(err,result){
+                if (err) throw err;
+                else if(result == null){
+                  success = 2;
+                  socket.emit('login', success);
+                }else{
+                  socket.emit('login', success);
+                }
+              });
             }
           });
+        });
+
+        socket.on('forgotPass', function(emailResetInput){
+            async.waterfall([
+                function (done) {
+                    crypto.randomBytes(20, function (err, buf) {
+                        var token = buf.toString('hex');
+                        done(err, token);
+                    });
+                },
+                function (token, done) {
+                    let cursor = db.collection('Profiles');
+                    var emailQuery = { Email: emailResetInput };
+                    var newValues = { $set: { resetPasswordToken: token, resetPasswordExpires: Date.now() + 3600000 } };
+                    cursor.findOne(emailQuery, function (err, result) {
+                        if (result != null) {
+                            db.collection("Profiles").updateOne(emailQuery, newValues, function (err, res) {
+                                if (err) throw err;
+                                done(err, token, result);
+                            });
+                        }else {
+                        socket.emit('forgotPass', 'notFound');
+                        console.log("No Entry");
+                      }
+                    });
+                },
+                function (token, result, done) {
+                    let transporter = nodemailer.createTransport({
+                        service: 'Gmail',
+                        auth: {
+                            user: 'chatappelectron@gmail.com', // generated ethereal user
+                            pass: 'H@$hAnd$a!t.' // generated ethereal password
+                        },
+                    });
+
+                    // setup email data with unicode symbols
+                    let mailOptions = {
+                        from: '"Chat App" <chatappelectron@gmail.com>', // sender address
+                        to: emailResetInput, // list of receivers
+                        subject: "Forgotten Password", // Subject line
+                        text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+                            'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                            'http://localhost:3000' + '/reset/' + token + '\n\n' +
+                            'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+                    };
+                    // send mail with defined transport object
+                    let info = transporter.sendMail(mailOptions);
+                    socket.emit('forgotPass', 'sent');
+                }
+            ], function (err) {
+                if (err) return next(err);
+                console.log('problem');
+            });
+        });
+
+        //Get the user sign up fills for register into the database
+        socket.on('signUp', function(data){
+          let name = data.name;
+          let email = data.email;
+          let password = data.password;
+          let repeatedPass = data.repeatedPass;
+          var userEmail = {Email: email};
+          var output;
+          //Check is the passwords are the same
+          if(password == repeatedPass){
+            let cursor = db.collection('Profiles');
+            //Check is the email is taken
+            cursor.findOne(userEmail,function(err,result){
+              if(result == null){
+                var salt = genRandomString(16);
+                var passwordData = sha512(password, salt);
+                db.collection('Profiles').insertOne({
+                    Name: name,
+                    Email: email,
+                    Password: passwordData.passwordHash,
+                    Salt: passwordData.salt
+                });
+                output = "success";
+                socket.emit('signUp', output);
+              }
+              else{
+                output = "takenEmail";
+                socket.emit('signUp', output);
+              }
+            });
+          }else{
+            output = "diffPass";
+            socket.emit('signUp',output);
+          }
         });
 
         socket.on('group', function(group, previousGroup){
@@ -58,7 +266,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 socket.leave(previousGroup);
                 msg.log('removing user : ' + socket.id + ' from group ' + previousGroup);
             }
-            
+
             //add user to the desired group (creates a group if doesn't exist)
             msg.log('attempting to add user ' + socket.id + ' to group ' + group);
             socket.join(group);
@@ -78,7 +286,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 socket.emit('output', res);
             });
         })
-        
+
         // Notifying other clients when someone is typing
         // socket.on('typing', function(data){
         //     connections[group].forEach(function(user){
@@ -112,16 +320,16 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 // socket.broadcast.emit('clearTyping', name);
                 chat.insert({name: name, message: message, timestamp : timestamp}, function(){
                     client.to(group).emit('output', [data]);
-                    
+
                     sendStatus("Message succesfully sent.");
                 });
             }
         });
 
-        //fetch all groups the user is a member of 
+        //fetch all groups the user is a member of
         socket.on('fetchUserGroups', function(username) {
             //open group data collection
-            let groups = db.collection('GroupData'); 
+            let groups = db.collection('GroupData');
             //search for groups contain the user
             groups.find({members : [username]}).toArray(function(err, res) {
                 socket.emit('updateGroups', res);

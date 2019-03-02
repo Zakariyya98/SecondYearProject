@@ -2,6 +2,19 @@ html, body {
     height : 100%;
     width : 100%;
 }
+
+#close-btn {
+    line-height: 12px;
+    width: 18px;
+    font-size: 8pt;
+    font-family: tahoma;
+    margin-top: 1px;
+    margin-right: 2px;
+    position:absolute;
+    top:0;
+    right:0;
+}
+
 #messages {
     height : 300px;
     overflow-y : scroll;
@@ -17,6 +30,18 @@ html, body {
 }
 
 #passWarn {
+  display:none;
+}
+
+#nameWarn {
+  display:none;
+}
+
+#emailSignUpWarn {
+  display:none;
+}
+
+#passSignUpWarn {
   display:none;
 }
 
@@ -243,7 +268,7 @@ input[type='text']::after {
     font-size : 72px;
 }
 
-.color-input { 
+.color-input {
     width : 40%;
     height : 50px;
 }
@@ -282,6 +307,8 @@ label {
     display : block;
     position : relative;
 }
+
+
 
 .label-text {
     position : absolute;
@@ -331,4 +358,56 @@ label {
     width:100%;
     position: relative;
     text-align:right;
+}
+
+.checkbox label:after{
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.checkbox .cr{
+    position: relative;
+    display: inline-block;
+    border: 2px solid #a9a9a9;
+    border-radius: .25em;
+    width: 1.3em;
+    height: 1.3em;
+    float: left;
+    margin-right: .5em;
+}
+
+.cr {
+    border-radius: 50%;
+}
+
+.checkbox .cr .cr-icon{
+    position: absolute;
+    font-size: .8em;
+    line-height: 0;
+    top: 50%;
+    left: 10%;
+}
+
+.cr .cr-icon {
+    margin-left: 0.04em;
+}
+
+.checkbox label input[type="checkbox"]{
+    display: none;
+}
+
+.checkbox label input[type="checkbox"] + .cr > .cr-icon{
+    transform: scale(3) rotateZ(-20deg);
+    opacity: 0;
+    transition: all .3s ease-in;
+}
+
+.checkbox label input[type="checkbox"]:checked + .cr > .cr-icon{
+    transform: scale(1) rotateZ(0deg);
+    opacity: 1;
+}
+
+.checkbox label input[type="checkbox"]:disabled + .cr{
+    opacity: .5;
 }

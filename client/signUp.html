@@ -1,10 +1,51 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-  </head>
-  <body>
-    Sign up
-  </body>
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link rel='stylesheet' href='css/style.css'>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+    <title>Sign Up Page</title>
+</head>
+<body <body style="overflow-y: hidden; background-color : #222222;-webkit-app-region:drag;">
+  <div style="color : #FFFFFF; margin-top:5px" class="text-center"><h2>Sign up to continue</h2></div>
+  <div id="incorrect" style="margin-left: 20px;display:none;" class="text-danger warning"><small></small></div>
+  <form class="container">
+    <div id="nameForm" class="form-group">
+      <input style="border-radius: 40px;-webkit-app-region: no-drag;" id="nameInput" type="text" class="form-control" placeholder="Full Name">
+      <div id="nameWarn" class="text-danger warning">
+        <small>Name is required!</small>
+      </div>
+    </div>
+
+    <div id="emailSignUpForm" class="form-group">
+      <input style="border-radius: 40px;-webkit-app-region:no-drag;" type="email" id="emailSignUpInput" class="form-control" placeholder="Email Address">
+      <div id="emailSignUpWarn" class="text-danger warning">
+        <small>Email is required!</small>
+      </div>
+    </div>
+
+    <div id="passSignUpForm" class="form-group">
+      <input style="border-radius: 40px;-webkit-app-region:no-drag" type="password" id="passSignUpInput" class="form-control" placeholder="Password">
+    </div>
+
+    <div id="repeatPassSignUpForm" class="form-group">
+      <input style="border-radius: 40px;-webkit-app-region:no-drag" type="password" id="repeatPassSignUpInput" class="form-control" placeholder="Repeat Password">
+      <div id="passSignUpWarn" class="text-danger warning">
+        <small>Password is required!</small>
+      </div>
+    </div>
+
+    <button id="signUpButton" style="border-radius: 40px;-webkit-app-region:no-drag" class="btn btn-success btn-md btn-block">Sign Up</button>
+    <div>
+    <p style="color : #FFFFFF;-webkit-app-region:no-drag" class="text-center">Already have an account?<a id='signUp' href="login.html">Sign in.</a></p>
+    </div>
+  </form>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+  <script src="js/signUp.js"></script>
+</body>
 </html>

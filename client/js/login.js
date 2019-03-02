@@ -1,8 +1,5 @@
 (function(){
-  'use strict';
-  var crypto = require('crypto');
   const { ipcRenderer } = require('electron');
-  // window.$ = window.jQuery = require("jquery");
 
   var element = function(id){
     return document.getElementById(id);
@@ -11,6 +8,7 @@
   const socket = io('http://localhost:4000');
 
   //Initializing hmtl objects
+  var closeBtn = element('close-btn')
   var login = element('login');
   var emailInput = element('emailInput');
   var emailForm = element('emailForm');
@@ -19,15 +17,14 @@
   var emailMessage = element('emailWarn');
   var passMessage = element('passWarn');
   var incorrect = element('incorrect');
-  var notifyingText = element('notifyingText');
-  var signUp = element('signUp');
 
   //Checks user email and password
   login.addEventListener('click', function(){
   event.preventDefault();
   event.stopPropagation();
+  incorrect.innerHTML = "";
 
-  if (emailInput.value == "" || passInput.value == ""){
+  if (emailInput.value == ""){
     emailForm.classList.add('has-danger');
     emailInput.classList.add('form-control-danger');
     emailMessage.style.display = "block";
@@ -61,12 +58,20 @@
   });
 
   socket.on('login', function(data){
-    if (data == true){
+    if(data == 0){
+        incorrect.innerHTML = "User does not exist!";
+      incorrect.style.display = "block";
+    }else if (data == 1){
       ipcRenderer.send('switchPage');
       incorrect.style.display = "none";
-    }else{
-      incorrect.innerHTML = "User does not exist!"
+    }else if (data == 2){
+        incorrect.innerHTML = "Incorrect Email or Password!";
       incorrect.style.display = "block";
     }
   });
+
+  closeBtn.addEventListener('click', function(){
+    ipcRenderer.send('closePage');
+  });
+
 })();
