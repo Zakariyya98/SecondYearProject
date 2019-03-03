@@ -90,14 +90,12 @@ function checkSubmissionDate($submitted, $deadline, $parent) {
 $(document).ready(function() {
     let $PROGRESS_BAR = $('#progress-bar');
 
-    //updateTaskTable(); //add fields to the table
-    
     window.setTimeout(updateProgress, 1500); //call the updateProgress 1.5s after load
 
     var $TABLE = $('#task-table');
     var $CLONE = $TABLE.find('tr.hide');
 
-    $CLONE.find('#submitted input').change(function() {
+    $('tr').find('#submitted input').change(function() {
         var $parent = $(this).parent();
         if(this.checked) {
             var current_date = new Date(); //get the current date
@@ -117,7 +115,7 @@ $(document).ready(function() {
         }
     })
 
-    $CLONE.find('#assigned select').change(function() {
+    $('tr').find('#assigned select').change(function() {
         var text = $(this).text();
         var status = $(this).parent().parent().find('#status');
 

@@ -31,104 +31,146 @@ function createGroup(args) {
 //update the scrum task table with a given array of tasks
 function updateTaskTable(tasks) {
     let $task_table = $('#task-table'); //get the task table
+    let $CLONE = $('#task-table').find('tr.hide');
     //fetch the members for the given group
     tasks.forEach(task => {
-        //create a new row
-        let tr = document.createElement('tr');
-        tr.value = task.id;
-        //set last task id to current task id
-        lastTaskID = task.id;
-        //create task status field
-        let data_status = document.createElement('td');
-        data_status.appendChild(document.createTextNode(task.status));
-        data_status.setAttribute('id', 'status');
+        $row = $CLONE.clone(true).removeClass('hide table-line');
 
-        //create task description field
-        let data_desc = document.createElement('td');
-        data_desc.appendChild(document.createTextNode(task.desc));
-        data_desc.setAttribute('id', 'desc');
+        $row.find('#status').text(task.status);
+        $row.find('#desc').text(task.desc);
 
-        //create assigned user field
-        let data_user = document.createElement('td');
-        data_user.setAttribute('id', 'assigned');
-        //create dropdown for users
-        let dropdown = document.createElement('select');
-        dropdown.setAttribute('class', 'table-selector');
+        var $select = $row.find('#assigned').find('select');
 
-        let defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.innerText = 'Select A Person';
-        dropdown.appendChild(defaultOption);
-
-        //set options for task assignment to every user in the group
         groupMembers.forEach(member => {
             let option = document.createElement('option');
             option.value = member;
             option.innerHTML = member;
-            dropdown.appendChild(option);
+            $select.append(option);
         })
-        dropdown.value = task.assigned;
-        data_user.appendChild(dropdown);
 
-        //create deadline user field
-        let data_deadline = document.createElement('td');
-        let deadline_date = new Date(task.deadline);
-        data_deadline.setAttribute('id', 'deadline');
+        $select.val(task.assigned);
 
-        let datepicker = document.createElement('input');
-        datepicker.setAttribute('class', 'table-selector');
-        datepicker.setAttribute('type', 'date');
+        var $deadline = $row.find('#deadline').find('input');
+        var deadline_date = new Date(task.deadline);
 
         //refactor date provided to make it suitable for project
         var day = ('0' + deadline_date.getDate()).slice(-2);
         var month = ('0' + (deadline_date.getMonth() + 1)).slice(-2);
 
         deadline_date = deadline_date.getFullYear() + "-" + (day) + "-" + (month);
-        datepicker.setAttribute('value', deadline_date);
-        datepicker.name = 'deadline-date';
+        $deadline.val(deadline_date);
 
-        data_deadline.appendChild(datepicker);
-
-        //create date submitted user field
-        let data_delivered = document.createElement('td');
-        //create tickbox
-        let tickbox = document.createElement('input');
-        tickbox.setAttribute('type', 'checkbox');
-        tickbox.name = 'submitted-checkbox';
-
+        var $submitted = $row.find('#submitted').find('input');
         //if task has been delievered, set tickbox and create span tag
         if (task.delivered) {
-            tickbox.checked = true;
+            $submitted.attr('checked', true);
             //add date delivered span here also
         }
 
-        data_delivered.setAttribute('id', 'submitted');
-        data_delivered.appendChild(tickbox);
-
-        //create delete button for row
-        let delete_btn = document.createElement('td');
-        let delete_btn_span = document.createElement('span');
-
-        delete_btn_span.setAttribute('class', 'table-remove far fa-trash-alt');
-        delete_btn.appendChild(delete_btn_span);
-
         //apply styling to each row depending on completion
         if(task.status.includes('completed')) {
-            tr.setAttribute('class', 'confirmed');
+            $row.addClass('confirmed');
         } else if(task.status.includes('in-progress')) {
-            tr.setAttribute('class', 'in-progress');
+            $row.addClass('in-progress');
         }
 
-        //append all data elemts to the row
-        tr.appendChild(data_status);
-        tr.appendChild(data_desc);
-        tr.appendChild(data_user);
-        tr.appendChild(data_deadline);
-        tr.appendChild(data_delivered);
-        tr.appendChild(delete_btn);
+        $task_table.append($row);
+        // //create a new row
+        // let tr = document.createElement('tr');
+        // tr.value = task.id;
+        // //set last task id to current task id
+        // lastTaskID = task.id;
+        // //create task status field
+        // let data_status = document.createElement('td');
+        // data_status.appendChild(document.createTextNode(task.status));
+        // data_status.setAttribute('id', 'status');
 
-        //append row to table
-        $task_table.append(tr);
+        // //create task description field
+        // let data_desc = document.createElement('td');
+        // data_desc.appendChild(document.createTextNode(task.desc));
+        // data_desc.setAttribute('id', 'desc');
+
+        // //create assigned user field
+        // let data_user = document.createElement('td');
+        // data_user.setAttribute('id', 'assigned');
+        // //create dropdown for users
+        // let dropdown = document.createElement('select');
+        // dropdown.setAttribute('class', 'table-selector');
+
+        // let defaultOption = document.createElement('option');
+        // defaultOption.value = '';
+        // defaultOption.innerText = 'Select A Person';
+        // dropdown.appendChild(defaultOption);
+
+        // //set options for task assignment to every user in the group
+        // groupMembers.forEach(member => {
+        //     let option = document.createElement('option');
+        //     option.value = member;
+        //     option.innerHTML = member;
+        //     dropdown.appendChild(option);
+        // })
+        // dropdown.value = task.assigned;
+        // data_user.appendChild(dropdown);
+
+        // //create deadline user field
+        // let data_deadline = document.createElement('td');
+        // let deadline_date = new Date(task.deadline);
+        // data_deadline.setAttribute('id', 'deadline');
+
+        // let datepicker = document.createElement('input');
+        // datepicker.setAttribute('class', 'table-selector');
+        // datepicker.setAttribute('type', 'date');
+
+        // //refactor date provided to make it suitable for project
+        // var day = ('0' + deadline_date.getDate()).slice(-2);
+        // var month = ('0' + (deadline_date.getMonth() + 1)).slice(-2);
+
+        // deadline_date = deadline_date.getFullYear() + "-" + (day) + "-" + (month);
+        // datepicker.setAttribute('value', deadline_date);
+        // datepicker.name = 'deadline-date';
+
+        // data_deadline.appendChild(datepicker);
+
+        // //create date submitted user field
+        // let data_delivered = document.createElement('td');
+        // //create tickbox
+        // let tickbox = document.createElement('input');
+        // tickbox.setAttribute('type', 'checkbox');
+        // tickbox.name = 'submitted-checkbox';
+
+        // //if task has been delievered, set tickbox and create span tag
+        // if (task.delivered) {
+        //     tickbox.checked = true;
+        //     //add date delivered span here also
+        // }
+
+        // data_delivered.setAttribute('id', 'submitted');
+        // data_delivered.appendChild(tickbox);
+
+        // //create delete button for row
+        // let delete_btn = document.createElement('td');
+        // let delete_btn_span = document.createElement('span');
+
+        // delete_btn_span.setAttribute('class', 'table-remove far fa-trash-alt');
+        // delete_btn.appendChild(delete_btn_span);
+
+        // //apply styling to each row depending on completion
+        // if(task.status.includes('completed')) {
+        //     tr.setAttribute('class', 'confirmed');
+        // } else if(task.status.includes('in-progress')) {
+        //     tr.setAttribute('class', 'in-progress');
+        // }
+
+        // //append all data elemts to the row
+        // tr.appendChild(data_status);
+        // tr.appendChild(data_desc);
+        // tr.appendChild(data_user);
+        // tr.appendChild(data_deadline);
+        // tr.appendChild(data_delivered);
+        // tr.appendChild(delete_btn);
+
+        // //append row to table
+        // $task_table.append(tr);
     });
 
 }
