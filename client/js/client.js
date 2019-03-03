@@ -285,8 +285,8 @@ $(document).ready(function () {
     //dynamically load the content when clicking on a navigation link
     $(document).on('click', '#navigator a', function (e) {
         e.preventDefault();
-        $('#dynamic-content').load(e.target.href);
-
+        $('[id^="dynamic-content"]').load(e.target.href);
+        
         if (e.target.href.includes('Chat')) {
             socket.emit('refreshChat', currentGroup);
         } else if (e.target.href.includes('Scrum')) {
