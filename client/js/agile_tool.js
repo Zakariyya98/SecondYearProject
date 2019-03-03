@@ -1,8 +1,4 @@
 //TODO:
-    //build editable table
-        //set task to be in-progress when group member has been assigned
-    //build task progress bar
-        //
     //build sprint selecter
         //build sprint feedback
     //export data to file
@@ -21,53 +17,6 @@
     //style
 
 //fetch an element
-var element = function(id) {
-    return document.getElementById(id);
-}
-
-// function updateTaskTable() {
-//     var task_table = element('task-table'); //get the task table element's body
-
-//     tasklist.forEach(element => {
-//         let tr = document.createElement('tr'); //create a new row
-        
-//         let data_id = document.createElement('td'); //create id field
-//         data_id.appendChild(document.createTextNode(element.id));
-    
-//         let data_status = document.createElement('td'); //create task status field
-//         data_status.appendChild(document.createTextNode(element.status));
-    
-//         let data_desc = document.createElement('td'); //create task description field
-//         data_desc.appendChild(document.createTextNode(element.desc));
-    
-//         //TODO
-//             //Drop down of all users involved in group
-//         let data_user = document.createElement('td'); //create assigned user field
-//         data_user.appendChild(document.createTextNode(element.user));
-    
-//         let data_deadline = document.createElement('td'); //create deadline user field
-//         data_deadline.appendChild(document.createTextNode(element.deadline));
-    
-//         let data_submitted = document.createElement('td'); //create date submitted user field
-//         data_submitted.appendChild(document.createTextNode(element.submitted));
-    
-//         let delete_btn = document.createElement('td'); //create row delete button
-//         let delete_btn_span = document.createElement('span');
-//         //replace this with trash icon
-//         delete_btn_span.setAttribute('class', 'table-remove far fa-trash-alt');
-//         delete_btn.appendChild(delete_btn_span);
-
-//         tr.appendChild(data_id);
-//         tr.appendChild(data_status);
-//         tr.appendChild(data_desc);
-//         tr.appendChild(data_user);
-//         tr.appendChild(data_deadline);
-//         tr.appendChild(data_submitted);
-//         tr.appendChild(delete_btn);
-    
-//         task_table.appendChild(tr);
-//     });
-// }
 
 function countCompletedTasks() {
     //find all the tasks that have been completed
@@ -174,32 +123,63 @@ $(document).ready(function() {
 
         if(text.toLowerCase() !== 'select a person' && !status.parent().hasClass('confirmed')) {
             status.text('in-progress');
+            status.parent().removeClass('confirmed');
             status.parent().addClass('in-progress');   
         } else if(text.toLowerCase() === 'select a person'){
-            console.log('test');
             status.text('not started');
             status.parent().removeClass('in-progress');
         }
     })
 
     //add a new row to the table when add table button is clicked
-    $('.table-add').click(function () {
+    $('.table-add').on('click', function () {
         var $clone = $CLONE.clone(true).removeClass('hide table-line');
-        $TABLE.append($clone);
 
+        //update task ID
+        lastTaskID++;
+        //set value to equal new id
+        $clone.val(lastTaskID);
+        //add new row to table
+        $TABLE.append($clone);
+        //update progress bar
         updateProgress();
-      });
+
+        var task = { 
+            status : 'not started',
+            desc : 'task description',
+            assigned : '',
+            deadline : new Date(),
+            delivered : false,
+            id : lastTaskID
+        }
+
+        socket.emit('addTask', currentGroup, 'product backlog', task);
+    });
 
     //remove the corresponding row from the table when remove button is pressed (move to clone functions??)
-    $('.table-remove').click(function () {
+    $('.table-remove').on('click', function () {
+        var row_id = $(this).parents('tr').val();
+        
+
+        socket.emit('removeTask', currentGroup, 'product backlog', row_id);
         $(this).parents('tr').detach();
         //update progress bar after a row is deleted
         updateProgress();
     });
 
-})
-    
+    $('#member-tasks-view').click(function() {
+        alert('viewing members tasks');
+    })
 
+    $('#burndown-view').click(function() {
+        alert('viewing burndown chart');
+    })
+
+    $('#submission-frequency-view').click(function() {
+        alert('viewing submission frequency graphs');
+    })
+
+})
     
 
     

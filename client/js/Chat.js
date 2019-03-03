@@ -18,7 +18,7 @@ $(document).ready(function() {
                 name:username.value,
                 message:textarea.value,
                 timestamp:Date.now(),
-                group:groupName
+                group:currentGroup
             });
             event.preventDefault();
             $(this).val('');

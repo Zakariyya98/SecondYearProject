@@ -9,12 +9,12 @@ let win
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({width: 1200, height: 800, minHeight : 400, minWidth : 900, frame : false, show:false, title : "Collaborative Work Platform"})
-  signUpWindow = new BrowserWindow({width:400,height:400,modal:true,frame:false})
+  win = new BrowserWindow({width: 1200, height: 800, minHeight : 400, minWidth : 900, frame : false, title : "Collaborative Work Platform"})
+  // signUpWindow = new BrowserWindow({width:400,height:400,modal:true,frame:false})
 
   // and load the index.html of the app.
   win.loadFile('./index.html')
-  signUpWindow.loadFile('./login.html')
+  //signUpWindow.loadFile('./login.html')
 
   // Open the DevTools.
   //win.webContents.openDevTools()

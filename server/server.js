@@ -4,7 +4,6 @@ const client = require('socket.io').listen(4000).sockets;
 const crypto = require('crypto');
 const async = require('async');
 const nodemailer = require("nodemailer");
-var connections = new Map();
 var express = require('express');
 var app = express();
 const path = require('path');
@@ -170,7 +169,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             }
           });
         });
-
+        // forgot password
         socket.on('forgotPass', function(emailResetInput){
             async.waterfall([
                 function (done) {
@@ -260,6 +259,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
           }
         });
 
+        //swapping groups / joining a group
         socket.on('group', function(group, previousGroup){
             //if the user was part of a previous group, remove from the current group
             if(previousGroup != undefined) {
@@ -274,6 +274,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             socket.emit('status', 'you are now connected to group ' + group);
         });
 
+        //update the chat for a given socket
         socket.on('refreshChat', function(group) {
             //updates the chat for the user
             let chat = db.collection(group);
@@ -285,6 +286,56 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 // Tell the client to output the information (chat history)
                 socket.emit('output', res);
             });
+        })
+
+        //refresh the scurm tasks for a given socket
+        socket.on('refreshScrum', function(group, sprint) {
+            //fetch the tasks for a given group
+            db.collection(group).findOne({sprintName : sprint}, function(err, res) {
+                if(err) throw err;
+
+                //tell client to update scrum board -- pass array of tasks to client
+                if(res != undefined) {
+                    socket.emit('updateScrum', res.tasks);
+                }
+            })
+        });
+        
+        //fetch the array of users for a given group
+        socket.on('fetchUserList', function(group, fn) {
+            db.collection('GroupData').findOne({groupName : group}, function(err, res) {
+                if(err) throw err;
+                //return the array of members back to the user
+                if(res != undefined ){ 
+                    fn(res.members);
+                }
+                
+            })
+        });
+
+        //add task to collection for a given group & sprint
+        socket.on('addTask', function(group, sprint, task) {
+            msg.log('adding task...');
+            db.collection(group).updateOne({
+                sprintName : sprint
+            }, {
+                $push : {
+                    tasks : task
+                }
+            })
+        });
+
+        //remove task from collection for a given sprint and task id
+        socket.on('removeTask', function(group, sprint, task_id) {
+            msg.log('removing task...');
+            db.collection(group).updateOne({
+                sprintName : sprint
+            }, {
+                $pull : { tasks : {
+                    id : task_id
+                    }  
+                }
+            })
         })
 
         // Notifying other clients when someone is typing
@@ -331,21 +382,22 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             //open group data collection
             let groups = db.collection('GroupData');
             //search for groups contain the user
-            groups.find({members : [username]}).toArray(function(err, res) {
+            groups.find({members : username}).toArray(function(err, res) {
                 socket.emit('updateGroups', res);
             });
         })
 
         socket.on('createGroup', function(data, fn) {
-            //get the groupdata collection
-            let groupdata = db.collection('GroupData');
             //add the user who created the group to the memberslist
             data.members = [data.username];
             //create the group data document
-            groupdata.insert(data, function() {
+            db.collection('GroupData').insert(data, function() {
+                var pbdata = { sprintName : 'product backlog', tasks : []};
+                db.collection(data.groupName).insert(pbdata);
                 msg.important('group created :: ' + data.groupName);
                 fn(true);
             })
+            
         })
 
         socket.on('checkGroupExists', function(group, fn) {

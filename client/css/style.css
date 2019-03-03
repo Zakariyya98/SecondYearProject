@@ -115,12 +115,17 @@ html, body {
 }
 
 .table-container {
-    height : 500px;
+    height : 60vh;
     overflow : scroll;
 }
 
 .table-container table tr {
     max-height : 50px;
+}
+
+#desc {
+    max-width : 50px;
+    overflow-x: wrap;
 }
 
 .table-add {
@@ -157,6 +162,11 @@ input[type='text']::after {
 
 .confirmed {
     background-color : #baffc9;
+    color : #222222;
+}
+
+.in-progress {
+    background-color : #ffffba;
     color : #222222;
 }
 
