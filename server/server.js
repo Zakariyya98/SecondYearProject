@@ -365,7 +365,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             } else {
                 // Insert message
                 if(message.substring(0,9) == '!announce'){//announcement
-                    client.to(group).emit('announcement', message.substring(9));
+                    client.to(group).emit('announcement', message.substring(9), name);
                 }
 
                 // socket.broadcast.emit('clearTyping', name);

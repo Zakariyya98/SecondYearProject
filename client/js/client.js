@@ -206,6 +206,20 @@ function RemoveUserTyping(user) {
 }
 
 $(document).ready(function () {
+    $("#dialog").dialog({   autoOpen: false,
+                            modal: true,
+                            resizable: false,
+                            buttons: {
+                                OK: function() {
+                                    $( this ).dialog( "close" );
+                                }
+                            },
+                            hide: {
+                                effect: "explode",
+                                duration: 200
+                            }
+    });//initialise dialog
+
     //load the chat by default
     $('#dynamic-content').load('./Content/Chat.html');
 
@@ -218,8 +232,11 @@ $(document).ready(function () {
         //if the user has emitted an announcement, create alert
         //TODO
         //create custom announcement
-        socket.on('announcement', function (message) {
-            alert(message);
+        socket.on('announcement', function (message, name) {
+            //alert(message); //change dialog text
+            $('#dialog').dialog('option', 'title', 'Announcement from ' + name);
+            $('#dialog').html('<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>' + message +'</p>');
+            $( '#dialog' ).dialog( 'open' );//open dialog
         });
 
         //Display who is typing
@@ -276,11 +293,12 @@ $(document).ready(function () {
 
                     message.setAttribute('class', 'message');
                     message_content.setAttribute('value', data[x].name);
-                    message_info.setAttribute('class', 'message-info');
 
                     if (data[x].name === s_username) {
+                        message_info.setAttribute('class', 'message-info right');
                         message_content.setAttribute('class', 'chat-message self-message');
                     } else {
+                        message_info.setAttribute('class', 'message-info');
                         message_content.setAttribute('class', 'chat-message other-message');
 
                     }
@@ -296,8 +314,10 @@ $(document).ready(function () {
                     }
                     message_info.textContent = data[x].name + ' sent - ' + actualTime;
 
+                    
+                    message.appendChild(message_info);
                     message.appendChild(message_content);
-                    message_content.appendChild(message_info);
+                    //message_content.appendChild(message_info);
                     messages.appendChild(message);
                     messages.insertBefore(message, messages.lastChild);
                 }
@@ -327,14 +347,17 @@ $(document).ready(function () {
     //dynamically load the content when clicking on a navigation link
     $(document).on('click', '#navigator a', function (e) {
         e.preventDefault();
+
         $('[id^="dynamic-content"]').load(e.target.href);
-        
+
         if (e.target.href.includes('Chat')) {
             socket.emit('refreshChat', currentGroup);
         } else if (e.target.href.includes('Scrum')) {
             socket.emit('refreshScrum', currentGroup, 'product backlog');
         } else if (e.target.href.includes('Kanban')) {
             //socket.emit('refreshKanban', currentGroup);
+        } else if (e.target.href.includes('Profile')){
+            $("#username").html(" Exercises Solution");
         }
     })
 
