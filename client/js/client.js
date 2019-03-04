@@ -7,7 +7,8 @@ let currentGroup = '';
 let usersTyping = [];
 let groupMembers = [];
 
-let lastTaskID;
+let currentSprint;
+let lastTaskID = 0;
 
 function createGroup(args) {
     //create new group and group tag
@@ -30,148 +31,63 @@ function createGroup(args) {
 
 //update the scrum task table with a given array of tasks
 function updateTaskTable(tasks) {
-    let $task_table = $('#task-table'); //get the task table
-    let $CLONE = $('#task-table').find('tr.hide');
-    //fetch the members for the given group
-    tasks.forEach(task => {
-        $row = $CLONE.clone(true).removeClass('hide table-line');
+    //create a new row
+    $task_table = $('#task-table');
+    $CLONE = $task_table.find('tr.hide')
 
-        $row.find('#status').text(task.status);
-        $row.find('#desc').text(task.desc);
+    if(tasks.length <= 0) {
+        lastTaskID = 1;
+    }
+    else {
+        tasks.forEach(task => {
+            $row = $CLONE.clone(true).removeClass('hide table-line');
+            $row.prop('value', task.id);
+            lastTaskID = task.id;
 
-        var $select = $row.find('#assigned').find('select');
-
-        groupMembers.forEach(member => {
-            let option = document.createElement('option');
-            option.value = member;
-            option.innerHTML = member;
-            $select.append(option);
+            $row.find('#status').text(task.status);
+            $row.find('#desc').text(task.desc);
+    
+            var $select = $row.find('#assigned').find('select');
+    
+            groupMembers.forEach(member => {
+                let option = document.createElement('option');
+                option.value = member;
+                option.innerHTML = member;
+                $select.append(option);
+            })
+    
+            $select.val(task.assigned);
+    
+            var $deadline = $row.find('#deadline').find('input');
+            // var deadline_date = new Date(task.deadline);
+    
+            // //refactor date provided to make it suitable for project
+            // var day = ('0' + deadline_date.getDate()).slice(-2);
+            // var month = ('0' + (deadline_date.getMonth() + 1)).slice(-2);
+    
+            // deadline_date = deadline_date.getFullYear() + "-" + (day) + "-" + (month);
+            $deadline.val(task.deadline);
+    
+            var $submitted = $row.find('#submitted').find('input');
+            //if task has been delievered, set tickbox and create span tag
+            if (task.delivered) {
+                $submitted.prop('checked', true);
+                //add date delivered span here also
+            }
+    
+            //apply styling to each row depending on completion
+            if(task.status.includes('late')) {
+                $row.addClass('failed');
+            } else if(task.status.includes('completed')) {
+                $row.addClass('confirmed');
+            } else if(task.status.includes('in-progress')) {
+                $row.addClass('in-progress');
+            }
+    
+            $task_table.append($row);
         })
-
-        $select.val(task.assigned);
-
-        var $deadline = $row.find('#deadline').find('input');
-        var deadline_date = new Date(task.deadline);
-
-        //refactor date provided to make it suitable for project
-        var day = ('0' + deadline_date.getDate()).slice(-2);
-        var month = ('0' + (deadline_date.getMonth() + 1)).slice(-2);
-
-        deadline_date = deadline_date.getFullYear() + "-" + (day) + "-" + (month);
-        $deadline.val(deadline_date);
-
-        var $submitted = $row.find('#submitted').find('input');
-        //if task has been delievered, set tickbox and create span tag
-        if (task.delivered) {
-            $submitted.attr('checked', true);
-            //add date delivered span here also
-        }
-
-        //apply styling to each row depending on completion
-        if(task.status.includes('completed')) {
-            $row.addClass('confirmed');
-        } else if(task.status.includes('in-progress')) {
-            $row.addClass('in-progress');
-        }
-
-        $task_table.append($row);
-        // //create a new row
-        // let tr = document.createElement('tr');
-        // tr.value = task.id;
-        // //set last task id to current task id
-        // lastTaskID = task.id;
-        // //create task status field
-        // let data_status = document.createElement('td');
-        // data_status.appendChild(document.createTextNode(task.status));
-        // data_status.setAttribute('id', 'status');
-
-        // //create task description field
-        // let data_desc = document.createElement('td');
-        // data_desc.appendChild(document.createTextNode(task.desc));
-        // data_desc.setAttribute('id', 'desc');
-
-        // //create assigned user field
-        // let data_user = document.createElement('td');
-        // data_user.setAttribute('id', 'assigned');
-        // //create dropdown for users
-        // let dropdown = document.createElement('select');
-        // dropdown.setAttribute('class', 'table-selector');
-
-        // let defaultOption = document.createElement('option');
-        // defaultOption.value = '';
-        // defaultOption.innerText = 'Select A Person';
-        // dropdown.appendChild(defaultOption);
-
-        // //set options for task assignment to every user in the group
-        // groupMembers.forEach(member => {
-        //     let option = document.createElement('option');
-        //     option.value = member;
-        //     option.innerHTML = member;
-        //     dropdown.appendChild(option);
-        // })
-        // dropdown.value = task.assigned;
-        // data_user.appendChild(dropdown);
-
-        // //create deadline user field
-        // let data_deadline = document.createElement('td');
-        // let deadline_date = new Date(task.deadline);
-        // data_deadline.setAttribute('id', 'deadline');
-
-        // let datepicker = document.createElement('input');
-        // datepicker.setAttribute('class', 'table-selector');
-        // datepicker.setAttribute('type', 'date');
-
-        // //refactor date provided to make it suitable for project
-        // var day = ('0' + deadline_date.getDate()).slice(-2);
-        // var month = ('0' + (deadline_date.getMonth() + 1)).slice(-2);
-
-        // deadline_date = deadline_date.getFullYear() + "-" + (day) + "-" + (month);
-        // datepicker.setAttribute('value', deadline_date);
-        // datepicker.name = 'deadline-date';
-
-        // data_deadline.appendChild(datepicker);
-
-        // //create date submitted user field
-        // let data_delivered = document.createElement('td');
-        // //create tickbox
-        // let tickbox = document.createElement('input');
-        // tickbox.setAttribute('type', 'checkbox');
-        // tickbox.name = 'submitted-checkbox';
-
-        // //if task has been delievered, set tickbox and create span tag
-        // if (task.delivered) {
-        //     tickbox.checked = true;
-        //     //add date delivered span here also
-        // }
-
-        // data_delivered.setAttribute('id', 'submitted');
-        // data_delivered.appendChild(tickbox);
-
-        // //create delete button for row
-        // let delete_btn = document.createElement('td');
-        // let delete_btn_span = document.createElement('span');
-
-        // delete_btn_span.setAttribute('class', 'table-remove far fa-trash-alt');
-        // delete_btn.appendChild(delete_btn_span);
-
-        // //apply styling to each row depending on completion
-        // if(task.status.includes('completed')) {
-        //     tr.setAttribute('class', 'confirmed');
-        // } else if(task.status.includes('in-progress')) {
-        //     tr.setAttribute('class', 'in-progress');
-        // }
-
-        // //append all data elemts to the row
-        // tr.appendChild(data_status);
-        // tr.appendChild(data_desc);
-        // tr.appendChild(data_user);
-        // tr.appendChild(data_deadline);
-        // tr.appendChild(data_delivered);
-        // tr.appendChild(delete_btn);
-
-        // //append row to table
-        // $task_table.append(tr);
-    });
+    }
+    
 
 }
 
@@ -314,8 +230,11 @@ $(document).ready(function () {
         });
 
         //update the frontend scrum table with given task array
-        socket.on('updateScrum', function (tasks) {
-            updateTaskTable(tasks);
+        socket.on('updateScrum', function (sprint, tasks) {
+            if(sprint == currentSprint) {
+                updateTaskTable(tasks);
+            }
+            
         });
 
         // Get Status From Server
@@ -327,11 +246,12 @@ $(document).ready(function () {
     //dynamically load the content when clicking on a navigation link
     $(document).on('click', '#navigator a', function (e) {
         e.preventDefault();
-        $('[id^="dynamic-content"]').load(e.target.href);
-        
+        $('#dynamic-content').load(e.target.href);
+
         if (e.target.href.includes('Chat')) {
             socket.emit('refreshChat', currentGroup);
         } else if (e.target.href.includes('Scrum')) {
+            currentSprint = 'product backlog';
             socket.emit('refreshScrum', currentGroup, 'product backlog');
         } else if (e.target.href.includes('Kanban')) {
             //socket.emit('refreshKanban', currentGroup);
@@ -354,7 +274,7 @@ $(document).ready(function () {
         })
         //update group tag
         $('#project-name').text(group);
-        
+
         //load the chat when the user swaps group
         $('#dynamic-content').load('./Content/Chat.html');
 
