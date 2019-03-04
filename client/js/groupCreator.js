@@ -8,7 +8,7 @@ let $backgroundColor = $('#backgroundColorInput');
 let $fontColor = $('#fontColorInput');
 
 $(document).ready(function() {
-
+    
     $backgroundColor.val('#f1f2f2');
     $fontColor.val('#222222');
 

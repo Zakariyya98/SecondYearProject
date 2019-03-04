@@ -88,12 +88,18 @@ function checkSubmissionDate($submitted, $deadline, $parent) {
 }
 
 $(document).ready(function() {
-    let $PROGRESS_BAR = $('#progress-bar');
-
     window.setTimeout(updateProgress, 1500); //call the updateProgress 1.5s after load
 
     var $TABLE = $('#task-table');
     var $CLONE = $TABLE.find('tr.hide');
+
+    //update clone dropdown for each member in the group
+    groupMembers.forEach(member => {
+        var option = document.createElement('option');
+        option.value = member;
+        option.innerHTML = member;
+        $CLONE.find('#assigned').find('select').append(option);
+    })
 
     $('tr').find('#submitted input').change(function() {
         var $parent = $(this).parent();
@@ -113,6 +119,24 @@ $(document).ready(function() {
             $parent.parent().addClass('in-progress');
             updateProgress();
         }
+
+        //get task
+        var $TASK = $(this).parent().parent();
+        var otask = {};
+
+        otask.id = $TASK.prop('value');
+        otask.delivered = $(this).prop('checked');
+        otask.status = $TASK.find('#status').text();
+
+        var query = { 
+            sprintName : currentSprint,
+            "tasks.id" : otask.id,
+        };
+        var values = { $set : { "tasks.$.delivered" : otask.delivered, "tasks.$.status" : otask.status}};
+
+        //upload change to server
+        socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
+
     })
 
     $('tr').find('#assigned select').change(function() {
@@ -127,6 +151,41 @@ $(document).ready(function() {
             status.text('not started');
             status.parent().removeClass('in-progress');
         }
+
+        //get task
+        var $TASK = $(this).parent().parent();
+        var otask = {};
+
+        otask.id = $TASK.prop('value');
+        otask.assigned = $(this).prop('value');
+        otask.status = $TASK.find('#status').text();
+
+        var query = { 
+            sprintName : currentSprint,
+            "tasks.id" : otask.id,
+        };
+        var values = { $set : { "tasks.$.assigned" : otask.assigned, "tasks.$.status" : otask.status}};
+
+        //upload change to server
+        socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
+    })
+
+    $('tr').find('#deadline input').change(function() {
+        //get task
+        var $TASK = $(this).parent().parent();
+        var otask = {};
+
+        otask.id = $TASK.prop('value');
+        otask.deadline = $(this).prop('value');
+
+        var query = { 
+            sprintName : currentSprint,
+            "tasks.id" : otask.id,
+        };
+        var values = { $set : { "tasks.$.deadline" : otask.deadline}};
+
+        //upload change to server
+        socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
     })
 
     //add a new row to the table when add table button is clicked
@@ -136,7 +195,7 @@ $(document).ready(function() {
         //update task ID
         lastTaskID++;
         //set value to equal new id
-        $clone.val(lastTaskID);
+        $clone.prop('value', lastTaskID)
         //add new row to table
         $TABLE.append($clone);
         //update progress bar
@@ -158,7 +217,6 @@ $(document).ready(function() {
     $('.table-remove').on('click', function () {
         var row_id = $(this).parents('tr').val();
         
-
         socket.emit('removeTask', currentGroup, 'product backlog', row_id);
         $(this).parents('tr').detach();
         //update progress bar after a row is deleted
@@ -166,7 +224,20 @@ $(document).ready(function() {
     });
 
     $('#member-tasks-view').click(function() {
-        alert('viewing members tasks');
+        //get task count for each member
+        graph_data = {};
+        groupMembers.forEach(member => {
+            graph_data[member] = 0;
+        })
+
+        var $TABLE = $('#task-table');
+        $TABLE.find('tbody').children().toArray().forEach(row => {
+            var user = $(row).find('#assigned').find('select').val();
+            if(user != '') {
+                graph_data[user] += 1;
+            }
+        })
+        ipc.send('createGraphWindow', 'task distribution', 'bar', graph_data);
     })
 
     $('#burndown-view').click(function() {
@@ -174,7 +245,24 @@ $(document).ready(function() {
     })
 
     $('#submission-frequency-view').click(function() {
-        alert('viewing submission frequency graphs');
+        //object of date : submission count
+        graph_data = {};
+
+        var $TABLE = $('#task-table');
+        $TABLE.find('tbody').children().toArray().forEach(row => {
+            var date = $(row).find('#deadline').find('input').val();
+            // console.log(date);
+            var submitted = $(row).find('#submitted').find('input').prop('checked');
+            // console.log(submitted);
+            if(date != '' && submitted) {
+                if(graph_data[date] == undefined) {
+                    graph_data[date] = 1;
+                } else {
+                    graph_data[date] += 1;
+                }
+            }
+        })
+        ipc.send('createGraphWindow', 'date task distribution', 'line', graph_data);
     })
 
 })

@@ -1,5 +1,9 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, session} = require('electron')
+const {
+  app,
+  BrowserWindow,
+  session
+} = require('electron')
 const ipc = require('electron').ipcMain;
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -7,9 +11,57 @@ const ipc = require('electron').ipcMain;
 let win
 //let signUpWindow
 
-function createWindow () {
+var windows = new Map();
+
+function createGraphWindow(name, graph_type, graph_data) {
+  if (windows.get(name) == undefined) {
+    let window = new BrowserWindow({
+      width: 700,
+      height: 400,
+      parent: win,
+      center: true,
+      title: 'Create a graph'
+    });
+    window.webContents.on('did-finish-load', () => {
+      // window.webContents.send('message', graph_type, graph_data);
+      switch(graph_type) {
+        case 'bar':
+          window.webContents.send('createBarChart', graph_data);
+          break;
+        case 'line':
+          window.webContents.send('createLineChart', graph_data);
+          break;
+        default:
+          break;
+      }
+    })
+    // window.webContents.openDevTools();
+    window.on('closed', () => {
+      window = null;
+      windows.set(name, undefined);
+    })
+
+    window.loadFile('./graph.html');
+    window.show();
+
+    windows.set(name, window);
+  } else {
+    console.log('window with that name is already open!');
+  }
+
+
+}
+
+function createWindow() {
   // Create the browser window.
-  win = new BrowserWindow({width: 1200, height: 800, minHeight : 400, minWidth : 900, frame : false, title : "Collaborative Work Platform"})
+  win = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    minHeight: 400,
+    minWidth: 900,
+    frame: false,
+    title: "Collaborative Work Platform"
+  })
   // signUpWindow = new BrowserWindow({width:400,height:400,modal:true,frame:false})
 
   // and load the index.html of the app.
@@ -20,14 +72,14 @@ function createWindow () {
   //win.webContents.openDevTools()
 
   //Displaying the index page and hidding the login page -- DO NOT HIDE THE WINDOW! CLOSE IT
-  ipc.on('switchPage', function() {
-      win.show()
-      signUpWindow.hide()
+  ipc.on('switchPage', function () {
+    win.show()
+    signUpWindow.hide()
   })
 
-  ipc.on('closePage',function(){
-      win.close()
-      signUpWindow.close()
+  ipc.on('closePage', function () {
+    win.close()
+    signUpWindow.close()
   })
 
   // Emitted when the window is closed.
@@ -66,11 +118,17 @@ app.on('activate', function () {
 })
 
 function createGroupWindow() {
-  let groupWindow = new BrowserWindow({width : 400, height : 400, parent : win,
-    center : true, title : 'Create a new Group', resizable : false});
+  let groupWindow = new BrowserWindow({
+    width: 400,
+    height: 400,
+    parent: win,
+    center: true,
+    title: 'Create a new Group',
+    resizable: false
+  });
   groupWindow.loadFile('./groupCreator.html');
 
-  groupWindow.on('close', function() {
+  groupWindow.on('close', function () {
     groupWindow = null;
     win.webContents.send('fadeMask');
   })
@@ -86,4 +144,8 @@ ipc.on('createGroupWindow', (event, arg) => {
 
 ipc.on('addNewGroup', (event, args) => {
   win.webContents.send('addNewGroup', args);
+})
+
+ipc.on('createGraphWindow', (event, name, graph_type, graph_data) => {
+  createGraphWindow(name, graph_type, graph_data);
 })
