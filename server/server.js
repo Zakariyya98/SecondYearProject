@@ -21,7 +21,6 @@ app.listen(3000, function () {
 app.use('/', router);
 
 var msg = require('./log.js'); //server status library created by Joe
-// var connections = new Map();
 
 // Connect to mongo
 mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
@@ -279,7 +278,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             //updates the chat for the user
             let chat = db.collection(group);
             // Get chats from mongo collection (limited to 100 documents);
-            chat.find().limit(100).sort({_id:1}).toArray(function(err, res){
+            chat.find({type : 'msg'}).limit(100).sort({_id:1}).toArray(function(err, res){
                 if(err){
                     throw err;
                 }
@@ -296,7 +295,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
 
                 //tell client to update scrum board -- pass array of tasks to client
                 if(res != undefined) {
-                    socket.emit('updateScrum', res.tasks);
+                    socket.emit('updateScrum', sprint, res.tasks);
                 }
             })
         });
@@ -327,7 +326,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
 
         //remove task from collection for a given sprint and task id
         socket.on('removeTask', function(group, sprint, task_id) {
-            msg.log('removing task...');
+            msg.log('removing task_id : ' + task_id + ' from group ' + group + ' for sprint ' + sprint);
             db.collection(group).updateOne({
                 sprintName : sprint
             }, {
@@ -335,6 +334,17 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                     id : task_id
                     }  
                 }
+            })
+        })
+
+        //updates a given task in the db
+        socket.on('updateTask', function(group, sprint, task, query, values) {
+            msg.log('updating task ' + task.id + ' for group ' + group + ' for sprint ' + sprint);
+
+            db.collection(group).update(query, values, function(err, res) {
+                if(err) throw err;
+
+                console.log('updated...');
             })
         })
 
@@ -369,7 +379,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 }
 
                 // socket.broadcast.emit('clearTyping', name);
-                chat.insert({name: name, message: message, timestamp : timestamp}, function(){
+                chat.insert({type : 'msg', name: name, message: message, timestamp : timestamp}, function(){
                     client.to(group).emit('output', [data]);
 
                     sendStatus("Message succesfully sent.");
