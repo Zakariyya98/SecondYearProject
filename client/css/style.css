@@ -99,6 +99,10 @@ html, body {
     transition : ease 1s;
 }
 
+.message-container {
+    max-width : 800px;
+}
+
 .hide {
     visibility: hidden;
     display : none;
@@ -183,18 +187,6 @@ html, body {
     background-color : transparent;
 }
 /* scrumm tool css -- end */
-
-input[type='text'] {
-    border : 0;
-    border-bottom : 2px solid #f1f2f2;
-    border-radius : 0;
-}
-
-input[type='text']::after {
-    content : '';
-    width : 100%;
-    border-bottom : 1px solid #f1f2f2;
-}
 
 .confirmed {
     background-color : #baffc9;
@@ -294,26 +286,64 @@ input[type='text']::after {
     font-weight : 700;
 }
 /* group editor view */
+
+.group-body {
+    background-color : whitesmoke;
+}
+
+.group-container {
+    height : 100%;
+    background-color : #fff;
+}
+
 .template-view {
     position : relative;
     height : 12em;
 }
 
+
+.form-label {
+    background-color : #76d276;
+    color : #fff;
+    margin-top : 10px;
+    padding: 3px 5px 3px 5px;
+}
+
+.date-picker { 
+    margin : 10px 0 10px 0;
+}
+
 .group-title {
     font-size : 24px;
     font-weight : 700;
-    padding : 10px;
+    color : #fff;
+    padding : 20px;
 }
 
 .group-view {
     position : absolute;
-    left : 50%;
-    top : 10%;
+    padding : 5px 30px 5px 30px;
+    left : 53%;
+    top : 5%;
+}
+
+.group-btn {
+    background-color : #4f4f4f;
+    color : #fff;
+    width : 100%;
+    margin-top : 2em;
+    border : 0;
+    transition: ease .3s;
+}
+
+.group-btn:hover {
+    background-color : #636363;
 }
 
 .group-template {
-    height : 10em;
-    width : 10em;
+    height : 9.9em;
+    width : 9.9em;
+    margin : 10px !important;
 }
 
 .group-template span {
@@ -321,8 +351,11 @@ input[type='text']::after {
 }
 
 .color-input {
-    width : 40%;
     height : 50px;
+}
+
+.form-group input {
+    border-radius : 0;
 }
 
 .title {
@@ -385,6 +418,7 @@ label {
     position : relative;
     padding : 2px 5px 2px 5px;
     border-radius : 2px;
+    overflow-x : wrap;
 }
 
 .message-info {

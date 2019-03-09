@@ -13,6 +13,47 @@ let win
 
 var windows = new Map();
 
+
+function createGroupWindow() {
+  let groupWindow = new BrowserWindow({
+    width: 600,
+    height: 580,
+    parent: win,
+    center: true,
+    title: 'Create a new Group',
+    resizable: false
+  });
+  groupWindow.loadFile('./groupCreator.html');
+
+  groupWindow.on('close', function () {
+    groupWindow = null;
+    win.webContents.send('fadeMask');
+  })
+}
+
+function createSprintWindow(name, data) {
+  if(windows.get(name) == undefined) {
+    let window = new BrowserWindow({
+      width : 600,
+      height : 600,
+      parent : win,
+      center : true,
+      resizable : false
+    })
+    windows.set(name, window);
+    window.loadFile('./sprintCreator.html');
+
+    window.webContents.on('did-finish-;oad', () => {
+      //do stuff
+    })
+
+    window.on('closed', () => {
+      window = null;
+      windows.set(name, undefined);
+    })
+  }
+}
+
 function createGraphWindow(name, graph_type, graph_data) {
   if (windows.get(name) == undefined) {
     let window = new BrowserWindow({
@@ -31,6 +72,8 @@ function createGraphWindow(name, graph_type, graph_data) {
         case 'line':
           window.webContents.send('createLineChart', graph_data);
           break;
+        case 'burndown':
+          window.webContents.send('createBurndownChart', graph_data);
         default:
           break;
       }
@@ -57,7 +100,7 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1200,
     height: 800,
-    minHeight: 400,
+    minHeight: 600,
     minWidth: 900,
     frame: false,
     title: "Collaborative Work Platform"
@@ -117,22 +160,6 @@ app.on('activate', function () {
   }
 })
 
-function createGroupWindow() {
-  let groupWindow = new BrowserWindow({
-    width: 400,
-    height: 400,
-    parent: win,
-    center: true,
-    title: 'Create a new Group',
-    resizable: false
-  });
-  groupWindow.loadFile('./groupCreator.html');
-
-  groupWindow.on('close', function () {
-    groupWindow = null;
-    win.webContents.send('fadeMask');
-  })
-}
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
@@ -146,6 +173,14 @@ ipc.on('addNewGroup', (event, args) => {
   win.webContents.send('addNewGroup', args);
 })
 
+ipc.on('addNewSprint', (event, data) => {
+  win.webContents.send('addNewSprint', data);
+})
+
 ipc.on('createGraphWindow', (event, name, graph_type, graph_data) => {
   createGraphWindow(name, graph_type, graph_data);
+})
+
+ipc.on('createSprintWindow', (event, name, data) => {
+  createSprintWindow(name, data);
 })

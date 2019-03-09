@@ -169,6 +169,7 @@ $(document).ready(function () {
                 //set current group to first group -- maybe change this later to be the 
                 //group the user was last in (user settings);
                 currentGroup = groups[0].groupName;
+                $('#project-name').text(currentGroup);
                 //refresh the chat
                 socket.emit('refreshChat', currentGroup);
                 //set the user's group to the new current group
@@ -251,6 +252,7 @@ $(document).ready(function () {
 
         //update the frontend scrum table with given task array
         socket.on('updateScrum', function (sprint, tasks) {
+            //clear task table
             if(sprint == currentSprint) {
                 updateTaskTable(tasks);
             }
@@ -267,13 +269,13 @@ $(document).ready(function () {
     $(document).on('click', '#navigator a', function (e) {
         e.preventDefault();
 
-        $('[id^="dynamic-content"]').load(e.target.href);
+        $('#dynamic-content').load(e.target.href);
 
         if (e.target.href.includes('Chat')) {
             socket.emit('refreshChat', currentGroup);
         } else if (e.target.href.includes('Scrum')) {
             currentSprint = 'product backlog';
-            socket.emit('refreshScrum', currentGroup, 'product backlog');
+            socket.emit('refreshScrum', currentGroup, currentSprint);
         } else if (e.target.href.includes('Kanban')) {
             //socket.emit('refreshKanban', currentGroup);
         } else if (e.target.href.includes('Profile')){
@@ -317,9 +319,8 @@ $(document).ready(function () {
         //only create group if succesfully created
         socket.emit('checkGroupExists', args.groupName, function (data) {
             if (!data) {
-                args.username = s_username; //temp
                 // create core group data document
-                socket.emit('createGroup', args, function (success) {
+                socket.emit('createGroup', args, s_username, function (success) {
                     if (success) {
                         //create front end grouping
                         createGroup(args);
@@ -332,6 +333,14 @@ $(document).ready(function () {
                 alert('A group with that name already exists!');
             }
         });
+    })
+
+    ipc.on('addNewSprint', (event, data) => {
+        socket.emit('createSprint', data, currentGroup, function(success) {
+            if(success) {
+                alert('created new sprint');
+            }
+        })
     })
 
     //get console updates from app

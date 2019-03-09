@@ -314,7 +314,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
 
         //add task to collection for a given group & sprint
         socket.on('addTask', function(group, sprint, task) {
-            msg.log('adding task...');
+            msg.log('adding task to sprintName : ' + sprint);
             db.collection(group).updateOne({
                 sprintName : sprint
             }, {
@@ -393,13 +393,14 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             let groups = db.collection('GroupData');
             //search for groups contain the user
             groups.find({members : username}).toArray(function(err, res) {
+                if(err) throw err;
                 socket.emit('updateGroups', res);
             });
         })
 
-        socket.on('createGroup', function(data, fn) {
+        socket.on('createGroup', function(data, username, fn) {
             //add the user who created the group to the memberslist
-            data.members = [data.username];
+            data.members = [username];
             //create the group data document
             db.collection('GroupData').insert(data, function() {
                 var pbdata = { sprintName : 'product backlog', tasks : []};
@@ -408,6 +409,25 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 fn(true);
             })
             
+        })
+
+        //create a new sprint for a given group
+        socket.on('createSprint', function(data, group, fn) {
+            //todo
+                //sprint validation
+            data.tasks = []
+            db.collection(group).insert(data, function() {
+                msg.log('added new sprint');
+                fn(true);
+            })
+        })
+
+        socket.on('fetchSprints', function(group, fn) {
+            db.collection(group).find({sprintName : { $exists : true}}).toArray(function(err, res) {
+                if(err) throw err;
+                msg.list(res);
+                fn(res);
+            });
         })
 
         socket.on('checkGroupExists', function(group, fn) {

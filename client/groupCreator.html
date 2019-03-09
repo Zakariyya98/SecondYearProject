@@ -3,36 +3,54 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Page Title</title>
+    <title>Create a Project</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
         integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
     <!-- main style -->
     <link rel='stylesheet' href='css/style.css'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body>
-    <div class='container'>
-        <p class='group-title dark text-center'>Create a Group</p>
+<body class='group-body'>
+    <div class='container group-container'>
+        <p class='group-title dark text-center'>Create a Project</p>
         <div class='form-group'>
-            <label>
-                <span class='label-text'>Group Name</span>
+            <!-- <label>
+                <span class='label-text'>Project Name</span>
                 <input type='text' class='form-control' id='groupNameInput'>
-            </label>
-
+            </label> -->
+            <label class='form-label'>Project Name(*)</label>
+            <input type='text' class='form-control' id='groupNameInput' placeholder="Please enter your project's name">
+            <div class='row'>
+                <div class='col-sm'>
+                    <label class='form-label date-label'>Project Start Date(*)</label>
+                    <input type='date' class='form-control date-picker' id='projectStartDate'>
+                </div>
+                <div class='col-sm'>
+                    <label class='form-label date-label'>Project End Date(*)</label>
+                    <input type='date' class='form-control date-picker' id='projectEndDate'>
+                </div>
+            </div>
         </div>
         <div class='template-view'>
-            <label>Background Color</label>
-            <input type='color' class='form-control color-input' id='backgroundColorInput'>
-            <label>Font Color</label>
-            <input type='color' class='form-control color-input' id='fontColorInput'>
-
+            <div class='row'>
+                <div class='col-sm-6'>
+                    <label class='form-label date-label'>Background Color</label>
+                    <input type='color' class='form-control color-input' id='backgroundColorInput'>
+                </div>
+            </div>
+            <div class='row'>
+                <div class='col-sm-6'>
+                    <label class='form-label date-label'>Font Color</label>
+                    <input type='color' class='form-control color-input' id='fontColorInput'>
+                </div>
+            </div>
             <div class='group-view'>
                 <div class='group group-template' id='group-template'>
                     <span>T</span>
                 </div>
             </div>
         </div>
-        <button id='createGroupButton' class='btn-custom'>Create Group</button>  
+        <button id='createGroupButton' class='group-btn'>Create Group</button>  
         
         
     </div>

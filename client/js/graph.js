@@ -27,7 +27,8 @@ ipcRenderer.on('createBarChart', (event, graph_data) => {
             scales: {
                 yAxes: [{
                     ticks: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        stepSize : 1
                     }
                 }]
             }
@@ -78,10 +79,70 @@ ipcRenderer.on('createLineChart', (event, graph_data) => {
                         labelString: 'Number of Submissions'
                     },
                     ticks : {
-                        beginAtZero : true
+                        beginAtZero : true,
+                        stepSize : 1
                     }
                 }]
             }
         }
     });
 })
+
+//create the burndown chart
+ipcRenderer.on('createBurndownChart', (event, graph_data) => {
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels : [5, 4, 3, 2, 1],
+            datasets: [{
+                label : 'Real Tasks Remaining',
+                fill: false,
+                backgroundColor: 'rgba(84, 201, 133,0.8)',
+                borderColor: 'rgba(84, 201, 133,0.8)',
+                data: [4,4,4,3,2]
+            }, {
+                label : 'Ideal Tasks Remaining',
+                fill: false,
+                backgroundColor: 'rgba(90, 124, 153, 0.8)',
+                borderColor: 'rgba(90, 124, 153, 0.8)',
+                data: [4,3,2,1,0]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio : false,
+            title: {
+                display: true,
+                text: 'Burndown Chart for Sprint Product Backlog'
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Iteration Timeline(Days)'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Sum of Tasks Remaining'
+                    },
+                    ticks : {
+                        beginAtZero : true,
+                        stepSize : 1
+                    }
+                }]
+            }
+        }
+    });
+});

@@ -93,6 +93,21 @@ $(document).ready(function() {
     var $TABLE = $('#task-table');
     var $CLONE = $TABLE.find('tr.hide');
 
+    //get sprints for the current group
+    let SPRINTS;
+    socket.emit('fetchSprints', currentGroup, function(sprints) {
+        SPRINTS = sprints;
+        sprints.forEach(sprint => {
+            var option = document.createElement('option');
+            option.value = sprint.sprintName;
+            option.innerHTML = sprint.sprintName.replace(/\b\w/g, l => l.toUpperCase());
+            $(option).prop('id', 'sprint');
+            $('#sprintList').append(option);
+        })
+    })
+
+    
+
     //update clone dropdown for each member in the group
     groupMembers.forEach(member => {
         var option = document.createElement('option');
@@ -210,14 +225,14 @@ $(document).ready(function() {
             id : lastTaskID
         }
 
-        socket.emit('addTask', currentGroup, 'product backlog', task);
+        socket.emit('addTask', currentGroup, currentSprint, task);
     });
 
     //remove the corresponding row from the table when remove button is pressed (move to clone functions??)
     $('.table-remove').on('click', function () {
         var row_id = $(this).parents('tr').val();
         
-        socket.emit('removeTask', currentGroup, 'product backlog', row_id);
+        socket.emit('removeTask', currentGroup, currentSprint, row_id);
         $(this).parents('tr').detach();
         //update progress bar after a row is deleted
         updateProgress();
@@ -241,7 +256,9 @@ $(document).ready(function() {
     })
 
     $('#burndown-view').click(function() {
-        alert('viewing burndown chart');
+        //get data
+
+        ipc.send('createGraphWindow', 'burndown chart', 'burndown');
     })
 
     $('#submission-frequency-view').click(function() {
@@ -263,6 +280,25 @@ $(document).ready(function() {
             }
         })
         ipc.send('createGraphWindow', 'date task distribution', 'line', graph_data);
+    })
+
+    $('#createSprint').click(function(){
+        ipc.send('createSprintWindow', 'sprint creator', {});
+    })
+
+    $('#sprintList').change(function() {
+        //remove all rows that are not the main clone
+        $TABLE.find('tbody').children().toArray().forEach(row => {
+            if(!$(row).hasClass('hide')) {
+                $(row).detach();
+            }
+        })
+        //update current sprint
+        currentSprint = $(this).prop('value');
+        //refresh table with new sprint data
+        socket.emit('refreshScrum', currentGroup, currentSprint);
+
+        setTimeout(updateProgress, 1000);
     })
 
 })

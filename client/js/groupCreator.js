@@ -13,12 +13,25 @@ $(document).ready(function() {
     $fontColor.val('#222222');
 
     $('#createGroupButton').on('click', function() {
-        var $groupName = $('#groupNameInput');
-        console.log($groupName);
-        if($groupName.val() == '') {
-            alert('Please enter a group name');
+        var $projectName = $('#groupNameInput');
+        var $startDate = $('#projectStartDate');
+        var $endDate = $('#projectEndDate');
+
+        //todo
+            //check if start date is after end date, fail if so
+
+        if($projectName.val() == '') {
+            alert('Please enter a project name!');
+        } else if($startDate.val() == '' || $endDate.val() == '') {
+            alert('Please enter a start and end date for your project!');
         } else {
-            ipc.send('addNewGroup', {groupName : $groupName.val(), backgroundColor : $backgroundColor.val(), fontColor : $fontColor.val()});
+            ipc.send('addNewGroup', {
+                groupName : $projectName.val(),
+                backgroundColor : $backgroundColor.val(),
+                fontColor : $fontColor.val(),
+                startDate : $startDate.val(),
+                endDate : $endDate.val()
+            });
             var win = remote.getCurrentWindow();
             win.close();
         }
@@ -37,17 +50,6 @@ $(document).ready(function() {
     $('#fontColorInput').change(function() {
         //update the templace background color
         $template.css('color', $(this).val());
-    })
-    
-    $('input').focus(function() {
-        $(this).parent().find('.label-text').addClass('label-active');
-    })
-    
-    $('input').focusout(function() {
-        if($(this).val() == ''){ 
-            $(this).parent().find('.label-text').removeClass('label-active');
-        }
-        
     })
 })
 

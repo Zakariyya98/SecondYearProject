@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Sprint Creator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+        integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <!-- main style -->
+    <link rel='stylesheet' href='css/style.css'>
+    <script src="./js/sprintCreator.js"></script>
+</head>
+<body>
+    <div class='container'>
+        <div class='form-group'>
+            <label>What is This Sprint's Name? (*)</label>
+            <input type='text' class='form-control' id='sprintNameInput'>
+            <label>Which Week is This Sprint For? (*)</label>
+            <input type='date' class='form-control date-picker' id='sprintDateInput'>
+            <label>How Long Will This Sprint Last? (*)</label>
+            <select class='table-selector' id='sprintLengthInput'>
+                <option value='1'>1 week</option>
+                <option value='2'>2 weeks</option>
+                <option value='3'>3 weeks</option>
+                <option value='4'>4 weeks</option>
+            </select>
+        </div>
+        <button id='createSprintButton' class='group-btn'>Create Sprint</button>
+    </div>
+</body>
+</html>
