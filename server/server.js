@@ -37,7 +37,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
           if (!user) {
           res.send('Password reset token is invalid or has expired.');
         }else{ //if the token is valid redirects the user to the reset password page
-            res.sendFile(path.join(__dirname+'/../client/reset.html'));
+            res.sendFile(path.join(__dirname+'/../client/Login Content/reset.html'));
           }
         });
     });

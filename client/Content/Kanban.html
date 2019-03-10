@@ -1,6 +1,16 @@
-<h1>Kanban</h1>
+<link rel="stylesheet" href="./kanbanHelper/jkanban.min.css">
+<div class="container-fluid">
+   <div class="row">
+      <div class="col-md-12">
+         <h1>Kanban</h1>
+         <hr>
+         <div id="kanban" style="overflow-x: auto; padding:20px 0;"></div>
+         <button class="btn btn-success" id="addToDo">Add element in "To Do" Board</button>
+         <button class="btn btn-success" id="addDefault">Add "Default" board</button>
+         <button class="btn btn-danger" id="removeBoard">Remove "Default" Board</button>
+      </div>
+   </div>
+</div>
 
-<script>
-    console.log('loaded kanban');
-
-</script>
+<script src='./js/kanban.js'></script>
+<script src="./kanbanHelper/jkanban.min.js"></script>

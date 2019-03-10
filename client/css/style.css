@@ -558,3 +558,12 @@ label {
 .checkbox label input[type="checkbox"]:disabled + .cr{
     opacity: .5;
 }
+
+#gitHubIcon {
+     cursor: pointer;
+}
+
+.toDoBoard{background: #2A92BF; color:#fff}
+.workingBoard{background: #F4CE46; color:#fff}
+.defaultBoard{background: #FB7D44; color:#fff}
+.doneBoard{background: #00B961; color:#fff}

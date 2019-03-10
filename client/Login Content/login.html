@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-    <link rel='stylesheet' href='css/style.css'>
+    <link rel='stylesheet' href='../css/style.css'>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
     <title>Login Page</title>
 </head>
 <body style="overflow-y: hidden; background-color : #222222;-webkit-app-region:drag;">
@@ -15,7 +16,7 @@
     <button style="-webkit-app-region:no-drag;" id="close-btn">x</button>
   </div>
 
-  <div style="color : #FFFFFF; margin-top:45px; -webkit-app-region:drag;" class="text-center"><h2>Login to continue</h2></div>
+  <div id="result" style="color : #FFFFFF; margin-top:15px; -webkit-app-region:drag;" class="text-center"><h2>Login to continue</h2></div>
 
   <div id="incorrect" style="margin-left: 20px;display:none;" class="text-danger warning"><small></small></div>
 
@@ -38,7 +39,7 @@
     <div class="form-group form-check">
       <div class="checkbox">
         <label style="font-size: 1.0em; color: #FFFFFF;-webkit-app-region: no-drag;">
-        <input type="checkbox" value="" checked>
+        <input id="checkBox" type="checkbox" value="" unchecked>
         <span class="cr"><i class="cr-icon fa fa-check"></i></span>
         Remember me
         </label>
@@ -48,10 +49,13 @@
 
     <button id="login" style="border-radius: 40px;-webkit-app-region: no-drag;" class="btn btn-success btn-md btn-block">Login</button>
   </form>
-
     <a href="signUp.html" style="float:left; margin-left:20px;-webkit-app-region: no-drag;">or sign up</a>
+    <div style="text-align:center;">
+      <span id="gitHubIcon" style="color:white;-webkit-app-region: no-drag;"><br><i class="fab fa-github fa-3x"></i></span>
+      <p style="color:white">GitHub</p>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
-    <script src="js/login.js"></script>
+    <script src="../js/login.js"></script>
 
 </body>
 </html>

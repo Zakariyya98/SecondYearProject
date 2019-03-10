@@ -1,9 +1,13 @@
 (function(){
   const { ipcRenderer } = require('electron');
+  const storage = require('electron-json-storage');
+  var $ = require("jquery");
 
+  //Find elements from the html
   var element = function(id){
     return document.getElementById(id);
   }
+
   // Connect to socket.io
   const socket = io('http://localhost:4000');
 
@@ -17,6 +21,19 @@
   var emailMessage = element('emailWarn');
   var passMessage = element('passWarn');
   var incorrect = element('incorrect');
+  var gitHubIcon = element('gitHubIcon');
+
+  //Saves the user credentials
+  storage.get('LoginDetails', function(error, data) {
+    if (error) throw error;
+    if ($.isEmptyObject(data))
+      console.log('No info');
+    else{
+      emailInput.value = data.Username;
+      passInput.value = data.Password;
+      console.log(data.Checkbox);
+    }
+  });
 
   //Checks user email and password
   login.addEventListener('click', function(){
@@ -49,7 +66,19 @@
   }
 
   if (emailInput.value != "" && passInput.value != ""){
-    console.log(emailInput.value);
+
+    //Check if the remember me is checked
+    if($('#checkBox').is(':checked')) {
+      storage.set('LoginDetails', { Username:emailInput.value, Password:passInput.value, Checkbox:'checked' }, function(error) {
+      if (error) throw error;
+      });
+    }else{
+      storage.remove('LoginDetails', function(error) {
+      if (error) throw error;
+      });
+    }
+
+    //Send the credentials to the server
     socket.emit('login', {
                           email:emailInput.value,
                           password:passInput.value
@@ -57,6 +86,7 @@
   }
   });
 
+  //Receive an answer from the server if login is successful
   socket.on('login', function(data){
     if(data == 0){
         incorrect.innerHTML = "User does not exist!";
@@ -74,4 +104,20 @@
     ipcRenderer.send('closePage');
   });
 
+  gitHubIcon.addEventListener('click',function(){
+    ipcRenderer.send('github-oauth');
+    //ipcRenderer.send('gitHubLogin');
+  });
+
+  ipcRenderer.on('gitHubLogin-reply',(event, arg) => {
+    if(arg == 'yes'){
+      ipcRenderer.send('switchPage');
+    }else{
+      ipcRenderer.send('github-oauth', 'getToken');
+    }
+  });
+
+  ipcRenderer.on('github-oauth-reply', (event, token) => {
+   console.log(token);
+   });
 })();
