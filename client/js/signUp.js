@@ -25,6 +25,7 @@
   var incorrect = element('incorrect');
   var signUpButton = element('signUpButton');
 
+  //Check all the fields
   signUpButton.addEventListener('click', function(){
   event.preventDefault();
   event.stopPropagation();
@@ -72,6 +73,7 @@
     repeatPassSignUpInput.classList.remove('form-control-danger');
   }
 
+  //When all fields are filled in send a request to the server for register
   if (nameInput.value != "" && emailSignUpInput.value != "" && passSignUpInput.value != "" && repeatPassSignUpInput.value != ""){
     console.log(nameInput.value+"\n"+emailSignUpInput.value+"\n"+passSingUpInput.value);
     if(emailSignUpInput.value.indexOf("@") > -1)
@@ -91,6 +93,7 @@
   }
   });
 
+//Receive an answer from the server if the registration is successful
 socket.on('signUp',function(data){
   if(data == 'diffPass'){
     passSignUpForm.classList.add('has-danger');

@@ -1,6 +1,18 @@
 // Modules to control application life and create native browser window
 const {app, BrowserWindow, session} = require('electron')
 const ipc = require('electron').ipcMain;
+const electronOauth2 = require('electron-oauth2');
+const oauthConfig = require('./config').oauth;
+
+const windowParams = {
+  alwaysOnTop: true,
+  autoHideMenuBar: true,
+  webPreferences: {
+    nodeIntegration: false
+  }
+};
+const githubOAuth = electronOauth2(oauthConfig, windowParams);
+
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -12,17 +24,18 @@ function createWindow () {
   win = new BrowserWindow({width: 1200, height: 800, minHeight : 400, minWidth : 900, frame : false, show:false, title : "Collaborative Work Platform"})
   signUpWindow = new BrowserWindow({width:400,height:400,modal:true,frame:false})
 
+
   // and load the index.html of the app.
   win.loadFile('./index.html')
-  signUpWindow.loadFile('./login.html')
+  signUpWindow.loadFile('./Login Content/login.html')
 
   // Open the DevTools.
   //win.webContents.openDevTools()
 
-  //Displaying the index page and hidding the login page -- DO NOT HIDE THE WINDOW! CLOSE IT
+  //Displaying the index page and hidding the login page
   ipc.on('switchPage', function() {
       win.show()
-      signUpWindow.hide()
+      signUpWindow.close()
   })
 
   ipc.on('closePage',function(){
@@ -63,6 +76,7 @@ app.on('activate', function () {
   if (win === null) {
     createWindow()
   }
+
 })
 
 function createGroupWindow() {
@@ -78,6 +92,27 @@ function createGroupWindow() {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+ipc.on('gitHubLogin', (event, arg) => {
+  session.defaultSession.cookies.get({ name: 'logged_in',  domain: '.github.coventry.ac.uk'}, (error, cookies) => {
+    event.sender.send('gitHubLogin-reply', cookies[0].value)
+  });
+});
+
+ipc.on('github-oauth', (event, arg) => {
+  githubOAuth.getAccessToken({})
+    .then(token => {
+      //event.sender.send('github-oauth-reply', token);
+      githubOAuth.refreshToken(token.refreshToken)
+        .then(newToken => {
+
+        });
+    });
+});
+
+/*session.defaultSession.cookies.get({}, (error, cookies) => {
+  console.log(error, cookies)
+})*/
 
 ipc.on('createGroupWindow', (event, arg) => {
   createGroupWindow();
