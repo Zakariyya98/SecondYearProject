@@ -1,8 +1,4 @@
 //TODO:
-    //build editable table
-        //set task to be in-progress when group member has been assigned
-    //build task progress bar
-        //
     //build sprint selecter
         //build sprint feedback
     //export data to file
@@ -21,53 +17,6 @@
     //style
 
 //fetch an element
-var element = function(id) {
-    return document.getElementById(id);
-}
-
-// function updateTaskTable() {
-//     var task_table = element('task-table'); //get the task table element's body
-
-//     tasklist.forEach(element => {
-//         let tr = document.createElement('tr'); //create a new row
-        
-//         let data_id = document.createElement('td'); //create id field
-//         data_id.appendChild(document.createTextNode(element.id));
-    
-//         let data_status = document.createElement('td'); //create task status field
-//         data_status.appendChild(document.createTextNode(element.status));
-    
-//         let data_desc = document.createElement('td'); //create task description field
-//         data_desc.appendChild(document.createTextNode(element.desc));
-    
-//         //TODO
-//             //Drop down of all users involved in group
-//         let data_user = document.createElement('td'); //create assigned user field
-//         data_user.appendChild(document.createTextNode(element.user));
-    
-//         let data_deadline = document.createElement('td'); //create deadline user field
-//         data_deadline.appendChild(document.createTextNode(element.deadline));
-    
-//         let data_submitted = document.createElement('td'); //create date submitted user field
-//         data_submitted.appendChild(document.createTextNode(element.submitted));
-    
-//         let delete_btn = document.createElement('td'); //create row delete button
-//         let delete_btn_span = document.createElement('span');
-//         //replace this with trash icon
-//         delete_btn_span.setAttribute('class', 'table-remove far fa-trash-alt');
-//         delete_btn.appendChild(delete_btn_span);
-
-//         tr.appendChild(data_id);
-//         tr.appendChild(data_status);
-//         tr.appendChild(data_desc);
-//         tr.appendChild(data_user);
-//         tr.appendChild(data_deadline);
-//         tr.appendChild(data_submitted);
-//         tr.appendChild(delete_btn);
-    
-//         task_table.appendChild(tr);
-//     });
-// }
 
 function countCompletedTasks() {
     //find all the tasks that have been completed
@@ -139,16 +88,35 @@ function checkSubmissionDate($submitted, $deadline, $parent) {
 }
 
 $(document).ready(function() {
-    let $PROGRESS_BAR = $('#progress-bar');
-
-    //updateTaskTable(); //add fields to the table
-    
     window.setTimeout(updateProgress, 1500); //call the updateProgress 1.5s after load
 
     var $TABLE = $('#task-table');
     var $CLONE = $TABLE.find('tr.hide');
 
-    $CLONE.find('#submitted input').change(function() {
+    //get sprints for the current group
+    let SPRINTS;
+    socket.emit('fetchSprints', currentGroup, function(sprints) {
+        SPRINTS = sprints;
+        sprints.forEach(sprint => {
+            var option = document.createElement('option');
+            option.value = sprint.sprintName;
+            option.innerHTML = sprint.sprintName.replace(/\b\w/g, l => l.toUpperCase());
+            $(option).prop('id', 'sprint');
+            $('#sprintList').append(option);
+        })
+    })
+
+    
+
+    //update clone dropdown for each member in the group
+    groupMembers.forEach(member => {
+        var option = document.createElement('option');
+        option.value = member;
+        option.innerHTML = member;
+        $CLONE.find('#assigned').find('select').append(option);
+    })
+
+    $('tr').find('#submitted input').change(function() {
         var $parent = $(this).parent();
         if(this.checked) {
             var current_date = new Date(); //get the current date
@@ -166,40 +134,174 @@ $(document).ready(function() {
             $parent.parent().addClass('in-progress');
             updateProgress();
         }
+
+        //get task
+        var $TASK = $(this).parent().parent();
+        var otask = {};
+
+        otask.id = $TASK.prop('value');
+        otask.delivered = $(this).prop('checked');
+        otask.status = $TASK.find('#status').text();
+
+        var query = { 
+            sprintName : currentSprint,
+            "tasks.id" : otask.id,
+        };
+        var values = { $set : { "tasks.$.delivered" : otask.delivered, "tasks.$.status" : otask.status}};
+
+        //upload change to server
+        socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
+
     })
 
-    $CLONE.find('#assigned select').change(function() {
+    $('tr').find('#assigned select').change(function() {
         var text = $(this).text();
         var status = $(this).parent().parent().find('#status');
 
         if(text.toLowerCase() !== 'select a person' && !status.parent().hasClass('confirmed')) {
             status.text('in-progress');
+            status.parent().removeClass('confirmed');
             status.parent().addClass('in-progress');   
         } else if(text.toLowerCase() === 'select a person'){
-            console.log('test');
             status.text('not started');
             status.parent().removeClass('in-progress');
         }
+
+        //get task
+        var $TASK = $(this).parent().parent();
+        var otask = {};
+
+        otask.id = $TASK.prop('value');
+        otask.assigned = $(this).prop('value');
+        otask.status = $TASK.find('#status').text();
+
+        var query = { 
+            sprintName : currentSprint,
+            "tasks.id" : otask.id,
+        };
+        var values = { $set : { "tasks.$.assigned" : otask.assigned, "tasks.$.status" : otask.status}};
+
+        //upload change to server
+        socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
+    })
+
+    $('tr').find('#deadline input').change(function() {
+        //get task
+        var $TASK = $(this).parent().parent();
+        var otask = {};
+
+        otask.id = $TASK.prop('value');
+        otask.deadline = $(this).prop('value');
+
+        var query = { 
+            sprintName : currentSprint,
+            "tasks.id" : otask.id,
+        };
+        var values = { $set : { "tasks.$.deadline" : otask.deadline}};
+
+        //upload change to server
+        socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
     })
 
     //add a new row to the table when add table button is clicked
-    $('.table-add').click(function () {
+    $('.table-add').on('click', function () {
         var $clone = $CLONE.clone(true).removeClass('hide table-line');
-        $TABLE.append($clone);
 
+        //update task ID
+        lastTaskID++;
+        //set value to equal new id
+        $clone.prop('value', lastTaskID)
+        //add new row to table
+        $TABLE.append($clone);
+        //update progress bar
         updateProgress();
-      });
+
+        var task = { 
+            status : 'not started',
+            desc : 'task description',
+            assigned : '',
+            deadline : new Date(),
+            delivered : false,
+            id : lastTaskID
+        }
+
+        socket.emit('addTask', currentGroup, currentSprint, task);
+    });
 
     //remove the corresponding row from the table when remove button is pressed (move to clone functions??)
-    $('.table-remove').click(function () {
+    $('.table-remove').on('click', function () {
+        var row_id = $(this).parents('tr').val();
+        
+        socket.emit('removeTask', currentGroup, currentSprint, row_id);
         $(this).parents('tr').detach();
         //update progress bar after a row is deleted
         updateProgress();
     });
 
-})
-    
+    $('#member-tasks-view').click(function() {
+        //get task count for each member
+        graph_data = {};
+        groupMembers.forEach(member => {
+            graph_data[member] = 0;
+        })
 
+        var $TABLE = $('#task-table');
+        $TABLE.find('tbody').children().toArray().forEach(row => {
+            var user = $(row).find('#assigned').find('select').val();
+            if(user != '') {
+                graph_data[user] += 1;
+            }
+        })
+        ipc.send('createGraphWindow', 'task distribution', 'bar', graph_data);
+    })
+
+    $('#burndown-view').click(function() {
+        //get data
+
+        ipc.send('createGraphWindow', 'burndown chart', 'burndown');
+    })
+
+    $('#submission-frequency-view').click(function() {
+        //object of date : submission count
+        graph_data = {};
+
+        var $TABLE = $('#task-table');
+        $TABLE.find('tbody').children().toArray().forEach(row => {
+            var date = $(row).find('#deadline').find('input').val();
+            // console.log(date);
+            var submitted = $(row).find('#submitted').find('input').prop('checked');
+            // console.log(submitted);
+            if(date != '' && submitted) {
+                if(graph_data[date] == undefined) {
+                    graph_data[date] = 1;
+                } else {
+                    graph_data[date] += 1;
+                }
+            }
+        })
+        ipc.send('createGraphWindow', 'date task distribution', 'line', graph_data);
+    })
+
+    $('#createSprint').click(function(){
+        ipc.send('createSprintWindow', 'sprint creator', {});
+    })
+
+    $('#sprintList').change(function() {
+        //remove all rows that are not the main clone
+        $TABLE.find('tbody').children().toArray().forEach(row => {
+            if(!$(row).hasClass('hide')) {
+                $(row).detach();
+            }
+        })
+        //update current sprint
+        currentSprint = $(this).prop('value');
+        //refresh table with new sprint data
+        socket.emit('refreshScrum', currentGroup, currentSprint);
+
+        setTimeout(updateProgress, 1000);
+    })
+
+})
     
 
     

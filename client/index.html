@@ -20,7 +20,9 @@
         window.$ = window.jQuery = require('jquery');
     </script>
     <!-- jquery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link  href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.min.css" rel="stylesheet" />
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
         crossorigin="anonymous"></script>
     <!-- bootstrap -->
@@ -33,7 +35,7 @@
 <body style='-webkit-app-region: nodrag'>
     
 
-    <!-- taskbar -->
+    <!-- titlebar -->
     
     <!-- <div style='-webkit-app-region : drag; width:100%; height : 20px; 'id='taskbar' class='taskbar'>
     </div> -->
@@ -55,6 +57,9 @@
                 <div class='title' style='width:90%;' id='project-name'>Project Name</div>
                 <i class="fas fa-caret-square-down" style='color:#f1f2f2; cursor:pointer;'></i>
             </div>
+            <div class="project-editor title bottom" id="navigator">
+                <a href='./Content/Profile.html' class='title center-vertical-50 text-center click'>User Profile</a>
+            </div>
         </div>
 
         <!-- main content -->
@@ -63,7 +68,7 @@
             <div id='navigator' class='tool-selector d-flex'>
                 <a href='./Content/Chat.html' class='title dark center-vertical-50 text-center click'>Chat</a>
                 <a href='./Content/ScrumTool.html' class='title dark center-vertical-50 text-center click'>Scrum Management Tool</a>
-                <a href='./Content/Kanban.html' class='title dark center-vertical-50 text-center click'>Kanban Board</a>
+                <!-- <a href='./Content/Kanban.html' class='title dark center-vertical-50 text-center click'>Kanban Board</a> -->
             </div>
             <!-- dynamic content -->
             <div id='dynamic-content' class='container-fluid'>
@@ -72,5 +77,9 @@
     </div>
     <div id='page-mask'></div>
 </body>
+
+<div id="dialog" title="announcement">
+    <div id="dialog-content"></div>
+</div>
 
 </html>

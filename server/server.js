@@ -4,7 +4,6 @@ const client = require('socket.io').listen(4000).sockets;
 const crypto = require('crypto');
 const async = require('async');
 const nodemailer = require("nodemailer");
-var connections = new Map();
 var express = require('express');
 var app = express();
 const path = require('path');
@@ -22,7 +21,6 @@ app.listen(3000, function () {
 app.use('/', router);
 
 var msg = require('./log.js'); //server status library created by Joe
-// var connections = new Map();
 
 // Connect to mongo
 mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
@@ -170,7 +168,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             }
           });
         });
-
+        // forgot password
         socket.on('forgotPass', function(emailResetInput){
             async.waterfall([
                 function (done) {
@@ -260,6 +258,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
           }
         });
 
+        //swapping groups / joining a group
         socket.on('group', function(group, previousGroup){
             //if the user was part of a previous group, remove from the current group
             if(previousGroup != undefined) {
@@ -274,17 +273,79 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             socket.emit('status', 'you are now connected to group ' + group);
         });
 
+        //update the chat for a given socket
         socket.on('refreshChat', function(group) {
             //updates the chat for the user
             let chat = db.collection(group);
             // Get chats from mongo collection (limited to 100 documents);
-            chat.find().limit(100).sort({_id:1}).toArray(function(err, res){
+            chat.find({type : 'msg'}).limit(100).sort({_id:1}).toArray(function(err, res){
                 if(err){
                     throw err;
                 }
                 // Tell the client to output the information (chat history)
                 socket.emit('output', res);
             });
+        })
+
+        //refresh the scurm tasks for a given socket
+        socket.on('refreshScrum', function(group, sprint) {
+            //fetch the tasks for a given group
+            db.collection(group).findOne({sprintName : sprint}, function(err, res) {
+                if(err) throw err;
+
+                //tell client to update scrum board -- pass array of tasks to client
+                if(res != undefined) {
+                    socket.emit('updateScrum', sprint, res.tasks);
+                }
+            })
+        });
+        
+        //fetch the array of users for a given group
+        socket.on('fetchUserList', function(group, fn) {
+            db.collection('GroupData').findOne({groupName : group}, function(err, res) {
+                if(err) throw err;
+                //return the array of members back to the user
+                if(res != undefined ){ 
+                    fn(res.members);
+                }
+                
+            })
+        });
+
+        //add task to collection for a given group & sprint
+        socket.on('addTask', function(group, sprint, task) {
+            msg.log('adding task to sprintName : ' + sprint);
+            db.collection(group).updateOne({
+                sprintName : sprint
+            }, {
+                $push : {
+                    tasks : task
+                }
+            })
+        });
+
+        //remove task from collection for a given sprint and task id
+        socket.on('removeTask', function(group, sprint, task_id) {
+            msg.log('removing task_id : ' + task_id + ' from group ' + group + ' for sprint ' + sprint);
+            db.collection(group).updateOne({
+                sprintName : sprint
+            }, {
+                $pull : { tasks : {
+                    id : task_id
+                    }  
+                }
+            })
+        })
+
+        //updates a given task in the db
+        socket.on('updateTask', function(group, sprint, task, query, values) {
+            msg.log('updating task ' + task.id + ' for group ' + group + ' for sprint ' + sprint);
+
+            db.collection(group).update(query, values, function(err, res) {
+                if(err) throw err;
+
+                console.log('updated...');
+            })
         })
 
         // Notifying other clients when someone is typing
@@ -314,11 +375,11 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             } else {
                 // Insert message
                 if(message.substring(0,9) == '!announce'){//announcement
-                    client.to(group).emit('announcement', message.substring(9));
+                    client.to(group).emit('announcement', message.substring(9), name);
                 }
 
                 // socket.broadcast.emit('clearTyping', name);
-                chat.insert({name: name, message: message, timestamp : timestamp}, function(){
+                chat.insert({type : 'msg', name: name, message: message, timestamp : timestamp}, function(){
                     client.to(group).emit('output', [data]);
 
                     sendStatus("Message succesfully sent.");
@@ -331,21 +392,42 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             //open group data collection
             let groups = db.collection('GroupData');
             //search for groups contain the user
-            groups.find({members : [username]}).toArray(function(err, res) {
+            groups.find({members : username}).toArray(function(err, res) {
+                if(err) throw err;
                 socket.emit('updateGroups', res);
             });
         })
 
-        socket.on('createGroup', function(data, fn) {
-            //get the groupdata collection
-            let groupdata = db.collection('GroupData');
+        socket.on('createGroup', function(data, username, fn) {
             //add the user who created the group to the memberslist
-            data.members = [data.username];
+            data.members = [username];
             //create the group data document
-            groupdata.insert(data, function() {
+            db.collection('GroupData').insert(data, function() {
+                var pbdata = { sprintName : 'product backlog', tasks : []};
+                db.collection(data.groupName).insert(pbdata);
                 msg.important('group created :: ' + data.groupName);
                 fn(true);
             })
+            
+        })
+
+        //create a new sprint for a given group
+        socket.on('createSprint', function(data, group, fn) {
+            //todo
+                //sprint validation
+            data.tasks = []
+            db.collection(group).insert(data, function() {
+                msg.log('added new sprint');
+                fn(true);
+            })
+        })
+
+        socket.on('fetchSprints', function(group, fn) {
+            db.collection(group).find({sprintName : { $exists : true}}).toArray(function(err, res) {
+                if(err) throw err;
+                msg.list(res);
+                fn(res);
+            });
         })
 
         socket.on('checkGroupExists', function(group, fn) {

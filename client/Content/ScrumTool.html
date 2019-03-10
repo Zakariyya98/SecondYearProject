@@ -1,16 +1,26 @@
 <div class='tabs'>
-    <div id='product-backlog' class='tab'>Product Backlog</div>
-    <div class="dropdown">
+    <!-- <div class="dropdown">
         <button class="btn btn-secondary dropdown-toggle sprint-select tab" type="button" id="dropdownMenuButton"
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Select Sprint
         </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" href="#">Create New Sprint</a>
+        <div id='sprintList' class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a id='createSprint' class="dropdown-item" href="#">Create New Sprint</a>
         </div>
-    </div>
+    </div> -->
+    <select class='' id='sprintList'>
+    </select>
+
+    <button id='createSprint'>Create Sprint</button>
 </div>
 <h2 class='section-header'>Sprint Progress</h2>
+
+<div class='button-list' style='padding : 10px;'>
+    <button id='member-tasks-view' class='btn'>View Member's Tasks</button>
+    <button id='burndown-view' class='btn'>View Burndown Graph</button>
+    <button id='submission-frequency-view' class='btn'>View Submission Frequency</button>
+</div>
+
 <div class="progress">
     <span id='tasks-tooltip' class='bar-tooltip'></span>
     <div id='progress-bar' class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">
@@ -19,7 +29,7 @@
 
 </div>
 <div class=' table-container'>
-    <table id='task-table' class='table' style='font-size : 11px;'>
+    <table id='task-table' class='table table-bordered' style='font-size : 11px;'>
         <thead>
             <tr>
                 <th>Status</th>
@@ -38,8 +48,6 @@
             <td id='assigned'>
                 <select class='table-selector'>
                     <option value=''>Select a Person</option>
-                    <option value='Joe'>Joe</li>
-                    <option value='Charlie'>Charlie</li>
                 </select>
             </td>
             <td id='deadline'>

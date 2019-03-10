@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    username.value = s_username;
 
     //Send information when someone is typing
     $('#textarea').on('keypress', function(){
@@ -18,20 +19,11 @@ $(document).ready(function() {
                 name:username.value,
                 message:textarea.value,
                 timestamp:Date.now(),
-                group:groupName
+                group:currentGroup
             });
             event.preventDefault();
             $(this).val('');
         }
     })
 
-    $('#submit').on('click', function(event) {
-        socket.emit('input', {
-            name:username.value,
-            message:textarea.value,
-            group:groupName
-        });
-        event.preventDefault();
-        $('#textarea').val('');
-    });
 });
