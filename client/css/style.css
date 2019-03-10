@@ -84,6 +84,14 @@ html, body {
 /* scrum tool css -- start */
 #task-table {
     table-layout: auto;
+    border-collapse: collapse;
+    width : 100%;
+    max-width : 100%;
+    margin-bottom : 1em;
+}
+
+#task-table, #task-table .th, #task-table .td {
+    border : 1px solid black;
 }
 
 #page-mask {
@@ -117,6 +125,19 @@ html, body {
     margin-top : 20px;
 }
 
+.btn-small { 
+    font-size : 12px;
+    background-color : #eceeef;
+    color : #222222;
+    border : 0;
+    cursor : pointer;
+    transition: ease .3s;
+}
+
+.btn-small:hover { 
+    background-color : #dcdcdc;
+}
+
 
 .tab {
     background-color : lightgreen;
@@ -129,14 +150,28 @@ html, body {
 
 .sprint-select {
     border : 0;
-}
-
-.sprint-select:hover, .sprint-select:focus, .sprint-select:active {
-    background-color : darkseagreen !important;
+    background : 0;
+    cursor : pointer;
+    width : 25%;
+    margin-right : 10px;
 }
 
 .section-header {
-    padding : 10px 0 10px 0;
+    padding : 10px 0 0 0;
+}
+
+.sml-text {
+    font-size : 11px;
+    color : #666;
+}
+
+.custom-link { 
+    cursor : pointer;
+    transition : ease .3s;
+}
+
+.custom-link:hover {
+    text-decoration: underline;
 }
 
 .progress {
@@ -170,7 +205,7 @@ html, body {
 
 .table-add {
     cursor: pointer;
-    width : calc(100% - 10px);
+    width : 100%;
     margin: 5px auto 5px auto;
     border: 0;
     background-color : #eceeef;
@@ -189,17 +224,17 @@ html, body {
 /* scrumm tool css -- end */
 
 .confirmed {
-    background-color : #baffc9;
+    background-color : #63f282;
     color : #222222;
 }
 
 .in-progress {
-    background-color : #ffffba;
+    background-color : #fefe7a;
     color : #222222;
 }
 
 .failed {
-    background-color : #ffb3ba;
+    background-color : #d7525f;
     color : #222222;
 
 }

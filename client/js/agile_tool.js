@@ -100,7 +100,7 @@ $(document).ready(function() {
         sprints.forEach(sprint => {
             var option = document.createElement('option');
             option.value = sprint.sprintName;
-            option.innerHTML = sprint.sprintName.replace(/\b\w/g, l => l.toUpperCase());
+            option.innerHTML = CapitalizeWords(sprint.sprintName);
             $(option).prop('id', 'sprint');
             $('#sprintList').append(option);
         })
@@ -297,6 +297,8 @@ $(document).ready(function() {
         currentSprint = $(this).prop('value');
         //refresh table with new sprint data
         socket.emit('refreshScrum', currentGroup, currentSprint);
+
+        $('.section-header').text(CapitalizeWords(currentSprint) + ' Progress');
 
         setTimeout(updateProgress, 1000);
     })

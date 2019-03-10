@@ -10,6 +10,11 @@ let groupMembers = [];
 let currentSprint;
 let lastTaskID = 0;
 
+function CapitalizeWords(words) {
+    newWords = words.replace(/\b\w/g, l => l.toUpperCase());
+    return newWords;
+}
+
 function createGroup(args) {
     //create new group and group tag
     var group = document.createElement('div');
@@ -36,7 +41,7 @@ function updateTaskTable(tasks) {
     $CLONE = $task_table.find('tr.hide')
 
     if(tasks.length <= 0) {
-        lastTaskID = 1;
+        lastTaskID = 0;
     }
     else {
         tasks.forEach(task => {
@@ -48,13 +53,19 @@ function updateTaskTable(tasks) {
             $row.find('#desc').text(task.desc);
     
             var $select = $row.find('#assigned').find('select');
-    
-            groupMembers.forEach(member => {
-                let option = document.createElement('option');
-                option.value = member;
-                option.innerHTML = member;
-                $select.append(option);
-            })
+
+            //if there has been a change in the number of group members
+            if($select.children().length - 1 != groupMembers.length) {
+                //delete content
+                $select.html = '';
+                groupMembers.forEach(member => {
+                    let option = document.createElement('option');
+                    option.value = member;
+                    option.innerHTML = member;
+                    $select.append(option);
+                })
+            }
+            
     
             $select.val(task.assigned);
     
