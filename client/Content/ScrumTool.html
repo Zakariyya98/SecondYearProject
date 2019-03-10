@@ -1,18 +1,18 @@
 <div class='tabs'>
     <select class='sprint-select' id='sprintList'>
     </select>
-    <button id='createSprint' class='btn-small'>Create Sprint</button>
+    <button id='createSprint' class='btn-uniq'>Create Sprint</button>
 </div>
 <div class='header' style='display:inline;'>
-    <h2 class='section-header'>Product Backlog Progress
-    <span class='sml-text custom-link'>details</span>
-</h2>
+    <h2 class='section-header'>Product Backlog Progress</h2>
+    <span id='sprint-details' class='sml-text custom-link'>(sprint details)</span>
+    
 </div>
 
 
 <div class='button-list' style='padding : 10px 0 10px 0; width : 75%; overflow : hidden;'>
     <button id='member-tasks-view' class='btn-small'>View Member's Tasks</button>
-    <button id='burndown-view' class='btn-small'>View Burndown Graph</button>
+    <button id='burndown-view' class='btn-small'>View Burndown Chart</button>
     <button id='submission-frequency-view' class='btn-small'>View Submission Frequency</button>
 </div>
 
@@ -65,15 +65,11 @@
         <button class='table-add'>Add Task</button>
     </div>
     <div class='col-sm-3' style='height:64vh; background-color : rgb(238, 238, 238);'>
-        <div class='row' style='height:33%'>
-            <span>hello</span>
-
+        <div class='row row-section-50'>
+            <p>Member Task List</p>
         </div>
-        <div class='row' style='height:33%;'>
-            <span>hello</span>
-        </div>
-        <div class='row'>
-            <span>hello</span>
+        <div class='row row-section-50'>
+            <p>Sprint Feedback</p>
         </div>
 
     </div>

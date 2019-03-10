@@ -1,5 +1,5 @@
 var ipcRenderer = require('electron').ipcRenderer;
-var Chart = require('chart.js');
+var Chart = require('Chart.js');
 
 var ctx = document.getElementById('myChart').getContext('2d');
 
@@ -10,8 +10,10 @@ ipcRenderer.on('createBarChart', (event, graph_data) => {
             labels: Object.keys(graph_data),
             datasets: [{
                 label: "Tasks",
-                backgroundColor: ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"],
-                data: Object.values(graph_data)
+                backgroundColor: "rgba(54, 162, 235, 0.2)",
+                data: Object.values(graph_data),
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2
             }]
         },
         options: {
@@ -28,7 +30,7 @@ ipcRenderer.on('createBarChart', (event, graph_data) => {
                 yAxes: [{
                     ticks: {
                         beginAtZero: true,
-                        stepSize : 1
+                        stepSize: 1
                     }
                 }]
             }
@@ -43,22 +45,24 @@ ipcRenderer.on('createLineChart', (event, graph_data) => {
             labels: Object.keys(graph_data),
             datasets: [{
                 label: "Task Submitted",
-                fill: false,
-                backgroundColor: 'rgba(244, 143, 66, 0.7)',
-                borderColor: 'rgba(244, 143, 66, 0.7)',
-                data: Object.values(graph_data)
+                backgroundColor: "rgba(54, 162, 235, 0.2)",
+                data: Object.values(graph_data),
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio : false,
+            maintainAspectRatio: false,
             title: {
                 display: true,
                 text: 'Task Submission Dates'
             },
             tooltips: {
-                mode: 'index',
-                intersect: false,
+                callbacks: {
+                    label: tooltipItem => `${tooltipItem.yLabel}: ${tooltipItem.xLabel}`,
+                    title: () => null,
+                }
             },
             hover: {
                 mode: 'nearest',
@@ -78,9 +82,9 @@ ipcRenderer.on('createLineChart', (event, graph_data) => {
                         display: true,
                         labelString: 'Number of Submissions'
                     },
-                    ticks : {
-                        beginAtZero : true,
-                        stepSize : 1
+                    ticks: {
+                        beginAtZero: true,
+                        stepSize: 1
                     }
                 }]
             }
@@ -89,35 +93,41 @@ ipcRenderer.on('createLineChart', (event, graph_data) => {
 })
 
 //create the burndown chart
-ipcRenderer.on('createBurndownChart', (event, graph_data) => {
+ipcRenderer.on('createBurndownChart', (event, graph_data, target_data) => {
     new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
-            labels : [5, 4, 3, 2, 1],
+            labels: Object.keys(graph_data),
             datasets: [{
-                label : 'Real Tasks Remaining',
-                fill: false,
-                backgroundColor: 'rgba(84, 201, 133,0.8)',
-                borderColor: 'rgba(84, 201, 133,0.8)',
-                data: [4,4,4,3,2]
-            }, {
-                label : 'Ideal Tasks Remaining',
-                fill: false,
-                backgroundColor: 'rgba(90, 124, 153, 0.8)',
-                borderColor: 'rgba(90, 124, 153, 0.8)',
-                data: [4,3,2,1,0]
-            }]
+                    type: 'line',
+                    label: 'Target Tasks Remaining',
+                    fill: false,
+                    backgroundColor: 'rgb(249, 109, 49)',
+                    borderColor: 'rgb(249, 109, 49)',
+                    data: Object.values(target_data)
+                },
+                {
+                    type: 'bar',
+                    label: 'Actual',
+                    backgroundColor: "rgba(54, 162, 235, 0.2)",
+                    data: Object.values(graph_data),
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2
+                }
+            ]
         },
         options: {
             responsive: true,
-            maintainAspectRatio : false,
+            maintainAspectRatio: false,
             title: {
                 display: true,
-                text: 'Burndown Chart for Sprint Product Backlog'
+                text: 'Burndown Chart'
             },
             tooltips: {
-                mode: 'index',
-                intersect: false,
+                callbacks: {
+                    label: tooltipItem => `${tooltipItem.yLabel}: ${tooltipItem.xLabel}`,
+                    title: () => null,
+                }
             },
             hover: {
                 mode: 'nearest',
@@ -137,9 +147,9 @@ ipcRenderer.on('createBurndownChart', (event, graph_data) => {
                         display: true,
                         labelString: 'Sum of Tasks Remaining'
                     },
-                    ticks : {
-                        beginAtZero : true,
-                        stepSize : 1
+                    ticks: {
+                        beginAtZero: true,
+                        stepSize: 1
                     }
                 }]
             }

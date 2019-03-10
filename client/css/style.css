@@ -138,6 +138,18 @@ html, body {
     background-color : #dcdcdc;
 }
 
+.btn-uniq {
+    border : 0;
+    background-color : lightgreen;
+    margin-bottom : 5px;
+    width : 25%;
+    cursor : pointer;
+    transition : ease .3s;
+}
+
+.btn-uniq:hover { 
+    background-color : rgb(132, 223, 132);
+}
 
 .tab {
     background-color : lightgreen;
@@ -148,12 +160,20 @@ html, body {
     margin-left : 5px;
 }
 
+.row-section-50 {
+    display:inline-block;
+    word-wrap : break-word;
+    height : 50%;
+    padding : 5px;
+}
+
 .sprint-select {
     border : 0;
     background : 0;
     cursor : pointer;
     width : 25%;
     margin-right : 10px;
+    margin-bottom : 5px;
 }
 
 .section-header {

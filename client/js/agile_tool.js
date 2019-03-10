@@ -1,22 +1,9 @@
 //TODO:
-    //build sprint selecter
-        //build sprint feedback
     //export data to file
         //create export data button
         //convert data in table to .csv or json file potentially
     //build burndown chart
-        //include chartjs
         //extract data from table
-        //decide what type of graph to do
-        //display data on graph
-    //build submission frequency chart
-        //extract submitted date data from table for each task
-        //build bar chart showing submission data for each day of the week
-    //build group member task counter  
-        //extra task count from table for each user
-    //style
-
-//fetch an element
 
 function countCompletedTasks() {
     //find all the tasks that have been completed
@@ -94,10 +81,10 @@ $(document).ready(function() {
     var $CLONE = $TABLE.find('tr.hide');
 
     //get sprints for the current group
-    let SPRINTS;
+    let SPRINTS = {};
     socket.emit('fetchSprints', currentGroup, function(sprints) {
-        SPRINTS = sprints;
         sprints.forEach(sprint => {
+            SPRINTS[sprint.sprintName] = sprint;
             var option = document.createElement('option');
             option.value = sprint.sprintName;
             option.innerHTML = CapitalizeWords(sprint.sprintName);
@@ -256,9 +243,69 @@ $(document).ready(function() {
     })
 
     $('#burndown-view').click(function() {
-        //get data
+        //get the table
+        var $TABLE = $('#task-table');
+        //get sprint
+        var sprint = SPRINTS[currentSprint];
+        //get sprint start date
+        var startDate = new Date(sprint.sprintDate);
+        //get total task count (real and target)
+        var real_task_count = $TABLE.find('tbody').children().length - 1;
+        var target_task_count = real_task_count
+        //store task submissions for each date
+        var task_submissions = {};
+        //store tasks left for each of the sprint days
+        var graph_data = {};
+        //store target tasks completion data
+        var target_data = {};
+        //daily task completion rate
+        var completion_rate = target_task_count / ((sprint.sprintLength * 7) - 1)
+        //last date
+        var last_date = 0;        
 
-        ipc.send('createGraphWindow', 'burndown chart', 'burndown');
+        //get number of tasks submitted and their dates
+        $TABLE.find('tbody').children().toArray().forEach(row => {
+            var date = $(row).find('#deadline').find('input').val();
+            date = new Date(date);
+            var datestr = date.toLocaleDateString();
+
+            var submitted = $(row).find('#submitted').find('input').prop('checked');
+
+            if(datestr != '' && submitted) {
+                task_submissions[datestr] == undefined ? task_submissions[datestr] = 1 : task_submissions[datestr]++;
+                if(last_date == undefined || last_date < date) {
+                    last_date = date;
+                }
+            }
+        })
+
+        console.log(last_date);
+
+        for(let i = 0; i < sprint.sprintLength * 7; i++ ){
+            date = (new Date(startDate.getFullYear(),
+            startDate.getMonth(),
+            startDate.getDate() + i));
+            datestr = date.toLocaleDateString();
+            //update target data
+            if(i != 0) {
+                target_task_count -= completion_rate;
+                if(target_task_count <= 0) target_task_count = 0;
+            }
+            target_data[datestr] = target_task_count;
+            
+            if(date > last_date) {
+                graph_data[datestr] = 0;
+            } else {
+                //update actual data
+                if(task_submissions[datestr] != undefined) {
+                    real_task_count -= task_submissions[datestr];
+                }
+                graph_data[datestr] = real_task_count;
+            }
+            
+        }
+
+        ipc.send('createGraphWindow', 'burndown chart', 'burndown', graph_data, target_data);
     })
 
     $('#submission-frequency-view').click(function() {
@@ -279,7 +326,7 @@ $(document).ready(function() {
                 }
             }
         })
-        ipc.send('createGraphWindow', 'date task distribution', 'line', graph_data);
+        ipc.send('createGraphWindow', 'date task distribution', 'bar', graph_data);
     })
 
     $('#createSprint').click(function(){
@@ -301,6 +348,11 @@ $(document).ready(function() {
         $('.section-header').text(CapitalizeWords(currentSprint) + ' Progress');
 
         setTimeout(updateProgress, 1000);
+    })
+
+    //get the details for the current sprint
+    $('#sprint-details').click(function() {
+        console.log(SPRINTS[currentSprint]);
     })
 
 })
