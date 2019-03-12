@@ -1,22 +1,22 @@
 <div class='tabs'>
     <select class='sprint-select' id='sprintList'>
     </select>
-    <button id='createSprint' class='btn-uniq'>Create Sprint</button>
+    <button id='createSprint' class='btn-uniq success animated'>Create Sprint</button>
+    <button id='deleteSprint' class='btn-uniq warning animated' style='position:absolute; right : 0; margin-right : 14px;'>Delete Current Sprint
+        <i class="fas fa-exclamation-triangle"></i>
+    </button>
 </div>
 <div class='header' style='display:inline;'>
     <h2 class='section-header'>Product Backlog Progress</h2>
-    <span id='sprint-details' class='sml-text custom-link'>(sprint details)</span>
-    
+    <span id='sprint-date'></span>
+    <span id='sprint-details' class='sml-text custom-link animated'>(more sprint details)</span>
 </div>
-
 
 <div class='button-list' style='padding : 10px 0 10px 0; width : 75%; overflow : hidden;'>
     <button id='member-tasks-view' class='btn-small'>View Member's Tasks</button>
     <button id='burndown-view' class='btn-small'>View Burndown Chart</button>
     <button id='submission-frequency-view' class='btn-small'>View Submission Frequency</button>
 </div>
-
-
 
 </div>
 
@@ -26,7 +26,7 @@
     </div>
 
 </div>
-<div class='row' style='padding-right:15px;'>
+<div class='row' style='max-width : 100%;'>
     <div class='col-sm-9'>
         <div class='table-container'>
             <table id='task-table' style='font-size : 11px;'>
@@ -64,18 +64,22 @@
         </div>
         <button class='table-add'>Add Task</button>
     </div>
-    <div class='col-sm-3' style='height:64vh; background-color : rgb(238, 238, 238);'>
+    <div class='col-sm-3 right-panel'>
         <div class='row row-section-50'>
-            <p>Member Task List</p>
+            <p>Member Task List
+                <span id='content-controller'>-</span>
+            </p>
+            <ul>
+                <li></li>
+            </ul>
         </div>
         <div class='row row-section-50'>
-            <p>Sprint Feedback</p>
+            <p>Sprint Feedback
+                <span id='content-controller'>-</span>
+            </p>
         </div>
-
     </div>
 </div>
 
 </div>
-
-
 <script src='./js/agile_tool.js'></script>

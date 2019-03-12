@@ -10,9 +10,28 @@ let groupMembers = [];
 let currentSprint;
 let lastTaskID = 0;
 
+//get sprints for the current group
+let SPRINTS = {};
+
 function CapitalizeWords(words) {
     newWords = words.replace(/\b\w/g, l => l.toUpperCase());
     return newWords;
+}
+
+//converts any valid date to yyyy-mm-dd format
+function FormatDate(date) {
+    try {
+        var new_date = new Date(date);
+
+        //refactor date provided to make it suitable (mm-dd)
+        var day = ('0' + new_date.getDate()).slice(-2);
+        var month = ('0' + (new_date.getMonth() + 1)).slice(-2);
+
+        new_date = new_date.getFullYear() + "-" + (month) + "-" + (day);
+        return new_date
+    } catch(error) {
+        console.error(error);
+    }
 }
 
 function createGroup(args) {
@@ -40,10 +59,9 @@ function updateTaskTable(tasks) {
     $task_table = $('#task-table');
     $CLONE = $task_table.find('tr.hide')
 
-    if(tasks.length <= 0) {
+    if (tasks.length <= 0) {
         lastTaskID = 0;
-    }
-    else {
+    } else {
         tasks.forEach(task => {
             $row = $CLONE.clone(true).removeClass('hide table-line');
             $row.prop('value', task.id);
@@ -51,11 +69,11 @@ function updateTaskTable(tasks) {
 
             $row.find('#status').text(task.status);
             $row.find('#desc').text(task.desc);
-    
+
             var $select = $row.find('#assigned').find('select');
 
             //if there has been a change in the number of group members
-            if($select.children().length - 1 != groupMembers.length) {
+            if ($select.children().length - 1 != groupMembers.length) {
                 //delete content
                 $select.html = '';
                 groupMembers.forEach(member => {
@@ -65,40 +83,37 @@ function updateTaskTable(tasks) {
                     $select.append(option);
                 })
             }
-            
-    
+            //make the dropdown menu's current value to who has been assigned previously
             $select.val(task.assigned);
-    
+
+            //set the deadline date
             var $deadline = $row.find('#deadline').find('input');
-            // var deadline_date = new Date(task.deadline);
-    
-            // //refactor date provided to make it suitable for project
-            // var day = ('0' + deadline_date.getDate()).slice(-2);
-            // var month = ('0' + (deadline_date.getMonth() + 1)).slice(-2);
-    
-            // deadline_date = deadline_date.getFullYear() + "-" + (day) + "-" + (month);
             $deadline.val(task.deadline);
-    
+
+            //set submitted checkbox and add submitted date if submitted
             var $submitted = $row.find('#submitted').find('input');
             //if task has been delievered, set tickbox and create span tag
             if (task.delivered) {
                 $submitted.prop('checked', true);
-                //add date delivered span here also
+                var dateSubmitted = document.createElement('span');
+
+                dateSubmitted.innerText = FormatDate(task.submitted);
+                $submitted.parent().append(dateSubmitted);
             }
-    
+
             //apply styling to each row depending on completion
-            if(task.status.includes('late')) {
+            if (task.status.includes('late')) {
                 $row.addClass('failed');
-            } else if(task.status.includes('completed')) {
+            } else if (task.status.includes('completed')) {
                 $row.addClass('confirmed');
-            } else if(task.status.includes('in-progress')) {
+            } else if (task.status.includes('in-progress')) {
                 $row.addClass('in-progress');
             }
-    
+
             $task_table.append($row);
         })
     }
-    
+
 
 }
 
@@ -133,19 +148,20 @@ function RemoveUserTyping(user) {
 }
 
 $(document).ready(function () {
-    $("#dialog").dialog({   autoOpen: false,
-                            modal: true,
-                            resizable: false,
-                            buttons: {
-                                OK: function() {
-                                    $( this ).dialog( "close" );
-                                }
-                            },
-                            hide: {
-                                effect: "explode",
-                                duration: 200
-                            }
-    });//initialise dialog
+    $("#dialog").dialog({
+        autoOpen: false,
+        modal: true,
+        resizable: false,
+        buttons: {
+            OK: function () {
+                $(this).dialog("close");
+            }
+        },
+        hide: {
+            effect: "explode",
+            duration: 200
+        }
+    }); //initialise dialog
 
     //load the chat by default
     $('#dynamic-content').load('./Content/Chat.html');
@@ -156,14 +172,11 @@ $(document).ready(function () {
             socket.emit('fetchUserGroups', s_username);
         });
 
-        //if the user has emitted an announcement, create alert
-        //TODO
-        //create custom announcement
         socket.on('announcement', function (message, name) {
             //alert(message); //change dialog text
             $('#dialog').dialog('option', 'title', 'Announcement from ' + name);
-            $('#dialog').html('<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>' + message +'</p>');
-            $( '#dialog' ).dialog( 'open' );//open dialog
+            $('#dialog').html('<p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>' + message + '</p>');
+            $('#dialog').dialog('open'); //open dialog
         });
 
         //Display who is typing
@@ -242,10 +255,9 @@ $(document).ready(function () {
                     }
                     message_info.textContent = data[x].name + ' sent - ' + actualTime;
 
-                    
+
                     message.appendChild(message_info);
                     message.appendChild(message_content);
-                    //message_content.appendChild(message_info);
                     messages.appendChild(message);
                     messages.insertBefore(message, messages.lastChild);
                 }
@@ -264,10 +276,10 @@ $(document).ready(function () {
         //update the frontend scrum table with given task array
         socket.on('updateScrum', function (sprint, tasks) {
             //clear task table
-            if(sprint == currentSprint) {
+            if (sprint == currentSprint) {
                 updateTaskTable(tasks);
             }
-            
+
         });
 
         // Get Status From Server
@@ -289,19 +301,18 @@ $(document).ready(function () {
             socket.emit('refreshScrum', currentGroup, currentSprint);
         } else if (e.target.href.includes('Kanban')) {
             //socket.emit('refreshKanban', currentGroup);
-        } else if (e.target.href.includes('Profile')){
+        } else if (e.target.href.includes('Profile')) {
             $("#username").html(" Exercises Solution");
         }
     })
 
     //when you join a group you are part of
     $(document).on('click', '#group', function () {
-        var group = $(this).attr('groupname');
         previousGroup = currentGroup;
-        currentGroup = group;
+        currentGroup = $(this).attr('groupname');
 
         //update group to new group
-        socket.emit('group', group, previousGroup, );
+        socket.emit('group', currentGroup, previousGroup, );
         //fetch userlist for new group
         socket.emit('fetchUserList', currentGroup, function (members) {
             if (members.length > 0) {
@@ -309,14 +320,13 @@ $(document).ready(function () {
             }
         })
         //update group tag
-        $('#project-name').text(group);
+        $('#project-name').text(currentGroup);
 
         //load the chat when the user swaps group
         $('#dynamic-content').load('./Content/Chat.html');
 
-        socket.emit('refreshChat', group);
-
-        $('#project-name').text(group);
+        //refresh chat for new group
+        socket.emit('refreshChat', currentGroup);
     })
 
     //create group creator window when clicking on add new group button
@@ -347,14 +357,21 @@ $(document).ready(function () {
     })
 
     ipc.on('addNewSprint', (event, data) => {
-        socket.emit('createSprint', data, currentGroup, function(success) {
-            if(success) {
+        socket.emit('createSprint', data, currentGroup, function (success) {
+            if (success) {
                 alert('created new sprint');
+                //update sprint list with newly added group
+                let option = document.createElement('option');
+                $(option).prop('value', data.sprintName);
+                option.innerHTML = CapitalizeWords(data.sprintName);
+                $(option).prop('id', 'sprint');
+                $('#sprintList').append(option);
+                SPRINTS[data.sprintName] = data;
             }
         })
     })
 
-    //get console updates from app
+    //get main updates and print to console (testing)
     ipc.on('update', (event, args) => {
         console.log(args);
     })

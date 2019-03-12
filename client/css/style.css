@@ -3,6 +3,11 @@ html, body {
     width : 100%;
 }
 
+button:disabled {
+    background-color : rgb(184, 183, 183) !important;
+    color : rgb(223, 223, 223) !important;
+}
+
 /* #dialog {
 	
     box-shadow: 5px;
@@ -111,6 +116,27 @@ html, body {
     max-width : 800px;
 }
 
+.warning {
+    color : #fff;
+    background-color : rgb(249, 72, 72);
+}
+
+.warning:hover {
+    background-color : rgb(225, 72, 72);
+}
+
+.success {
+    background-color : lightgreen;
+}
+
+.success:hover {
+    background-color : rgb(132, 228, 132);
+}
+
+.animated {
+    transition : ease .3s;
+}
+
 .hide {
     visibility: hidden;
     display : none;
@@ -131,7 +157,6 @@ html, body {
     color : #222222;
     border : 0;
     cursor : pointer;
-    transition: ease .3s;
 }
 
 .btn-small:hover { 
@@ -139,16 +164,12 @@ html, body {
 }
 
 .btn-uniq {
+    font-size : 12px;
     border : 0;
-    background-color : lightgreen;
     margin-bottom : 5px;
-    width : 25%;
+    width : 20%;
     cursor : pointer;
-    transition : ease .3s;
-}
-
-.btn-uniq:hover { 
-    background-color : rgb(132, 223, 132);
+    border-radius : 5px;    
 }
 
 .tab {
@@ -160,20 +181,36 @@ html, body {
     margin-left : 5px;
 }
 
+.right-panel {
+    height:64vh;
+    width: 24vw;
+    max-width : 24vw;
+    margin : 0;
+    background-color : rgb(238, 238, 238);
+    left : 13px;
+}
+
+#content-controller {
+    cursor : pointer;
+}
+
 .row-section-50 {
     display:inline-block;
-    word-wrap : break-word;
+    word-break : break-all;
     height : 50%;
     padding : 5px;
 }
 
 .sprint-select {
+    font-size : 12px;
     border : 0;
     background : 0;
     cursor : pointer;
     width : 25%;
     margin-right : 10px;
     margin-bottom : 5px;
+    background-color : lightgreen;
+    border-radius : 5px;
 }
 
 .section-header {
@@ -187,7 +224,6 @@ html, body {
 
 .custom-link { 
     cursor : pointer;
-    transition : ease .3s;
 }
 
 .custom-link:hover {
@@ -388,7 +424,6 @@ html, body {
     width : 100%;
     margin-top : 2em;
     border : 0;
-    transition: ease .3s;
 }
 
 .group-btn:hover {
@@ -427,7 +462,6 @@ html, body {
     width : 100%;
     background-color : #60bf80;
     color : #f1f2f2;
-    transition: ease .3s;
 }
 
 .btn-custom:hover {
@@ -446,17 +480,6 @@ html, body {
 label {
     display : block;
     position : relative;
-}
-
-.label-text {
-    position : absolute;
-    top : -0.2em;
-    padding : 9px;
-    transition : ease .3s;
-}
-
-.label-active {
-    top : -2.2em;
 }
 
 .text-center {
@@ -567,7 +590,6 @@ label {
 .checkbox label input[type="checkbox"] + .cr > .cr-icon{
     transform: scale(3) rotateZ(-20deg);
     opacity: 0;
-    transition: all .3s ease-in;
 }
 
 .checkbox label input[type="checkbox"]:checked + .cr > .cr-icon{
