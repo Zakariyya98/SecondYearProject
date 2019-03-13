@@ -5,9 +5,7 @@ window.$ = require("jquery");
 
 $(document).ready(function() {
     $('#createSprintButton').on('click', function() {
-
-        console.log('pressed');
-    
+        //get sprint data inputs
         var $sprintName = $('#sprintNameInput');
         var $sprintDate = $('#sprintDateInput');
         var $sprintLength = $('#sprintLengthInput');

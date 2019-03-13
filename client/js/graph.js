@@ -3,7 +3,7 @@ var Chart = require('Chart.js');
 
 var ctx = document.getElementById('myChart').getContext('2d');
 
-ipcRenderer.on('createBarChart', (event, graph_data) => {
+ipcRenderer.on('createMembersChart', (event, graph_data) => {
     new Chart(ctx, {
         type: 'bar',
         data: {
@@ -38,50 +38,31 @@ ipcRenderer.on('createBarChart', (event, graph_data) => {
     });
 });
 
-ipcRenderer.on('createLineChart', (event, graph_data) => {
+ipcRenderer.on('createDayFrequencyChart', (event, graph_data) => {
     new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
-            labels: Object.keys(graph_data),
+            labels: graph_data.labels,
             datasets: [{
-                label: "Task Submitted",
+                label: "Tasks",
                 backgroundColor: "rgba(54, 162, 235, 0.2)",
-                data: Object.values(graph_data),
+                data: graph_data.values,
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 2
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            legend: {
+                display: false
+            },
             title: {
                 display: true,
-                text: 'Task Submission Dates'
+                text: 'Task Distribution'
             },
-            tooltips: {
-                callbacks: {
-                    label: tooltipItem => `${tooltipItem.yLabel}: ${tooltipItem.xLabel}`,
-                    title: () => null,
-                }
-            },
-            hover: {
-                mode: 'nearest',
-                intersect: true
-            },
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
-                xAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Date'
-                    }
-                }],
                 yAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Number of Submissions'
-                    },
                     ticks: {
                         beginAtZero: true,
                         stepSize: 1
@@ -90,29 +71,38 @@ ipcRenderer.on('createLineChart', (event, graph_data) => {
             }
         }
     });
-})
+});
 
 //create the burndown chart
 ipcRenderer.on('createBurndownChart', (event, graph_data, target_data) => {
+
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: Object.keys(graph_data),
+            labels: graph_data.labels,
             datasets: [{
                     type: 'line',
                     label: 'Target Tasks Remaining',
                     fill: false,
-                    backgroundColor: 'rgb(249, 109, 49)',
-                    borderColor: 'rgb(249, 109, 49)',
-                    data: Object.values(target_data)
+                    backgroundColor: 'rgba(244, 66, 92, 0.6)',
+                    borderColor: 'rgba(244, 66, 92, 0.6)',
+                    data: target_data.values.map(value => value.toFixed(2))
                 },
                 {
                     type: 'bar',
                     label: 'Actual',
-                    backgroundColor: "rgba(54, 162, 235, 0.2)",
-                    data: Object.values(graph_data),
+                    data: graph_data.values,
                     borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 2
+                    borderWidth: 2,
+                    fill : false
+                },
+                {
+                    type: 'line',
+                    label: 'Average Tasks Completion',
+                    fill: false,
+                    backgroundColor: 'rgba(255, 196, 102, 0.6)',
+                    borderColor: 'rgba(255, 196, 102, 0.6)',
+                    data: graph_data.average.map(value => value.toFixed(2))
                 }
             ]
         },

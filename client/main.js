@@ -76,13 +76,12 @@ function createGraphWindow(name, graph_type, graph_data, target_data) {
       title: 'Create a graph'
     });
     window.webContents.on('did-finish-load', () => {
-      // window.webContents.send('message', graph_type, graph_data);
       switch(graph_type) {
-        case 'bar':
-          window.webContents.send('createBarChart', graph_data);
+        case 'members':
+          window.webContents.send('createMembersChart', graph_data);
           break;
-        case 'line':
-          window.webContents.send('createLineChart', graph_data);
+        case 'day':
+          window.webContents.send('createDayFrequencyChart', graph_data);
           break;
         case 'burndown':
           window.webContents.send('createBurndownChart', graph_data, target_data);

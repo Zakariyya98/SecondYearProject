@@ -22,6 +22,18 @@ app.use('/', router);
 
 var msg = require('./log.js'); //server status library created by Joe
 
+//calculate the difference in days between two dates
+function DateDifference(d1, d2) {
+    var t1 = new Date(d1).getTime();
+    var t2 = new Date(d2).getTime();
+
+    var day = 24 * 60 * 60 * 1000;
+    var d = Math.floor((Math.abs(t1 - t2)) / day)
+
+    return d;
+}
+
+
 // Connect to mongo
 mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
     if(err){
@@ -403,7 +415,12 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             data.members = [username];
             //create the group data document
             db.collection('GroupData').insert(data, function() {
-                var pbdata = { sprintName : 'product backlog', tasks : []};
+                var pbdata = { 
+                    sprintName : 'product backlog',
+                    tasks : [],
+                    sprintDate : data.startDate,
+                    sprintLength : DateDifference(data.startDate, data.endDate)
+                };
                 db.collection(data.groupName).insert(pbdata);
                 msg.important('group created :: ' + data.groupName);
                 fn(true);
@@ -422,10 +439,17 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             })
         })
 
+        socket.on('deleteSprint', function(group, sprint, fn) {
+            fn(true);
+            db.collection(group).deleteOne({sprintName : sprint}, function() {
+                msg.log('deleted sprint ' + sprint);
+                fn(true);
+            })
+        })
+
         socket.on('fetchSprints', function(group, fn) {
             db.collection(group).find({sprintName : { $exists : true}}).toArray(function(err, res) {
                 if(err) throw err;
-                msg.list(res);
                 fn(res);
             });
         })
