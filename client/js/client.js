@@ -1,4 +1,5 @@
 const ipc = require('electron').ipcRenderer;
+const prompt = require('electron-prompt');
 
 const socket = io('http://localhost:4000');
 let s_username = 'Joe';
@@ -46,35 +47,35 @@ function updateTaskTable(tasks) {
 
             $row.find('#status').text(task.status);
             $row.find('#desc').text(task.desc);
-    
+
             var $select = $row.find('#assigned').find('select');
-    
+
             groupMembers.forEach(member => {
                 let option = document.createElement('option');
                 option.value = member;
                 option.innerHTML = member;
                 $select.append(option);
             })
-    
+
             $select.val(task.assigned);
-    
+
             var $deadline = $row.find('#deadline').find('input');
             // var deadline_date = new Date(task.deadline);
-    
+
             // //refactor date provided to make it suitable for project
             // var day = ('0' + deadline_date.getDate()).slice(-2);
             // var month = ('0' + (deadline_date.getMonth() + 1)).slice(-2);
-    
+
             // deadline_date = deadline_date.getFullYear() + "-" + (day) + "-" + (month);
             $deadline.val(task.deadline);
-    
+
             var $submitted = $row.find('#submitted').find('input');
             //if task has been delievered, set tickbox and create span tag
             if (task.delivered) {
                 $submitted.prop('checked', true);
                 //add date delivered span here also
             }
-    
+
             //apply styling to each row depending on completion
             if(task.status.includes('late')) {
                 $row.addClass('failed');
@@ -83,11 +84,11 @@ function updateTaskTable(tasks) {
             } else if(task.status.includes('in-progress')) {
                 $row.addClass('in-progress');
             }
-    
+
             $task_table.append($row);
         })
     }
-    
+
 
 }
 
@@ -166,7 +167,7 @@ $(document).ready(function () {
         //set the user's groups when the connect
         socket.on('updateGroups', function (groups) {
             if (groups.length > 0) {
-                //set current group to first group -- maybe change this later to be the 
+                //set current group to first group -- maybe change this later to be the
                 //group the user was last in (user settings);
                 currentGroup = groups[0].groupName;
                 $('#project-name').text(currentGroup);
@@ -231,7 +232,7 @@ $(document).ready(function () {
                     }
                     message_info.textContent = data[x].name + ' sent - ' + actualTime;
 
-                    
+
                     message.appendChild(message_info);
                     message.appendChild(message_content);
                     //message_content.appendChild(message_info);
@@ -256,7 +257,7 @@ $(document).ready(function () {
             if(sprint == currentSprint) {
                 updateTaskTable(tasks);
             }
-            
+
         });
 
         // Get Status From Server

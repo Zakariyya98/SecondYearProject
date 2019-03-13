@@ -136,6 +136,9 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             socket.emit('status', s);
         }
 
+        socket.on('loginClient', function(data){
+          socket.emit(data.Email);
+        });
         //Check user email and password
         socket.on('login', function(data){
           let email = data.email;
@@ -160,9 +163,9 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 if (err) throw err;
                 else if(result == null){
                   success = 2;
-                  socket.emit('login', success);
+                  socket.emit('login', {Email:userEmail.Email, Entry:success});
                 }else{
-                  socket.emit('login', success);
+                  socket.emit('login', {Email:userEmail.Email, Entry:success});
                 }
               });
             }
@@ -299,16 +302,16 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 }
             })
         });
-        
+
         //fetch the array of users for a given group
         socket.on('fetchUserList', function(group, fn) {
             db.collection('GroupData').findOne({groupName : group}, function(err, res) {
                 if(err) throw err;
                 //return the array of members back to the user
-                if(res != undefined ){ 
+                if(res != undefined ){
                     fn(res.members);
                 }
-                
+
             })
         });
 
@@ -332,7 +335,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             }, {
                 $pull : { tasks : {
                     id : task_id
-                    }  
+                    }
                 }
             })
         })
@@ -408,7 +411,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 msg.important('group created :: ' + data.groupName);
                 fn(true);
             })
-            
+
         })
 
         //create a new sprint for a given group

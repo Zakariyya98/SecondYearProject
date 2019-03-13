@@ -115,9 +115,10 @@ function createWindow() {
     minHeight: 600,
     minWidth: 900,
     frame: false,
+    show:false,
     title: "Collaborative Work Platform"
   })
-  // signUpWindow = new BrowserWindow({width:400,height:400,modal:true,frame:false})
+   signUpWindow = new BrowserWindow({width:400,height:400,modal:true,frame:false})
 
 
   // and load the index.html of the app.

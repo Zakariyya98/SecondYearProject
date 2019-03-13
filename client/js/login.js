@@ -88,13 +88,14 @@
 
   //Receive an answer from the server if login is successful
   socket.on('login', function(data){
-    if(data == 0){
+    if(data.Entry == 0){
         incorrect.innerHTML = "User does not exist!";
       incorrect.style.display = "block";
-    }else if (data == 1){
+    }else if (data.Entry == 1){
       ipcRenderer.send('switchPage');
       incorrect.style.display = "none";
-    }else if (data == 2){
+      socket.emit('loginClient',{Email:data.Email})
+    }else if (data.Entry == 2){
         incorrect.innerHTML = "Incorrect Email or Password!";
       incorrect.style.display = "block";
     }
