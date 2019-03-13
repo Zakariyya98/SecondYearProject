@@ -66,7 +66,7 @@ function createSprintWindow(name, data) {
   }
 }
 
-function createGraphWindow(name, graph_type, graph_data) {
+function createGraphWindow(name, graph_type, graph_data, target_data) {
   if (windows.get(name) == undefined) {
     let window = new BrowserWindow({
       width: 700,
@@ -76,16 +76,15 @@ function createGraphWindow(name, graph_type, graph_data) {
       title: 'Create a graph'
     });
     window.webContents.on('did-finish-load', () => {
-      // window.webContents.send('message', graph_type, graph_data);
       switch(graph_type) {
-        case 'bar':
-          window.webContents.send('createBarChart', graph_data);
+        case 'members':
+          window.webContents.send('createMembersChart', graph_data);
           break;
-        case 'line':
-          window.webContents.send('createLineChart', graph_data);
+        case 'day':
+          window.webContents.send('createDayFrequencyChart', graph_data);
           break;
         case 'burndown':
-          window.webContents.send('createBurndownChart', graph_data);
+          window.webContents.send('createBurndownChart', graph_data, target_data);
         default:
           break;
       }
@@ -120,10 +119,9 @@ function createWindow() {
   })
    signUpWindow = new BrowserWindow({width:400,height:400,modal:true,frame:false})
 
-
   // and load the index.html of the app.
   win.loadFile('./index.html')
-  signUpWindow.loadFile('./Login Content/login.html')
+  // signUpWindow.loadFile('./Login Content/login.html')
 
   // Open the DevTools.
   //win.webContents.openDevTools()
@@ -213,8 +211,8 @@ ipc.on('addNewSprint', (event, data) => {
   win.webContents.send('addNewSprint', data);
 })
 
-ipc.on('createGraphWindow', (event, name, graph_type, graph_data) => {
-  createGraphWindow(name, graph_type, graph_data);
+ipc.on('createGraphWindow', (event, name, graph_type, graph_data, target_data) => {
+  createGraphWindow(name, graph_type, graph_data, target_data);
 })
 
 ipc.on('createSprintWindow', (event, name, data) => {

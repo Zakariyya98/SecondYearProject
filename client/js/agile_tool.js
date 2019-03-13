@@ -1,29 +1,35 @@
 //TODO:
-    //build sprint selecter
-        //build sprint feedback
     //export data to file
         //create export data button
         //convert data in table to .csv or json file potentially
-    //build burndown chart
-        //include chartjs
-        //extract data from table
-        //decide what type of graph to do
-        //display data on graph
-    //build submission frequency chart
-        //extract submitted date data from table for each task
-        //build bar chart showing submission data for each day of the week
-    //build group member task counter  
-        //extra task count from table for each user
-    //style
 
-//fetch an element
+//clears the table of all rows
+function clearTable(table) {
+    table.find('tbody').children().toArray().forEach(row => {
+        if(!$(row).hasClass('hide')) {
+            $(row).detach();
+        }
+    })
+}
+
+//checks if a given date is in between two given dates
+function dateRangeCheck(startDate, endDate, dc) {
+    //get epoch time for each of the given dates
+    var startTime = new Date(startDate).getTime();
+    var endTime = new Date(endDate).getTime();
+    var t = new Date(dc).getTime();
+
+    //check if date to check is inbetween or eqaul to startTime or endTime
+    if(t >= startTime && t <= endTime) return true
+
+    return false;
+}
 
 function countCompletedTasks() {
     //find all the tasks that have been completed
     var completed = 0;
-    var children = document.querySelector('#task-table').querySelectorAll('tr');
-    var childrenList = Array.from(children); //make an array from the children
-    childrenList.forEach(element => {
+    var children = $('#task-table').find('tbody').children().toArray();
+    children.forEach(element => {
         if(element.children[0].textContent.toLowerCase().includes('completed')) {
             completed++;
         }
@@ -89,21 +95,24 @@ function checkSubmissionDate($submitted, $deadline, $parent) {
 
 $(document).ready(function() {
     window.setTimeout(updateProgress, 1500); //call the updateProgress 1.5s after load
+    
+    $('#deleteSprint').prop('disabled', true);
+
 
     var $TABLE = $('#task-table');
     var $CLONE = $TABLE.find('tr.hide');
 
-    //get sprints for the current group
-    let SPRINTS;
+    
     socket.emit('fetchSprints', currentGroup, function(sprints) {
-        SPRINTS = sprints;
         sprints.forEach(sprint => {
+            SPRINTS[sprint.sprintName] = sprint;
             var option = document.createElement('option');
             option.value = sprint.sprintName;
-            option.innerHTML = sprint.sprintName.replace(/\b\w/g, l => l.toUpperCase());
+            option.innerHTML = CapitalizeWords(sprint.sprintName);
             $(option).prop('id', 'sprint');
             $('#sprintList').append(option);
         })
+        $('.section-header').parent().find('#sprint-date').text('Start Date : ' + SPRINTS[currentSprint].sprintDate);
     })
 
     
@@ -120,8 +129,15 @@ $(document).ready(function() {
         var $parent = $(this).parent();
         if(this.checked) {
             var current_date = new Date(); //get the current date
+    
+            //refactor date provided to make it suitable for project
+            var day = ('0' + current_date.getDate()).slice(-2);
+            var month = ('0' + (current_date.getMonth() + 1)).slice(-2);
+
+            current_date = current_date.getFullYear() + "-" + (month) + "-" + (day);
+
             var date_element = document.createElement('span'); //create date DOM
-            date_element.innerText = current_date.toLocaleDateString(); //set DOM text
+            date_element.innerText = current_date; //set DOM text
             
             $parent.append(date_element);
             $parent.attr('date-submitted', Date.now());
@@ -142,12 +158,15 @@ $(document).ready(function() {
         otask.id = $TASK.prop('value');
         otask.delivered = $(this).prop('checked');
         otask.status = $TASK.find('#status').text();
+        otask.submitted = $(this).parent().find('span').text();
 
         var query = { 
             sprintName : currentSprint,
             "tasks.id" : otask.id,
         };
-        var values = { $set : { "tasks.$.delivered" : otask.delivered, "tasks.$.status" : otask.status}};
+        var values = { $set : { "tasks.$.delivered" : otask.delivered,
+        "tasks.$.status" : otask.status,
+        "tasks.$.submitted" : otask.submitted}};
 
         //upload change to server
         socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
@@ -185,22 +204,35 @@ $(document).ready(function() {
         socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
     })
 
-    $('tr').find('#deadline input').change(function() {
-        //get task
-        var $TASK = $(this).parent().parent();
-        var otask = {};
+    $('tr').find('#deadline input').change(function () {
+        var deadline_date = $(this).prop('value');
+        var startDate = new Date(SPRINTS[currentSprint].sprintDate);
+        var endDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + (SPRINTS[currentSprint].sprintLength * 7));
+        //check if selected date is valid
+        if (dateRangeCheck(startDate, endDate, deadline_date)) {
+            //get task
+            var $TASK = $(this).parent().parent();
+            var otask = {};
 
-        otask.id = $TASK.prop('value');
-        otask.deadline = $(this).prop('value');
+            otask.id = $TASK.prop('value');
+            otask.deadline = $(this).prop('value');
 
-        var query = { 
-            sprintName : currentSprint,
-            "tasks.id" : otask.id,
-        };
-        var values = { $set : { "tasks.$.deadline" : otask.deadline}};
+            var query = {
+                sprintName: currentSprint,
+                "tasks.id": otask.id,
+            };
+            var values = {
+                $set: {
+                    "tasks.$.deadline": otask.deadline
+                }
+            };
 
-        //upload change to server
-        socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
+            //upload change to server
+            socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
+        } else {
+            alert('please enter a valid date for the given sprint');
+            $(this).prop('value', '');
+        }
     })
 
     //add a new row to the table when add table button is clicked
@@ -221,10 +253,10 @@ $(document).ready(function() {
             desc : 'task description',
             assigned : '',
             deadline : new Date(),
+            submitted : new Date(),
             delivered : false,
             id : lastTaskID
         }
-
         socket.emit('addTask', currentGroup, currentSprint, task);
     });
 
@@ -252,34 +284,127 @@ $(document).ready(function() {
                 graph_data[user] += 1;
             }
         })
-        ipc.send('createGraphWindow', 'task distribution', 'bar', graph_data);
+        ipc.send('createGraphWindow', 'task distribution', 'members', graph_data);
     })
 
     $('#burndown-view').click(function() {
-        //get data
-
-        ipc.send('createGraphWindow', 'burndown chart', 'burndown');
-    })
-
-    $('#submission-frequency-view').click(function() {
-        //object of date : submission count
-        graph_data = {};
-
+        //get the table
         var $TABLE = $('#task-table');
+        //get sprint
+        var sprint = SPRINTS[currentSprint];
+        //get sprint start date
+        var startDate = new Date(sprint.sprintDate);
+        //get total task count (real and target)
+        var real_task_count = $TABLE.find('tbody').children().length - 1;
+        var target_task_count = real_task_count;
+        var average_task_count = real_task_count;
+        //store task submissions for each date
+        var task_submissions = {};
+        //store tasks left for each of the sprint days
+        var graph_data = { labels : [], values : [], average : []}
+        //store target tasks completion data
+        var target_data = { values : []};
+        //daily task completion rate
+        var completion_rate = target_task_count / ((sprint.sprintLength * 7) - 1)
+        //last date
+        var last_date = 0; 
+
+        var sum = 0;
+        var len = 0;
+        var velo = 0;
+
+        //get number of tasks submitted and their dates
         $TABLE.find('tbody').children().toArray().forEach(row => {
-            var date = $(row).find('#deadline').find('input').val();
-            // console.log(date);
+            var date = $(row).find('#submitted').find('span').text();
+            date = new Date(date);
+            var datestr = date.toLocaleDateString();
+
             var submitted = $(row).find('#submitted').find('input').prop('checked');
-            // console.log(submitted);
-            if(date != '' && submitted) {
-                if(graph_data[date] == undefined) {
-                    graph_data[date] = 1;
-                } else {
-                    graph_data[date] += 1;
+
+            if(datestr != '' && submitted) {
+                task_submissions[datestr] == undefined ? task_submissions[datestr] = 1 : task_submissions[datestr]++;
+                if(last_date == undefined || last_date < date) {
+                    last_date = date;
                 }
             }
         })
-        ipc.send('createGraphWindow', 'date task distribution', 'line', graph_data);
+
+        for(let i = 0; i < sprint.sprintLength * 7; i++ ){
+            date = (new Date(startDate.getFullYear(),
+            startDate.getMonth(),
+            startDate.getDate() + i));
+            datestr = date.toLocaleDateString();
+
+            //update target data
+            if(i != 0) {
+                target_task_count -= completion_rate;
+                if(target_task_count <= 0) target_task_count = 0;
+            }
+            target_data.values.push(target_task_count);
+            
+            graph_data.labels.push(datestr);
+            if(date > last_date) {
+                graph_data.values.push(0);
+            } else {
+                //update actual data
+                if(task_submissions[datestr] != undefined) {
+                    real_task_count -= task_submissions[datestr];
+                }
+                graph_data.values.push(real_task_count);
+            }
+        }
+
+        Object.values(task_submissions).forEach(tasks_complete => {
+            sum += tasks_complete;
+        })
+
+        graph_data.values.forEach(value => {
+            if(value != 0) {
+                len++;
+            }
+        })
+        velo = sum / len;
+        console.log(sum);
+        console.log(len);
+        console.log(velo);
+        
+        for(let i = 0; i < graph_data.labels.length; i++) {
+            if(i!=0) {
+                average_task_count -= velo;
+            }
+
+            if(average_task_count <= 0) {
+                break;
+            }
+            graph_data.average.push(average_task_count);
+            
+            
+        }
+
+
+        ipc.send('createGraphWindow', 'burndown chart', 'burndown', graph_data, target_data);
+    })
+
+    $('#submission-frequency-view').click(function() {
+        graph_data = {
+            labels : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+            values : [0, 0, 0, 0, 0, 0, 0]
+        }
+
+        console.log(graph_data);
+        var $TABLE = $('#task-table');
+        $TABLE.find('tbody').children().toArray().forEach(row => {
+            var date = $(row).find('#submitted').find('span').text();
+            var submitted = $(row).find('#submitted').find('input').prop('checked');
+
+            if((date != '' || date != undefined) && submitted) {
+                var day = new Date(date).getDay();
+                graph_data.values[day]++;
+            }
+        })
+
+        console.log(Object.keys(graph_data).sort);
+        ipc.send('createGraphWindow', 'date task distribution', 'day', graph_data);
     })
 
     $('#createSprint').click(function(){
@@ -288,17 +413,39 @@ $(document).ready(function() {
 
     $('#sprintList').change(function() {
         //remove all rows that are not the main clone
-        $TABLE.find('tbody').children().toArray().forEach(row => {
-            if(!$(row).hasClass('hide')) {
-                $(row).detach();
-            }
-        })
+        clearTable($TABLE);
         //update current sprint
         currentSprint = $(this).prop('value');
+
+        //disable delete button if product backlog
+        currentSprint == 'product backlog' ? $('#deleteSprint').prop('disabled', true) : $('#deleteSprint').prop('disabled', false);
         //refresh table with new sprint data
         socket.emit('refreshScrum', currentGroup, currentSprint);
 
+        $('.section-header').text(CapitalizeWords(currentSprint) + ' Progress');
+        $('.section-header').parent().find('#sprint-date').text('Start Date : ' + SPRINTS[currentSprint].sprintDate);
+
         setTimeout(updateProgress, 1000);
+    })
+
+    //get the details for the current sprint
+    $('#sprint-details').click(function() {
+        console.log(SPRINTS[currentSprint]);
+    })
+
+    $('#deleteSprint').click(function() {
+        socket.emit('deleteSprint', currentGroup, currentSprint, function(success) {
+            if(success) {
+                $('#sprintList').children().toArray().forEach(option => {
+                    if($(option).prop('value') == currentSprint) {
+                        $(option).detach();
+                        currentSprint = 'product backlog';
+                    }
+                })
+                clearTable($TABLE);
+                socket.emit('refreshScrum', currentGroup, currentSprint);
+            }
+        })
     })
 
 })
