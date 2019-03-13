@@ -1,7 +1,10 @@
 const ipc = require('electron').ipcRenderer;
 
 const socket = io('http://localhost:4000');
+
 let s_username = 'Joe';
+let s_userprofilepic = '';
+
 let previousGroup = '';
 let currentGroup = '';
 let usersTyping = [];
@@ -132,6 +135,8 @@ function RemoveUserTyping(user) {
     }
 }
 
+
+
 $(document).ready(function () {
     $("#dialog").dialog({   autoOpen: false,
                             modal: true,
@@ -146,6 +151,12 @@ $(document).ready(function () {
                                 duration: 200
                             }
     });//initialise dialog
+
+    //Clear who was typing
+    socket.on('image', function (encodedimg) {
+        s_userprofilepic = 'data:image/png;base64,' + encodedimg;
+        document.getElementById("profilepic").src=s_userprofilepic;
+    });
 
     //load the chat by default
     $('#dynamic-content').load('./Content/Chat.html');
