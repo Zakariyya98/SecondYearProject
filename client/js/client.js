@@ -95,9 +95,12 @@ function updateTaskTable(tasks) {
             //if task has been delievered, set tickbox and create span tag
             if (task.delivered) {
                 $submitted.prop('checked', true);
-                var dateSubmitted = document.createElement('span');
-
-                dateSubmitted.innerText = FormatDate(task.submitted);
+                var dateSubmitted = document.createElement('input');
+                $(dateSubmitted).prop('type', 'date');
+                $(dateSubmitted).prop('value', FormatDate(task.submitted));
+                $(dateSubmitted).prop('id', 'date-submitted');
+                $(dateSubmitted).addClass('table-selector');
+                
                 $submitted.parent().append(dateSubmitted);
             }
 
