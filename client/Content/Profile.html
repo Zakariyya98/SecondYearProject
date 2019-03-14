@@ -1,10 +1,20 @@
 <div>
     <h1><span id='username'>Username</span>'s Settings</h1>
 </div>
-<button type="button">Change Name</button>
-<button type="button">Change Email</button>
-<button type="button">Change Password</button>
-<button type="button">Delete Account</button>
+<div>
+<img id='profilepic' src='resources/defaultemptyprofilepicture.png' alt="Profile Picture" />
+</div>
+
+<div>
+    <li><button type="button">Change Name</button></li>
+    <li><button type="button">Change Email</button></li>
+    <li><button type="button">Change Password</button></li>
+    <li><button type="button">Delete Account</button></li>
+</div>
 
 
 <script src='./js/Profile.js'></script>
+
+<div id="delete-account-confirm" title="Delete Account">
+        <div id="dialog-content"></div>
+    </div>

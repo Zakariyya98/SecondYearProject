@@ -1,7 +1,11 @@
 const ipc = require('electron').ipcRenderer;
+const prompt = require('electron-prompt');
 
 const socket = io('http://localhost:4000');
+
 let s_username = 'Joe';
+let s_userprofilepic = '';
+
 let previousGroup = '';
 let currentGroup = '';
 let usersTyping = [];
@@ -72,6 +76,27 @@ function updateTaskTable(tasks) {
 
             var $select = $row.find('#assigned').find('select');
 
+<<<<<<< HEAD
+            groupMembers.forEach(member => {
+                let option = document.createElement('option');
+                option.value = member;
+                option.innerHTML = member;
+                $select.append(option);
+            })
+
+            $select.val(task.assigned);
+
+            var $deadline = $row.find('#deadline').find('input');
+            // var deadline_date = new Date(task.deadline);
+
+            // //refactor date provided to make it suitable for project
+            // var day = ('0' + deadline_date.getDate()).slice(-2);
+            // var month = ('0' + (deadline_date.getMonth() + 1)).slice(-2);
+
+            // deadline_date = deadline_date.getFullYear() + "-" + (day) + "-" + (month);
+            $deadline.val(task.deadline);
+
+=======
             //if there has been a change in the number of group members
             if ($select.children().length - 1 != groupMembers.length) {
                 //delete content
@@ -91,6 +116,7 @@ function updateTaskTable(tasks) {
             $deadline.val(task.deadline);
 
             //set submitted checkbox and add submitted date if submitted
+>>>>>>> 438784a16dfa12b1ea539c7d391bdec1ffaa2e3f
             var $submitted = $row.find('#submitted').find('input');
             //if task has been delievered, set tickbox and create span tag
             if (task.delivered) {
@@ -150,6 +176,8 @@ function RemoveUserTyping(user) {
     }
 }
 
+
+
 $(document).ready(function () {
     $("#dialog").dialog({
         autoOpen: false,
@@ -165,6 +193,12 @@ $(document).ready(function () {
             duration: 200
         }
     }); //initialise dialog
+
+    //Clear who was typing
+    socket.on('image', function (encodedimg) {
+        s_userprofilepic = 'data:image/png;base64,' + encodedimg;
+        document.getElementById("profilepic").src=s_userprofilepic;
+    });
 
     //load the chat by default
     $('#dynamic-content').load('./Content/Chat.html');
@@ -193,7 +227,7 @@ $(document).ready(function () {
         //set the user's groups when the connect
         socket.on('updateGroups', function (groups) {
             if (groups.length > 0) {
-                //set current group to first group -- maybe change this later to be the 
+                //set current group to first group -- maybe change this later to be the
                 //group the user was last in (user settings);
                 currentGroup = groups[0].groupName;
                 $('#project-name').text(currentGroup);

@@ -1,4 +1,3 @@
-const prompt = require('electron-prompt');
 $(document).ready(function() {
 
   //Create a Kanban Board
@@ -16,6 +15,8 @@ $(document).ready(function() {
             title: 'Change the title',
             label: 'Title:',
             value: '',
+            width: 370,
+            height: 150,
             inputAttrs: {
               type: 'text'
             }
@@ -77,6 +78,8 @@ $(document).ready(function() {
           title: 'Add an Item',
           label: 'Name of Item:',
           value: '',
+          width: 370,
+          height: 150,
           inputAttrs: {
             type: 'text'
           }
