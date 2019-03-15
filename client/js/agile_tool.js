@@ -1,7 +1,7 @@
 //TODO:
     //export data to file
         //create export data button
-        //convert data in table to .csv or json file potentially
+        //convert data in table to .csv
 
 //clears the table of all rows
 function clearTable(table) {
@@ -13,7 +13,10 @@ function clearTable(table) {
 }
 
 //checks if a given date is in between two given dates
-function dateRangeCheck(startDate, endDate, dc) {
+function dateRangeCheck(dc) {
+    //get the current sprint dates
+    var startDate = new Date(SPRINTS[currentSprint].sprintDate);
+    var endDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + (SPRINTS[currentSprint].sprintLength * 7));
     //get epoch time for each of the given dates
     var startTime = new Date(startDate).getTime();
     var endTime = new Date(endDate).getTime();
@@ -69,27 +72,26 @@ function updateProgress() {
     
 }
 
-function checkSubmissionDate($submitted, $deadline, $parent) {
-    var submitted_date = new Date(parseInt($submitted.attr('date-submitted'))).toLocaleDateString();
-    var deadline_date = new Date($deadline.val()).toLocaleDateString();
+function checkSubmissionDate($submitted, $deadline, $task) {
+    var submitted_date = new Date($submitted.prop('value'));
+    var deadline_date = new Date($deadline.prop('value'));
 
-    $parent.removeClass('in-progress');
+    $task.removeClass($task.prop('class'));
 
     //check if the submission date is equal to the deadline 
-    if(submitted_date === deadline_date) {
-        //task was submitted on time
-        $parent.find('#status').text('completed');
-        $parent.addClass('confirmed');
-    } else if(submitted_date < deadline_date) {
+    if(submitted_date < deadline_date) {
         //task was submitted before deadline
-        $parent.find('#status').text('completed (early)');
-        $parent.addClass('confirmed');
+        $task.find('#status').text('completed (early)');
+        $task.addClass('confirmed');
     } else if(submitted_date > deadline_date) {
         //task was submitted after deadlien
-        $parent.find('#status').text('completed (late)');
-        $parent.addClass('failed');
+        $task.find('#status').text('completed (late)');
+        $task.addClass('failed');
+    } else {
+        //task was submitted on time
+        $task.find('#status').text('completed');
+        $task.addClass('confirmed');
     }
-    $parent.prop('disabled', true);
     updateProgress();
 }
 
@@ -125,52 +127,74 @@ $(document).ready(function() {
         $CLONE.find('#assigned').find('select').append(option);
     })
 
-    $('tr').find('#submitted input').change(function() {
+    $('tr').find('#submitted #submitted-checkbox').change(function() {
         var $parent = $(this).parent();
+        var $TASK = $parent.parent();
+
         if(this.checked) {
             var current_date = new Date(); //get the current date
-    
-            //refactor date provided to make it suitable for project
-            var day = ('0' + current_date.getDate()).slice(-2);
-            var month = ('0' + (current_date.getMonth() + 1)).slice(-2);
 
-            current_date = current_date.getFullYear() + "-" + (month) + "-" + (day);
-
-            var date_element = document.createElement('span'); //create date DOM
-            date_element.innerText = current_date; //set DOM text
+            var dateSubmitted = document.createElement('input');
+            $(dateSubmitted).prop('type', 'date');
+            $(dateSubmitted).prop('value', FormatDate(current_date));
+            $(dateSubmitted).prop('id', 'date-submitted');
+            $(dateSubmitted).addClass('table-selector');
             
-            $parent.append(date_element);
-            $parent.attr('date-submitted', Date.now());
+            $parent.append(dateSubmitted);
 
-            checkSubmissionDate($parent, $parent.parent().find('#deadline input'), $parent.parent()); //check if submitted before deadline 
+            checkSubmissionDate($(dateSubmitted), $TASK.find('#deadline input'), $TASK); //check if submitted before deadline 
         } else if(!this.checked) {
             $parent.parent().find('#status').text('in-progress');
-            $parent.find('span').remove();
+            $parent.find('#date-submitted').remove();
             $parent.parent().removeClass('confirmed failed');
             $parent.parent().addClass('in-progress');
             updateProgress();
         }
 
-        //get task
-        var $TASK = $(this).parent().parent();
-        var otask = {};
-
-        otask.id = $TASK.prop('value');
-        otask.delivered = $(this).prop('checked');
-        otask.status = $TASK.find('#status').text();
-        otask.submitted = $(this).parent().find('span').text();
+        id = $TASK.prop('value');
+        delivered = $(this).prop('checked');
+        status = $TASK.find('#status').text();
+        submitted = $(this).parent().find('#date-submitted').prop('value');
 
         var query = { 
             sprintName : currentSprint,
-            "tasks.id" : otask.id,
+            "tasks.id" : id,
         };
-        var values = { $set : { "tasks.$.delivered" : otask.delivered,
-        "tasks.$.status" : otask.status,
-        "tasks.$.submitted" : otask.submitted}};
+        var values = { $set : { "tasks.$.delivered" : delivered,
+        "tasks.$.status" : status,
+        "tasks.$.submitted" : submitted}};
 
         //upload change to server
-        socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
+        socket.emit('updateTask', currentGroup, currentSprint, query, values)
+    });
+    $('tr').find('#submitted #date-submitted').change(function() {
+        var $parent = $(this).parent();
+        var $TASK = $parent.parent();
 
+        var new_date = $(this).prop('value');
+
+        //update task status
+        checkSubmissionDate($(this), $TASK.find('#deadline input'), $TASK); //check if submitted before deadline  
+
+        if(dateRangeCheck(new_date)) {
+            var id = $parent.parent().prop('value');
+            var status = $TASK.find('#status').text();
+
+            var query = { 
+                sprintName : currentSprint,
+                "tasks.id" : id,
+            };
+            var values = { $set : { "tasks.$.submitted" : new_date,
+            "tasks.$.status" : status}};
+    
+            //upload change to server
+            socket.emit('updateTask', currentGroup, currentSprint, query, values)
+
+            
+        } else {
+            alert('please enter a valid date for the given sprint');
+            $(this).prop('value', '');
+        }
     })
 
     $('tr').find('#assigned select').change(function() {
@@ -201,15 +225,13 @@ $(document).ready(function() {
         var values = { $set : { "tasks.$.assigned" : otask.assigned, "tasks.$.status" : otask.status}};
 
         //upload change to server
-        socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
+        socket.emit('updateTask', currentGroup, currentSprint, query, values)
     })
 
     $('tr').find('#deadline input').change(function () {
         var deadline_date = $(this).prop('value');
-        var startDate = new Date(SPRINTS[currentSprint].sprintDate);
-        var endDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + (SPRINTS[currentSprint].sprintLength * 7));
         //check if selected date is valid
-        if (dateRangeCheck(startDate, endDate, deadline_date)) {
+        if (dateRangeCheck(deadline_date)) {
             //get task
             var $TASK = $(this).parent().parent();
             var otask = {};
@@ -228,7 +250,7 @@ $(document).ready(function() {
             };
 
             //upload change to server
-            socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
+            socket.emit('updateTask', currentGroup, currentSprint, query, values)
         } else {
             alert('please enter a valid date for the given sprint');
             $(this).prop('value', '');
@@ -315,7 +337,7 @@ $(document).ready(function() {
 
         //get number of tasks submitted and their dates
         $TABLE.find('tbody').children().toArray().forEach(row => {
-            var date = $(row).find('#submitted').find('span').text();
+            var date = $(row).find('#submitted #date-submitted').prop('value');
             date = new Date(date);
             var datestr = date.toLocaleDateString();
 
@@ -364,9 +386,6 @@ $(document).ready(function() {
             }
         })
         velo = sum / len;
-        console.log(sum);
-        console.log(len);
-        console.log(velo);
         
         for(let i = 0; i < graph_data.labels.length; i++) {
             if(i!=0) {
@@ -391,10 +410,9 @@ $(document).ready(function() {
             values : [0, 0, 0, 0, 0, 0, 0]
         }
 
-        console.log(graph_data);
         var $TABLE = $('#task-table');
         $TABLE.find('tbody').children().toArray().forEach(row => {
-            var date = $(row).find('#submitted').find('span').text();
+            var date = $(row).find('#submitted #date-submitted').prop('value');
             var submitted = $(row).find('#submitted').find('input').prop('checked');
 
             if((date != '' || date != undefined) && submitted) {

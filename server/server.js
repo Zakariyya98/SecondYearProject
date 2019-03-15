@@ -366,8 +366,8 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
         })
 
         //updates a given task in the db
-        socket.on('updateTask', function(group, sprint, task, query, values) {
-            msg.log('updating task ' + task.id + ' for group ' + group + ' for sprint ' + sprint);
+        socket.on('updateTask', function(group, sprint, query, values) {
+            //msg.log('updating task ' + task.id + ' for group ' + group + ' for sprint ' + sprint);
 
             db.collection(group).update(query, values, function(err, res) {
                 if(err) throw err;
