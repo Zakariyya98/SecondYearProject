@@ -3,8 +3,9 @@ const prompt = require('electron-prompt');
 
 const socket = io('http://localhost:4000');
 
-let s_username = 'Joe';
+let s_username = '';
 let s_userprofilepic = '';
+let s_email = '';
 
 let previousGroup = '';
 let currentGroup = '';
@@ -76,7 +77,6 @@ function updateTaskTable(tasks) {
 
             var $select = $row.find('#assigned').find('select');
 
-<<<<<<< HEAD
             groupMembers.forEach(member => {
                 let option = document.createElement('option');
                 option.value = member;
@@ -96,7 +96,7 @@ function updateTaskTable(tasks) {
             // deadline_date = deadline_date.getFullYear() + "-" + (day) + "-" + (month);
             $deadline.val(task.deadline);
 
-=======
+/* MERGE ERROR
             //if there has been a change in the number of group members
             if ($select.children().length - 1 != groupMembers.length) {
                 //delete content
@@ -116,7 +116,8 @@ function updateTaskTable(tasks) {
             $deadline.val(task.deadline);
 
             //set submitted checkbox and add submitted date if submitted
->>>>>>> 438784a16dfa12b1ea539c7d391bdec1ffaa2e3f
+>>>>>>> 438784a16dfa12b1ea539c7d391bdec1ffaa2e3f*/
+
             var $submitted = $row.find('#submitted').find('input');
             //if task has been delievered, set tickbox and create span tag
             if (task.delivered) {
@@ -192,9 +193,13 @@ $(document).ready(function () {
     }); //initialise dialog
 
     //Clear who was typing
-    socket.on('image', function (encodedimg) {
-        s_userprofilepic = 'data:image/png;base64,' + encodedimg;
-        document.getElementById("profilepic").src=s_userprofilepic;
+    socket.on('getUserInfo', function (value) {
+        if(value.Image){
+            s_userprofilepic = value.Image;
+            document.getElementById("profilepic").src=s_userprofilepic;
+        }
+        s_username = value.Name;
+        socket.emit('fetchUserGroups', s_username);
     });
 
     //load the chat by default
@@ -203,7 +208,8 @@ $(document).ready(function () {
     if (socket !== undefined) {
         socket.on('confirmation', function () {
             //update the user's groups
-            socket.emit('fetchUserGroups', s_username);
+
+            
         });
 
         socket.on('announcement', function (message, name) {
@@ -413,6 +419,11 @@ $(document).ready(function () {
     //fades the background to make popup window more prominent
     ipc.on('fadeMask', (event, args) => {
         $('#page-mask').fadeOut(500);
+    })
+
+    ipc.on('getUserEmail', (event, args) => {
+        socket.emit('getUserInfoRequest', args);
+        s_email = args;
     })
 
 });

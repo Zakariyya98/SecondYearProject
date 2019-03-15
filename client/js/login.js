@@ -94,7 +94,7 @@
     }else if (data.Entry == 1){
       ipcRenderer.send('switchPage');
       incorrect.style.display = "none";
-      socket.emit('loginClient',{Email:data.Email})
+      ipcRenderer.send('getUserEmail', data.Email);
     }else if (data.Entry == 2){
         incorrect.innerHTML = "Incorrect Email or Password!";
       incorrect.style.display = "block";
