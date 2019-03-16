@@ -25,8 +25,7 @@
     "oauth": "^0.9.15",
     "smalltalk": "^3.2.2",
     "socket.io": "^2.2.0",
-    "superagent": "^4.1.0",
-    "xel": "0.0.196"
+    "superagent": "^4.1.0"
   },
   "devDependencies": {
     "electron": "^4.0.5",

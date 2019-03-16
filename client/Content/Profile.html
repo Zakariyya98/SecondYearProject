@@ -1,20 +1,49 @@
-<div>
-    <h1><span id='username'>Username</span>'s Settings</h1>
-</div>
-<div>
-<img id='profilepic' src='resources/defaultemptyprofilepicture.png' alt="Profile Picture" />
-</div>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <!-- CSS -->
+        <link rel="stylesheet" href="./css/Profile.css" />
+        <!-- icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
 
-<div>
-    <li><button type="button">Change Name</button></li>
-    <li><button type="button">Change Email</button></li>
-    <li><button type="button">Change Password</button></li>
-    <li><button type="button">Delete Account</button></li>
-</div>
+        
+
+    <body>
+
+            <div class="card">
+                <img id="profilepic1" src="./resources/defaultemptyprofilepicture.png" alt="Profile Picture" style="width:100%; border-width:2px; border-style:solid; border-color:black; border-radius:30px;">
+                <!-- canvas -->
 
 
-<script src='./js/Profile.js'></script>
 
-<div id="delete-account-confirm" title="Delete Account">
-        <div id="dialog-content"></div>
-    </div>
+
+                <!---->
+                <div>
+                    <span id="uploadmessage"></span>
+                    <input type="file" id="fileupload" class="inputimage" accept="image/png, image/jpeg">
+                    <label for="fileupload"><i class="fa fa-edit"></i></label>
+                </div>
+
+                <h1><span id='username'>Username</span></h1>
+                <p class="emailtext"><span id='email'>email@email.com</span></p>
+                
+
+                <button id="changename" class="usersettings"><i class="fa fa-user-circle-o"></i> Change Name</button> 
+                <button id="changeemail" class="usersettings"><i class="fa fa-envelope-o"></i> Change E-Mail</button>
+                <button id="changepassword" class="usersettings"><i class="fa fa-lock"></i> Change Password</button>
+
+                <br>
+                <p><button class="delete"><i class="fa fa-exclamation-triangle"></i> Delete Account <i class="fa fa-exclamation-triangle"></i></button></p>
+            </div>
+
+        <!-- JS -->
+        <script src='./js/Profile.js'></script>
+
+
+    </body>
+
+
+</html>
