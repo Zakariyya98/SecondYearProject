@@ -176,8 +176,8 @@ button:disabled {
 .btn-uniq {
     font-size : 12px;
     border : 0;
-    margin-bottom : 5px;
-    width : 20%;
+    margin : 0 5px 5px 5px;
+    width : 15%;
     cursor : pointer;
     border-radius : 5px;    
 }
@@ -619,3 +619,37 @@ label {
 .workingBoard{background: #F4CE46; color:#fff}
 .defaultBoard{background: #FB7D44; color:#fff}
 .doneBoard{background: #00B961; color:#fff}
+
+
+.infoContainer {
+    background-color : rgb(249, 247, 247);
+}
+
+.infoTable {
+    width : 100%;
+}
+
+.infoTable td {
+    font-size : 11px;
+}
+
+.infoTable thead tr th:first-child {
+    text-align: right;
+}
+
+.infoTable thead tr th:nth-child(2) {
+    text-align : center;
+}
+
+.infoTable tbody tr td:first-child{
+    text-align : right;
+    width:50%;
+}
+
+.infoTable tbody tr td:nth-child(2) {
+    text-align : center;
+}
+
+.infoContainer {
+    overflow-y: scroll;
+}

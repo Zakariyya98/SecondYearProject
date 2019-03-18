@@ -1,7 +1,8 @@
 const ipc = require('electron').ipcRenderer;
 const prompt = require('electron-prompt');
-
+const { app } = require('electron').remote;
 const socket = io('http://localhost:4000');
+const jetpack = require('fs-jetpack');
 
 let s_username = '';
 let s_userprofilepic = '';
@@ -96,18 +97,15 @@ function updateTaskTable(tasks) {
             $deadline.val(task.deadline);
 
             //set submitted checkbox and add submitted date if submitted
-            
+
             var $submitted = $row.find('#submitted').find('input');
             //if task has been delievered, set tickbox and create span tag
             if (task.delivered) {
                 $submitted.prop('checked', true);
-                var dateSubmitted = document.createElement('input');
-                $(dateSubmitted).prop('type', 'date');
-                $(dateSubmitted).prop('value', FormatDate(task.submitted));
-                $(dateSubmitted).prop('id', 'date-submitted');
-                $(dateSubmitted).addClass('table-selector');
-                
-                $submitted.parent().append(dateSubmitted);
+                $date_submitted = $row.find('#date-submitted');
+
+                $date_submitted.removeClass('hide');
+                $date_submitted.prop('value', FormatDate(task.submitted));
             }
 
             //apply styling to each row depending on completion
@@ -180,7 +178,7 @@ $(document).ready(function () {
             s_userprofilepic = value.Image;
             document.getElementById("profilepic").src=s_userprofilepic;
         }
-        s_username = value.Name;
+        s_username = 'Joe Mitchell';
         socket.emit('fetchUserGroups', s_username);
     });
 
@@ -191,7 +189,7 @@ $(document).ready(function () {
         socket.on('confirmation', function () {
             //update the user's groups
 
-            
+            socket.emit('fetchUserGroups', s_username);
         });
 
         socket.on('announcement', function (message, name) {

@@ -2,9 +2,11 @@
     <select class='sprint-select' id='sprintList'>
     </select>
     <button id='createSprint' class='btn-uniq success animated'>Create Sprint</button>
-    <button id='deleteSprint' class='btn-uniq warning animated' style='position:absolute; right : 0; margin-right : 14px;'>Delete Current Sprint
+    <button id='exportSprint' class='btn-uniq success animated'>Export Sprint</button>
+    <button id='deleteSprint' class='btn-uniq warning animated' style='position:absolute; right : 0; margin-right : 14px; width : auto;'>Delete Current Sprint
         <i class="fas fa-exclamation-triangle"></i>
     </button>
+    
 </div>
 <div class='header' style='display:inline;'>
     <h2 class='section-header'>Product Backlog Progress</h2>
@@ -53,6 +55,7 @@
                 </td>
                 <td id='submitted'>
                     <input type='checkbox' id='submitted-checkbox' name='submitted-checkbox'>
+                    <input type='date' id='date-submitted' class='table-selector hide'>
                 </td>
                 <td>
                     <span class='table-remove far fa-trash-alt'></span>

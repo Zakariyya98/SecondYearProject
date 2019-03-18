@@ -66,6 +66,32 @@ function createSprintWindow(name, data) {
   }
 }
 
+//create sprint details window
+function createSprintInfoWindow(name, sprint_data) {
+  if(windows.get(name) == undefined) {
+    let window = new BrowserWindow({
+      width : 400,
+      height : 700,
+      parent : win, 
+      center : true,
+      title : 'Sprint Details'
+    })
+
+    window.webContents.on('did-finish-load', () => {
+      window.webContents.send('load-table', sprint_data);
+    })
+
+    window.on('closed', () => {
+      window = null;
+      windows.set(name, undefined);
+    })
+
+    windows.set(name, window);
+    window.loadFile('./sprintDetails.html');
+  }
+}
+
+//create a graph window
 function createGraphWindow(name, graph_type, graph_data, target_data) {
   if (windows.get(name) == undefined) {
     let window = new BrowserWindow({
@@ -217,6 +243,10 @@ ipc.on('addNewSprint', (event, data) => {
 
 ipc.on('createGraphWindow', (event, name, graph_type, graph_data, target_data) => {
   createGraphWindow(name, graph_type, graph_data, target_data);
+})
+
+ipc.on('displaySprintDetails', (event, data) => {
+  createSprintInfoWindow('sprint info', data);
 })
 
 ipc.on('createSprintWindow', (event, name, data) => {
