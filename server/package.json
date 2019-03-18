@@ -6,6 +6,7 @@
   "dependencies": {
     "async": "^2.6.2",
     "express": "^4.16.4",
+    "mongo": "^0.1.0",
     "mongodb": "^2.2.36",
     "nodemailer": "^5.1.1",
     "npm": "^6.7.0",

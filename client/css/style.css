@@ -9,26 +9,26 @@ button:disabled {
 }
 
 /* #dialog {
-	
+
     box-shadow: 5px;
     border-radius: 5px;
-	
+
 	background:#eee;
-	width:328px; 
+	width:328px;
 }
 */
 
 
 #dialog .dialog-content {
-	text-align:left; 
-	padding:10px; 
+	text-align:left;
+	padding:10px;
 	margin:13px;
-	color:#666; 
+	color:#666;
 	font-family:arial;
-	font-size:11px; 
+	font-size:11px;
 }
 
-  
+
   #titlebar {
     display: block;
     position: fixed;
@@ -161,7 +161,7 @@ button:disabled {
     margin-top : 20px;
 }
 
-.btn-small { 
+.btn-small {
     font-size : 12px;
     background-color : #eceeef;
     color : #222222;
@@ -169,7 +169,7 @@ button:disabled {
     cursor : pointer;
 }
 
-.btn-small:hover { 
+.btn-small:hover {
     background-color : #dcdcdc;
 }
 
@@ -179,7 +179,7 @@ button:disabled {
     margin-bottom : 5px;
     width : 20%;
     cursor : pointer;
-    border-radius : 5px;    
+    border-radius : 5px;
 }
 
 .tab {
@@ -232,7 +232,7 @@ button:disabled {
     color : #666;
 }
 
-.custom-link { 
+.custom-link {
     cursor : pointer;
 }
 
@@ -410,7 +410,7 @@ button:disabled {
     padding: 3px 5px 3px 5px;
 }
 
-.date-picker { 
+.date-picker {
     margin : 10px 0 10px 0;
 }
 
@@ -531,7 +531,7 @@ label {
     padding : 10px 0 10px 0;
     overflow-wrap : break-word;
     text-align: left;
-    
+
 }
 
 .message .self-message {
