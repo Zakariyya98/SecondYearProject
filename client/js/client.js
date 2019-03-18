@@ -12,8 +12,6 @@ let previousGroup = '';
 let currentGroup = '';
 let usersTyping = [];
 let groupMembers = [];
-
-let currentSprint;
 let lastTaskID = 0;
 
 //get sprints for the current group
@@ -160,7 +158,9 @@ $(document).ready(function () {
     $("#dialog").dialog({
         autoOpen: false,
         modal: true,
-        resizable: false,
+        resizable: true,
+        height: "auto",
+        width: "500",
         buttons: {
             OK: function () {
                 $(this).dialog("close");
@@ -178,7 +178,8 @@ $(document).ready(function () {
             s_userprofilepic = value.Image;
             document.getElementById("profilepic").src=s_userprofilepic;
         }
-        s_username = 'Joe Mitchell';
+        s_username = value.Name;
+        $("#username").val(s_username);
         socket.emit('fetchUserGroups', s_username);
     });
 

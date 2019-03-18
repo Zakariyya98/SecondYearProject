@@ -25,7 +25,8 @@ button:disabled {
 	margin:13px;
 	color:#666; 
 	font-family:arial;
-	font-size:11px; 
+    font-size:11px; 
+    overflow:visible;
 }
 
   
