@@ -134,7 +134,7 @@ function createWindow() {
 
   ipc.on('getUserEmail', (event, data) => {
     win.webContents.send('getUserEmail', data);
-  })  
+  })
 
   ipc.on('closePage', function () {
     win.close()
