@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Graph</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+        integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <!-- main style -->
+    <link rel='stylesheet' href='css/style.css'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body style='background-color : '>
+    <div class='container infoContainer'>
+        <table class='table infoTable'>
+            <thead>
+                <th>Type</th>
+                <th>Details</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Name</td>
+                    <td id='nameTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Length (weeks)</td>
+                    <td id='lengthTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Start Date</td>
+                    <td id='startDateTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Finish Date</td>
+                    <td id='finishDateTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Predicted Finish Date</td>
+                    <td id='predictedDateTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Total Tasks</td>
+                    <td id='totalTasksTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Total Tasks Assigned</td>
+                    <td id='totalTasksAssignedTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Total Tasks Completed</td>
+                    <td id='totalTasksCompletedTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Total Tasks Completed Early</td>
+                    <td id='totalTasksCompletedEarlyTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Total Tasks Completed Late</td>
+                    <td id='totalTasksCompletedLateTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Total Tasks Remaining</td>
+                    <td id='totalTasksRemainingTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Average Tasks Completed Per Day</td>
+                    <td id='averageTaskCompletionTD'>example</td>
+                </tr>
+                <!-- <tr>
+                    <td>Average Time Taken to Complete a Task (days)</td>
+                    <td id='averageTaskTimeTD'>example</td>
+                </tr> -->
+                <tr>
+                    <td>Longest Time Taken to Complete a Task (days)</td>
+                    <td id='longestTaskTimeTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Shortest Time Taken to Complete a Task (days)</td>
+                    <td id='shortestTaskTimeTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Most Active Member</td>
+                    <td id='mostActiveMemberTD'>example</td>
+                </tr>
+                <tr>
+                    <td>Least Active Member</td>
+                    <td id='leastActiveMemberTD'>example</td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        var ipcRenderer = require('electron').ipcRenderer;
+        window.$ = window.jQuery = require('jquery');
+
+        ipcRenderer.on('load-table', (event, data) => {
+            console.log(data);
+
+            $('#nameTD').text(data.name);
+            $('#lengthTD').text(data.length);
+            $('#startDateTD').text(data.startDate);
+            $('#finishDateTD').text(data.endDate);
+            $('#predictedDateTD').text(data.predictedFinishDate)
+            $('#totalTasksTD').text(data.taskCount);
+            $('#totalTasksAssignedTD').text(data.tasksAssigned);
+            $('#totalTasksCompletedTD').text(data.tasksCompleted);
+            $('#totalTasksCompletedEarlyTD').text(data.tasksCompletedEarly);
+            $('#totalTasksCompletedLateTD').text(data.tasksCompletedLate);
+            $('#totalTasksRemainingTD').text(data.tasksRemaining);
+            $('#averageTaskCompletionTD').text(data.averageCompletionRate);
+            // $('#averageTaskTimeTD').text(data.averageCompletionTime);
+            $('#longestTaskTimeTD').text(data.longestCompletionRate);
+            $('#shortestTaskTimeTD').text(data.shortestCompletionRate);
+            $('#mostActiveMemberTD').text(data.mostActiveMember.name + ' with ' + 
+            data.mostActiveMember.tasks + ' tasks completed.');
+            $('#leastActiveMemberTD').text(data.leastActiveMember.name + ' with ' + 
+            data.leastActiveMember.tasks + ' tasks completed.');
+
+        })
+    </script>
+
+</body>
+
+</html>

@@ -1,7 +1,8 @@
 const ipc = require('electron').ipcRenderer;
 const prompt = require('electron-prompt');
-
+const { app } = require('electron').remote;
 const socket = io('http://localhost:4000');
+const jetpack = require('fs-jetpack');
 
 let s_username = '';
 let s_userprofilepic = '';
@@ -11,8 +12,6 @@ let previousGroup = '';
 let currentGroup = '';
 let usersTyping = [];
 let groupMembers = [];
-
-let currentSprint;
 let lastTaskID = 0;
 
 //get sprints for the current group
@@ -77,26 +76,6 @@ function updateTaskTable(tasks) {
 
             var $select = $row.find('#assigned').find('select');
 
-            groupMembers.forEach(member => {
-                let option = document.createElement('option');
-                option.value = member;
-                option.innerHTML = member;
-                $select.append(option);
-            })
-
-            $select.val(task.assigned);
-
-            var $deadline = $row.find('#deadline').find('input');
-            // var deadline_date = new Date(task.deadline);
-
-            // //refactor date provided to make it suitable for project
-            // var day = ('0' + deadline_date.getDate()).slice(-2);
-            // var month = ('0' + (deadline_date.getMonth() + 1)).slice(-2);
-
-            // deadline_date = deadline_date.getFullYear() + "-" + (day) + "-" + (month);
-            $deadline.val(task.deadline);
-
-/* MERGE ERROR
             //if there has been a change in the number of group members
             if ($select.children().length - 1 != groupMembers.length) {
                 //delete content
@@ -116,19 +95,15 @@ function updateTaskTable(tasks) {
             $deadline.val(task.deadline);
 
             //set submitted checkbox and add submitted date if submitted
->>>>>>> 438784a16dfa12b1ea539c7d391bdec1ffaa2e3f*/
 
             var $submitted = $row.find('#submitted').find('input');
             //if task has been delievered, set tickbox and create span tag
             if (task.delivered) {
                 $submitted.prop('checked', true);
-                var dateSubmitted = document.createElement('input');
-                $(dateSubmitted).prop('type', 'date');
-                $(dateSubmitted).prop('value', FormatDate(task.submitted));
-                $(dateSubmitted).prop('id', 'date-submitted');
-                $(dateSubmitted).addClass('table-selector');
-                
-                $submitted.parent().append(dateSubmitted);
+                $date_submitted = $row.find('#date-submitted');
+
+                $date_submitted.removeClass('hide');
+                $date_submitted.prop('value', FormatDate(task.submitted));
             }
 
             //apply styling to each row depending on completion
@@ -183,7 +158,9 @@ $(document).ready(function () {
     $("#dialog").dialog({
         autoOpen: false,
         modal: true,
-        resizable: false,
+        resizable: true,
+        height: "auto",
+        width: "500",
         buttons: {
             OK: function () {
                 $(this).dialog("close");
@@ -202,6 +179,7 @@ $(document).ready(function () {
             document.getElementById("profilepic").src=s_userprofilepic;
         }
         s_username = value.Name;
+        $("#username").val(s_username);
         socket.emit('fetchUserGroups', s_username);
     });
 
@@ -212,7 +190,7 @@ $(document).ready(function () {
         socket.on('confirmation', function () {
             //update the user's groups
 
-            
+            socket.emit('fetchUserGroups', s_username);
         });
 
         socket.on('announcement', function (message, name) {

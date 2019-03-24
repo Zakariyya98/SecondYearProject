@@ -2,9 +2,11 @@
     <select class='sprint-select' id='sprintList'>
     </select>
     <button id='createSprint' class='btn-uniq success animated'>Create Sprint</button>
-    <button id='deleteSprint' class='btn-uniq warning animated' style='position:absolute; right : 0; margin-right : 14px;'>Delete Current Sprint
+    <button id='exportSprint' class='btn-uniq success animated'>Export Sprint</button>
+    <button id='deleteSprint' class='btn-uniq warning animated' style='position:absolute; right : 0; margin-right : 14px; width : auto;'>Delete Current Sprint
         <i class="fas fa-exclamation-triangle"></i>
     </button>
+    
 </div>
 <div class='header' style='display:inline;'>
     <h2 class='section-header'>Product Backlog Progress</h2>
@@ -26,59 +28,42 @@
     </div>
 
 </div>
-<div class='row' style='max-width : 100%;'>
-    <div class='col-sm-9'>
-        <div class='table-container'>
-            <table id='task-table' style='font-size : 11px;'>
-                <thead>
-                    <tr>
-                        <th>Status</th>
-                        <th>Description</th>
-                        <th>Assigned To</th>
-                        <th>Deadline</th>
-                        <th>Delivered</th>
-                        <th></th> <!-- row delete button-->
-                    </tr>
-                </thead>
-
-                <!-- template for a new row -->
-                <tr class='hide'>
-                    <td id='status'>Not Started</td>
-                    <td id='desc' contenteditable="true">task description</td>
-                    <td id='assigned'>
-                        <select class='table-selector'>
-                            <option value=''>Select a Person</option>
-                        </select>
-                    </td>
-                    <td id='deadline'>
-                        <input class='table-selector' type='date' name='deadline-date'>
-                    </td>
-                    <td id='submitted'>
-                        <input type='checkbox' id='submitted-checkbox' name='submitted-checkbox'>
-                    </td>
-                    <td>
-                        <span class='table-remove far fa-trash-alt'></span>
-                    </td>
+    <div class='table-container'>
+        <table id='task-table' style='font-size : 11px;'>
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>Assigned To</th>
+                    <th>Deadline</th>
+                    <th>Delivered</th>
+                    <th></th> <!-- row delete button-->
                 </tr>
-            </table>
-        </div>
-        <button class='table-add'>Add Task</button>
+            </thead>
+
+            <!-- template for a new row -->
+            <tr class='hide'>
+                <td id='status'>Not Started</td>
+                <td id='desc' contenteditable="true">task description</td>
+                <td id='assigned'>
+                    <select class='table-selector'>
+                        <option value=''>Select a Person</option>
+                    </select>
+                </td>
+                <td id='deadline'>
+                    <input class='table-selector' type='date' name='deadline-date'>
+                </td>
+                <td id='submitted'>
+                    <input type='checkbox' id='submitted-checkbox' name='submitted-checkbox'>
+                    <input type='date' id='date-submitted' class='table-selector hide'>
+                </td>
+                <td>
+                    <span class='table-remove far fa-trash-alt'></span>
+                </td>
+            </tr>
+        </table>
     </div>
-    <!-- <div class='col-sm-3 right-panel'>
-        <div class='row row-section-50'>
-            <p>Member Task List
-                <span id='content-controller'>-</span>
-            </p>
-            <ul>
-                <li></li>
-            </ul>
-        </div>
-        <div class='row row-section-50'>
-            <p>Sprint Feedback
-                <span id='content-controller'>-</span>
-            </p>
-        </div>
-    </div> -->
+    <button class='table-add'>Add Task</button>
 </div>
 
 </div>
