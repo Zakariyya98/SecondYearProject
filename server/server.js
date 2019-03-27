@@ -149,7 +149,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
         }
 
         socket.on('loginClient', function(data){
-          socket.emit(data.Email);
+          socket.emit('loginClient',data.Email);
         });
         //Check user email and password
         socket.on('login', function(data){
@@ -418,7 +418,7 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             data.members = [username];
             //create the group data document
             db.collection('GroupData').insert(data, function() {
-                var pbdata = { 
+                var pbdata = {
                     sprintName : 'product backlog',
                     tasks : [],
                     sprintDate : data.startDate,
