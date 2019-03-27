@@ -10,7 +10,7 @@
   }
 };
 */
-module.exports = {
+/*module.exports = {
   sources: {
     repoUrl: 'https://github.coventry.ac.uk/barryc2/realWorldProject'
   },

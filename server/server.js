@@ -148,9 +148,20 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
             socket.emit('status', s);
         }
 
+<<<<<<< HEAD
         socket.on('loginClient', function(data){
           socket.emit('loginClient',data.Email);
+=======
+        socket.on('getUserInfoRequest', function(email){
+          console.log(email);
+          db.collection('Profiles').findOne({ Email: email}, { "Name": 1, "Image":1 }, function(err, value) {
+            socket.emit('getUserInfo', value);
+          }) ;
+          //console.log(value);
+          //socket.emit('getUserInfo', value);
+>>>>>>> c7d949a0ba37b0938bb61fa7b9ddf6e99e222d2b
         });
+        
         //Check user email and password
         socket.on('login', function(data){
           let email = data.email;
@@ -175,9 +186,9 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
                 if (err) throw err;
                 else if(result == null){
                   success = 2;
-                  socket.emit('login', {Email:userEmail.Email, Entry:success});
+                  socket.emit('login', {'Email':email, Entry:success});
                 }else{
-                  socket.emit('login', {Email:userEmail.Email, Entry:success});
+                  socket.emit('login', {'Email':email, Entry:success});
                 }
               });
             }
@@ -273,6 +284,11 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
           }
         });
 
+        socket.on('imageupload', function(email, img){
+            console.log(img);
+            db.collection('Profiles').updateOne({Email : email},{ $set:{ Image : img } } )
+        });
+
         //swapping groups / joining a group
         socket.on('group', function(group, previousGroup){
             //if the user was part of a previous group, remove from the current group
@@ -291,15 +307,17 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
         //update the chat for a given socket
         socket.on('refreshChat', function(group) {
             //updates the chat for the user
-            let chat = db.collection(group);
-            // Get chats from mongo collection (limited to 100 documents);
-            chat.find({type : 'msg'}).limit(100).sort({_id:1}).toArray(function(err, res){
-                if(err){
-                    throw err;
-                }
-                // Tell the client to output the information (chat history)
-                socket.emit('output', res);
-            });
+            if(group){
+                let chat = db.collection(group);
+                // Get chats from mongo collection (limited to 100 documents);
+                chat.find({type : 'msg'}).limit(100).sort({_id:1}).toArray(function(err, res){
+                    if(err){
+                        throw err;
+                    }
+                    // Tell the client to output the information (chat history)
+                    socket.emit('output', res);
+                });
+            }
         })
 
         //refresh the scurm tasks for a given socket
@@ -353,8 +371,8 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db){
         })
 
         //updates a given task in the db
-        socket.on('updateTask', function(group, sprint, task, query, values) {
-            msg.log('updating task ' + task.id + ' for group ' + group + ' for sprint ' + sprint);
+        socket.on('updateTask', function(group, sprint, query, values) {
+            //msg.log('updating task ' + task.id + ' for group ' + group + ' for sprint ' + sprint);
 
             db.collection(group).update(query, values, function(err, res) {
                 if(err) throw err;

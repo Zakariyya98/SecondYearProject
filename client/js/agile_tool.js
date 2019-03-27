@@ -1,7 +1,6 @@
 //TODO:
     //export data to file
-        //create export data button
-        //convert data in table to .csv or json file potentially
+        //modify table2csv to except input values
 
 //clears the table of all rows
 function clearTable(table) {
@@ -12,8 +11,266 @@ function clearTable(table) {
     })
 }
 
+//returns task data
+function getTaskInsightData(tasks) {
+    data = {
+        total : 0,
+        complete : 0,
+        early : 0,
+        late : 0,
+        assigned : 0,
+        remaining : 0
+    }
+
+    Object.values(tasks).forEach(task => {
+        data.total++;
+
+        if(task.assigned != '') {
+            data.assigned++;
+
+            if(task.status.includes('complete')) {
+                data.complete++;
+
+                if(task.status.includes('early')) data.early++;
+                else if(task.status.includes('late')) data.late++;
+            }
+        }
+    })
+    data.remaining = data.total - data.complete;
+    return data;
+}
+
+//returns the difference in days between two dates
+function calculateDateDifference(d1, d2) {
+    let day = 24 * 60 * 60 * 1000;
+    let t1 = new Date(d1).getTime();
+    let t2 = new Date(d2).getTime();
+
+    let difference = Math.abs(t1 - t2);
+
+    return Math.ceil(difference / day);
+}
+
+//advances a given date by length days
+function advanceDate(date, length, WFLAG=0) {
+    date = new Date(date);
+    if(WFLAG) length *= 7;
+    new_date = new Date(date.getFullYear(), date.getMonth(), date.getDate() + length);
+
+    return new_date;
+}
+
+//gets all row data from table, returns the data ( row_id : row_data)
+function getTableData() {
+    $TABLE = $('#task-table');
+    data = {}
+    
+    $TABLE.find('tbody').children().toArray().forEach(row => {
+        var id = $(row).prop('value');
+
+        if(id != undefined) {
+            data[id] = {};
+            data[id]['status'] = $(row).find('#status').text();
+            data[id]['description'] = $(row).find('#desc').text();
+            data[id]['assigned'] = $(row).find('#assigned select').prop('value');
+            data[id]['deadline'] = $(row).find('#deadline input').prop('value');
+            data[id]['submitted'] = $(row).find('#submitted #submitted-checkbox').prop('checked');
+
+            if(submitted) {
+                data[id]['date-submitted'] = $(row).find('#submitted #date-submitted').prop('value');
+            }
+        }
+    })
+    return data;
+}
+
+//calculate predicted finish date based on average completion
+function calculatePredictedFinish() {}
+
+//produce object of members and their task submissions
+function fetchMemberSubmissions(data)
+{
+    memberData = {}
+
+    groupMembers.forEach(member => {
+        memberData[member] = {assigned : 0, completed : 0}
+    })
+
+    Object.values(data).forEach(row => {
+        if(row['assigned'] != '') {
+            memberData[row['assigned']].assigned++;
+
+            if(row['submitted']) memberData[row['assigned']].completed++;
+        }
+    })
+
+    return memberData;
+}
+
+function fetchMostActiveMember(data) {
+    let mostActive = {
+        name : '',
+        tasks : 0
+    }
+
+    Object.keys(data).forEach(member => {
+        if(mostActive.tasks < data[member].completed) {
+            mostActive.name = member;
+            mostActive.tasks = data[member].completed;
+        } 
+    })
+
+    return mostActive;
+}
+
+function fetchLeastActiveMember(data) {
+    let leastActive = {
+        name : '',
+        tasks : Infinity
+    }
+    Object.keys(data).forEach(member => {
+        if(leastActive.tasks > data[member].completed) {
+            leastActive.name = member;
+            leastActive.tasks = data[member].completed;
+        } 
+    })
+
+    return leastActive;
+}
+
+//calculates the average task completion over sprint timeline
+function calculateAverageTaskRate(task_submissions, len) 
+{
+    let sum = 0;
+    Object.values(task_submissions).forEach(tasks_complete => {
+        sum += tasks_complete;
+    });
+    return (sum / len).toFixed(2);
+}
+
+//get average, longest and shortest submission rate
+function getTaskCompletionRateDate(task_submissions, startDate, len) {
+    data = {
+        average : 0,
+        longest : 0,
+        shortest : Math.pow(10, 1000)
+    }
+    
+    data.average = calculateAverageTaskRate(task_submissions, len);
+    let previousDate = startDate;
+    //get shortest and longest rates
+
+    Object.keys(task_submissions).forEach(task => {
+        timeTaken = calculateDateDifference(previousDate, task);
+        if(timeTaken > data.longest) data.longest = timeTaken;
+        
+        if(timeTaken < data.shortest) data.shortest = timeTaken;
+
+        previousDate = task;
+    })
+
+    return data;
+}
+
+function getLastSubmissionDate(task_submissions) {
+    let last_date;
+
+    Object.keys(task_submissions).forEach(task => {
+        let date = new Date(task);
+
+        if(last_date == undefined || last_date < date) last_date = date;
+    });
+    return last_date;
+}
+
+//returns array of task submission data from table data
+function getTaskSubmissions(data) {
+    let task_submissions = {};
+
+    //get task submission count
+    Object.values(data).forEach(row => {
+        //foreach row, if has been submitted
+        if(row.submitted) {
+            //get date is was submitted
+            var row_date = row['date-submitted'];
+            //add to task submissions or increase submission count
+            task_submissions[row_date] == undefined ? task_submissions[row_date] = 1 : task_submissions[row_date]++;
+        }
+    });
+    // console.log('task submissions:',task_submissions);
+    return task_submissions;
+    
+}
+
+//returns array of task completions across each day
+function getTaskCompletionData(task_submissions, task_count) {
+    //get number of days between start date and last task date
+    let startDate = new Date(SPRINTS[currentSprint].sprintDate);
+    let last_date = getLastSubmissionDate(task_submissions);
+
+    let date_difference = calculateDateDifference(startDate, last_date);
+    
+    // console.log(date_difference);
+    let tasks_remaining = [];
+
+    //foreach day
+    for(let i = 0; i <= date_difference; i++) 
+    {
+        let task_date = new Date(startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate() + i);
+
+        //format the date into the standard date format for scrum tool
+        task_date = FormatDate(task_date);
+
+        if(task_submissions[task_date] != undefined) {
+            task_count -= task_submissions[task_date];
+        }
+        tasks_remaining.push(task_count);
+    }
+    // console.log('tasks remaining', tasks_remaining);
+    return tasks_remaining;
+}
+
+//get array of data based on average task completion rate
+function getAverageCompletionData(velo, task_count) {
+    let average_data = [];
+    let test_len = Math.ceil(task_count / velo) + 1;
+
+    for(let i = 0; i < test_len; i++) {
+        if(i!=0) {
+            if(task_count - velo < 0) task_count = 0;
+            else {
+                task_count -= velo;
+            }
+        }
+        average_data.push(task_count); 
+        if(task_count == 0) break;
+    }
+
+    return average_data;
+}
+
+//produce array of weekdays in order of task submission frequencies
+function fetchTaskSubmissionDays() {}
+
+//calculates the average time taken to complete tasks, longest completion and shortest completion
+function calculateTaskCompletionRate(data) 
+{
+    completion_details = {
+        average : 0,
+        longest : 0,
+        shortest : Infinity
+    };
+
+    return completion_details
+}
+
 //checks if a given date is in between two given dates
-function dateRangeCheck(startDate, endDate, dc) {
+function dateRangeCheck(dc) {
+    //get the current sprint dates
+    var startDate = new Date(SPRINTS[currentSprint].sprintDate);
+    var endDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + (SPRINTS[currentSprint].sprintLength * 7));
     //get epoch time for each of the given dates
     var startTime = new Date(startDate).getTime();
     var endTime = new Date(endDate).getTime();
@@ -25,6 +282,7 @@ function dateRangeCheck(startDate, endDate, dc) {
     return false;
 }
 
+//count the completed tasks
 function countCompletedTasks() {
     //find all the tasks that have been completed
     var completed = 0;
@@ -37,6 +295,7 @@ function countCompletedTasks() {
     return completed;
 }
 
+//update the progress bar
 function updateProgress() {
     var TASKS = $('#task-table').find('tr').length - 2;
     var $PROGRESS_BAR = $('#progress-bar');
@@ -69,27 +328,26 @@ function updateProgress() {
     
 }
 
-function checkSubmissionDate($submitted, $deadline, $parent) {
-    var submitted_date = new Date(parseInt($submitted.attr('date-submitted'))).toLocaleDateString();
-    var deadline_date = new Date($deadline.val()).toLocaleDateString();
+function checkSubmissionDate($submitted, $deadline, $task) {
+    var submitted_date = new Date($submitted.prop('value'));
+    var deadline_date = new Date($deadline.prop('value'));
 
-    $parent.removeClass('in-progress');
+    $task.removeClass($task.prop('class'));
 
     //check if the submission date is equal to the deadline 
-    if(submitted_date === deadline_date) {
-        //task was submitted on time
-        $parent.find('#status').text('completed');
-        $parent.addClass('confirmed');
-    } else if(submitted_date < deadline_date) {
+    if(submitted_date < deadline_date) {
         //task was submitted before deadline
-        $parent.find('#status').text('completed (early)');
-        $parent.addClass('confirmed');
+        $task.find('#status').text('completed (early)');
+        $task.addClass('confirmed');
     } else if(submitted_date > deadline_date) {
         //task was submitted after deadlien
-        $parent.find('#status').text('completed (late)');
-        $parent.addClass('failed');
+        $task.find('#status').text('completed (late)');
+        $task.addClass('failed');
+    } else {
+        //task was submitted on time
+        $task.find('#status').text('completed');
+        $task.addClass('confirmed');
     }
-    $parent.prop('disabled', true);
     updateProgress();
 }
 
@@ -125,52 +383,70 @@ $(document).ready(function() {
         $CLONE.find('#assigned').find('select').append(option);
     })
 
-    $('tr').find('#submitted input').change(function() {
+    $('tr').find('#submitted #submitted-checkbox').change(function() {
         var $parent = $(this).parent();
+        var $TASK = $parent.parent();
+        var $date_submitted = $parent.find('#date-submitted');
+
         if(this.checked) {
             var current_date = new Date(); //get the current date
-    
-            //refactor date provided to make it suitable for project
-            var day = ('0' + current_date.getDate()).slice(-2);
-            var month = ('0' + (current_date.getMonth() + 1)).slice(-2);
-
-            current_date = current_date.getFullYear() + "-" + (month) + "-" + (day);
-
-            var date_element = document.createElement('span'); //create date DOM
-            date_element.innerText = current_date; //set DOM text
             
-            $parent.append(date_element);
-            $parent.attr('date-submitted', Date.now());
+            $date_submitted.removeClass('hide');
+            $date_submitted.prop('value', FormatDate(current_date));
 
-            checkSubmissionDate($parent, $parent.parent().find('#deadline input'), $parent.parent()); //check if submitted before deadline 
+            checkSubmissionDate($date_submitted, $TASK.find('#deadline input'), $TASK); //check if submitted before deadline 
         } else if(!this.checked) {
             $parent.parent().find('#status').text('in-progress');
-            $parent.find('span').remove();
+            $date_submitted.addClass('hide');
             $parent.parent().removeClass('confirmed failed');
             $parent.parent().addClass('in-progress');
             updateProgress();
         }
 
-        //get task
-        var $TASK = $(this).parent().parent();
-        var otask = {};
-
-        otask.id = $TASK.prop('value');
-        otask.delivered = $(this).prop('checked');
-        otask.status = $TASK.find('#status').text();
-        otask.submitted = $(this).parent().find('span').text();
+        id = $TASK.prop('value');
+        delivered = $(this).prop('checked');
+        status = $TASK.find('#status').text();
+        submitted = $(this).parent().find('#date-submitted').prop('value');
 
         var query = { 
             sprintName : currentSprint,
-            "tasks.id" : otask.id,
+            "tasks.id" : id,
         };
-        var values = { $set : { "tasks.$.delivered" : otask.delivered,
-        "tasks.$.status" : otask.status,
-        "tasks.$.submitted" : otask.submitted}};
+        var values = { $set : { "tasks.$.delivered" : delivered,
+        "tasks.$.status" : status,
+        "tasks.$.submitted" : submitted}};
 
         //upload change to server
-        socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
+        socket.emit('updateTask', currentGroup, currentSprint, query, values)
+    });
+    $('tr').find('#submitted #date-submitted').change(function() {
+        var $parent = $(this).parent();
+        var $TASK = $parent.parent();
 
+        var new_date = $(this).prop('value');
+
+        //update task status
+        checkSubmissionDate($(this), $TASK.find('#deadline input'), $TASK); //check if submitted before deadline  
+
+        if(dateRangeCheck(new_date)) {
+            var id = $parent.parent().prop('value');
+            var status = $TASK.find('#status').text();
+
+            var query = { 
+                sprintName : currentSprint,
+                "tasks.id" : id,
+            };
+            var values = { $set : { "tasks.$.submitted" : new_date,
+            "tasks.$.status" : status}};
+    
+            //upload change to server
+            socket.emit('updateTask', currentGroup, currentSprint, query, values)
+
+            
+        } else {
+            alert('please enter a valid date for the given sprint');
+            $(this).prop('value', '');
+        }
     })
 
     $('tr').find('#assigned select').change(function() {
@@ -201,15 +477,13 @@ $(document).ready(function() {
         var values = { $set : { "tasks.$.assigned" : otask.assigned, "tasks.$.status" : otask.status}};
 
         //upload change to server
-        socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
+        socket.emit('updateTask', currentGroup, currentSprint, query, values)
     })
 
     $('tr').find('#deadline input').change(function () {
         var deadline_date = $(this).prop('value');
-        var startDate = new Date(SPRINTS[currentSprint].sprintDate);
-        var endDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + (SPRINTS[currentSprint].sprintLength * 7));
         //check if selected date is valid
-        if (dateRangeCheck(startDate, endDate, deadline_date)) {
+        if (dateRangeCheck(deadline_date)) {
             //get task
             var $TASK = $(this).parent().parent();
             var otask = {};
@@ -228,7 +502,7 @@ $(document).ready(function() {
             };
 
             //upload change to server
-            socket.emit('updateTask', currentGroup, currentSprint, otask, query, values)
+            socket.emit('updateTask', currentGroup, currentSprint, query, values)
         } else {
             alert('please enter a valid date for the given sprint');
             $(this).prop('value', '');
@@ -272,62 +546,34 @@ $(document).ready(function() {
 
     $('#member-tasks-view').click(function() {
         //get task count for each member
-        graph_data = {};
-        groupMembers.forEach(member => {
-            graph_data[member] = 0;
-        })
+        let data = getTableData();
+        let graph_data = fetchMemberSubmissions(data);
 
-        var $TABLE = $('#task-table');
-        $TABLE.find('tbody').children().toArray().forEach(row => {
-            var user = $(row).find('#assigned').find('select').val();
-            if(user != '') {
-                graph_data[user] += 1;
-            }
-        })
         ipc.send('createGraphWindow', 'task distribution', 'members', graph_data);
     })
 
     $('#burndown-view').click(function() {
         //get the table
-        var $TABLE = $('#task-table');
+        let $TABLE = $('#task-table');
+        //get table data 
+        let data = getTableData();
         //get sprint
-        var sprint = SPRINTS[currentSprint];
+        let sprint = SPRINTS[currentSprint];
         //get sprint start date
-        var startDate = new Date(sprint.sprintDate);
+        let startDate = new Date(sprint.sprintDate);
         //get total task count (real and target)
-        var real_task_count = $TABLE.find('tbody').children().length - 1;
-        var target_task_count = real_task_count;
-        var average_task_count = real_task_count;
-        //store task submissions for each date
-        var task_submissions = {};
+        let task_count = Object.values(data).length;
+        let target_task_count = task_count;
+        let average_task_count = task_count;
         //store tasks left for each of the sprint days
-        var graph_data = { labels : [], values : [], average : []}
+        let graph_data = { labels : [], values : [], average : []}
         //store target tasks completion data
-        var target_data = { values : []};
+        let target_data = { values : []};
         //daily task completion rate
-        var completion_rate = target_task_count / ((sprint.sprintLength * 7) - 1)
-        //last date
-        var last_date = 0; 
+        let completion_rate = target_task_count / ((sprint.sprintLength * 7) - 1)
 
-        var sum = 0;
-        var len = 0;
-        var velo = 0;
-
-        //get number of tasks submitted and their dates
-        $TABLE.find('tbody').children().toArray().forEach(row => {
-            var date = $(row).find('#submitted').find('span').text();
-            date = new Date(date);
-            var datestr = date.toLocaleDateString();
-
-            var submitted = $(row).find('#submitted').find('input').prop('checked');
-
-            if(datestr != '' && submitted) {
-                task_submissions[datestr] == undefined ? task_submissions[datestr] = 1 : task_submissions[datestr]++;
-                if(last_date == undefined || last_date < date) {
-                    last_date = date;
-                }
-            }
-        })
+        let task_submissions = getTaskSubmissions(data);
+        graph_data.values = getTaskCompletionData(task_submissions, task_count);
 
         for(let i = 0; i < sprint.sprintLength * 7; i++ ){
             date = (new Date(startDate.getFullYear(),
@@ -342,46 +588,29 @@ $(document).ready(function() {
             }
             target_data.values.push(target_task_count);
             
-            graph_data.labels.push(datestr);
-            if(date > last_date) {
-                graph_data.values.push(0);
-            } else {
-                //update actual data
-                if(task_submissions[datestr] != undefined) {
-                    real_task_count -= task_submissions[datestr];
-                }
-                graph_data.values.push(real_task_count);
-            }
+            graph_data.labels.push(FormatDate(date));
         }
-
-        Object.values(task_submissions).forEach(tasks_complete => {
-            sum += tasks_complete;
-        })
-
+        let len = 0;
         graph_data.values.forEach(value => {
             if(value != 0) {
                 len++;
             }
         })
-        velo = sum / len;
-        console.log(sum);
-        console.log(len);
-        console.log(velo);
-        
-        for(let i = 0; i < graph_data.labels.length; i++) {
-            if(i!=0) {
-                average_task_count -= velo;
-            }
+        let velo = calculateAverageTaskRate(task_submissions, len);
 
-            if(average_task_count <= 0) {
-                break;
+        graph_data.average = getAverageCompletionData(velo, average_task_count);
+        //check if the average data exceeds the current sprint length
+        let diff = graph_data.average.length - graph_data.labels.length;
+        if(diff > 0) {
+            let last_date = new Date(graph_data.labels[graph_data.labels.length - 1]);
+            for(let i = 0; i < diff; i++) {
+                let date = new Date(last_date.getFullYear(),
+                last_date.getMonth(),
+                last_date.getDate() + i + 1);
+
+                graph_data.labels.push(FormatDate(date));
             }
-            graph_data.average.push(average_task_count);
-            
-            
         }
-
-
         ipc.send('createGraphWindow', 'burndown chart', 'burndown', graph_data, target_data);
     })
 
@@ -391,10 +620,9 @@ $(document).ready(function() {
             values : [0, 0, 0, 0, 0, 0, 0]
         }
 
-        console.log(graph_data);
         var $TABLE = $('#task-table');
         $TABLE.find('tbody').children().toArray().forEach(row => {
-            var date = $(row).find('#submitted').find('span').text();
+            var date = $(row).find('#submitted #date-submitted').prop('value');
             var submitted = $(row).find('#submitted').find('input').prop('checked');
 
             if((date != '' || date != undefined) && submitted) {
@@ -402,8 +630,6 @@ $(document).ready(function() {
                 graph_data.values[day]++;
             }
         })
-
-        console.log(Object.keys(graph_data).sort);
         ipc.send('createGraphWindow', 'date task distribution', 'day', graph_data);
     })
 
@@ -430,7 +656,56 @@ $(document).ready(function() {
 
     //get the details for the current sprint
     $('#sprint-details').click(function() {
-        console.log(SPRINTS[currentSprint]);
+        let data = getTableData();
+        let submissions = getTaskSubmissions(data);
+        let taskInsight = getTaskInsightData(data);
+        let last_date = getLastSubmissionDate(submissions);
+        let sprint = {}
+
+        //basic task data
+        sprint.name = SPRINTS[currentSprint].sprintName; //name
+        sprint.length = SPRINTS[currentSprint].sprintLength; //length
+        sprint.startDate = SPRINTS[currentSprint].sprintDate; //startDate
+        sprint.endDate = FormatDate(advanceDate(sprint.startDate, sprint.length, 1)); //endDate
+        sprint.lastSubmissionDate = FormatDate(last_date);
+
+        //task insight data
+        sprint.taskCount = taskInsight.total; //task count
+        sprint.tasksAssigned = taskInsight.assigned; //tasks assigned
+        sprint.tasksCompleted = taskInsight.complete; //tasks completed
+        sprint.tasksCompletedEarly = taskInsight.early; //tasks remaining
+        sprint.tasksCompletedLate = taskInsight.late; //tasks late
+        sprint.tasksRemaining = taskInsight.remaining; //tasks early
+
+        //get completion data
+        let completionData = getTaskCompletionRateDate(submissions, sprint.startDate, calculateDateDifference(sprint.startDate, sprint.lastSubmissionDate));
+
+        //task completion data
+        sprint.averageCompletionRate = completionData.average;
+        sprint.averageCompletionTime = (sprint.tasksCompleted) / calculateDateDifference(sprint.startDate, sprint.lastSubmissionDate);
+        sprint.longestCompletionRate = completionData.longest;
+        sprint.shortestCompletionRate = completionData.shortest;
+
+        //task predicted finish date
+        let averageData = getAverageCompletionData(sprint.averageCompletionRate, sprint.taskCount)
+        sprint.predictedFinishDate = FormatDate(advanceDate(sprint.startDate, averageData.length));
+        
+        //member task submissions
+        let memberTasks = fetchMemberSubmissions(data);
+        sprint.mostActiveMember = fetchMostActiveMember(memberTasks);
+        sprint.leastActiveMember = fetchLeastActiveMember(memberTasks);
+
+        // console.log(sprint);
+        ipc.send('displaySprintDetails', sprint);
+    })
+
+    //bugged atm, need to fix non text inputs
+    $('#exportSprint').click(function() {
+        var csv = $('#task-table').table2CSV({
+            delivery: 'value'
+        });
+        window.location.href = 'data:text/csv;charset=UTF-8,' 
+        + encodeURIComponent(csv);
     })
 
     $('#deleteSprint').click(function() {
@@ -447,10 +722,4 @@ $(document).ready(function() {
             }
         })
     })
-
 })
-    
-
-    
-
-    

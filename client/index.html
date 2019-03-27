@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
         integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
     <!-- main style -->
-    <link rel='stylesheet' href='css/style.css'>
+    <link rel='stylesheet' href='./css/style.css'>
     <!-- icons -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
         crossorigin="anonymous">
@@ -30,6 +30,7 @@
         crossorigin="anonymous"></script>
     <!-- socket.io -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script src='js/table2csv.js'></script>
     <script src="js/client.js"></script>
 </head>
 <body style='-webkit-app-region: nodrag'>
@@ -60,7 +61,7 @@
             <div class="project-editor title bottom" id="navigator" >
                 <span>
                 <a href='./Content/Profile.html' class='title center-vertical-50 text-center click'>User Profile</a>
-                <img id='profilepic' style='height: 100%; border-radius: 50%; padding: 5px;' src='resources/defaultemptyprofilepicture.png' alt="Profile Picture" />
+                <img id='profilepic' class="profileimg" style='height:50px; width:50px; padding: 5px;' src='resources/defaultemptyprofilepicture.png' alt="Profile Picture" />
                 </span>
             </div>
         </div>
@@ -72,6 +73,10 @@
                 <a href='./Content/Chat.html' class='title dark center-vertical-50 text-center click'>Chat</a>
                 <a href='./Content/ScrumTool.html' class='title dark center-vertical-50 text-center click'>Scrum Management Tool</a>
                 <a href='./Content/Kanban.html' class='title dark center-vertical-50 text-center click'>Kanban Board</a>
+                <a href='./Content/GithubRepo.html' class='title dark center-vertical-50 text-center click'>Github Repository Viewer</a>
+                <a href='./Content/CUMoodle.html' class='title dark centre-vertical-10 text-center click'>CUMoodle Homepage</a>
+                <a href='./Content/GanttChartTool.html' class='title dark centre-vertical-10 text-center click'>Gantt Chart Tool</a>
+                <a href='./Content/PrivateChat.html' class='title dark centre-vertical-10 text-center click'>Private Chat</a>
             </div>
             <!-- dynamic content -->
             <div id='dynamic-content' class='container-fluid'>
@@ -81,8 +86,8 @@
     <div id='page-mask'></div>
 </body>
 
-<div id="dialog" title="announcement">
-    <div id="dialog-content"></div>
+<div id="dialog" title="announcement" style="overflow:visible">
+    <div id="dialog-content"></div> 
 </div>
 
 </html>

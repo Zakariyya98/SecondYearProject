@@ -9,26 +9,28 @@ button:disabled {
 }
 
 /* #dialog {
-	
+
     box-shadow: 5px;
     border-radius: 5px;
-	
+
 	background:#eee;
-	width:328px; 
+	width:328px;
 }
 */
 
 
 #dialog .dialog-content {
-	text-align:left; 
-	padding:10px; 
+	text-align:left;
+	padding:10px;
 	margin:13px;
-	color:#666; 
+	color:#666;
 	font-family:arial;
-	font-size:11px; 
+	font-size:11px;
+    font-size:11px;
+    overflow:visible;
 }
 
-  
+
   #titlebar {
     display: block;
     position: fixed;
@@ -55,6 +57,16 @@ button:disabled {
     top:0;
     right:0;
 }
+
+.profileimg {
+    border-radius: 50%;
+}
+
+#profileimg {
+    border-radius: 50%;
+}
+
+
 
 #messages {
     height : 300px;
@@ -151,7 +163,7 @@ button:disabled {
     margin-top : 20px;
 }
 
-.btn-small { 
+.btn-small {
     font-size : 12px;
     background-color : #eceeef;
     color : #222222;
@@ -159,17 +171,17 @@ button:disabled {
     cursor : pointer;
 }
 
-.btn-small:hover { 
+.btn-small:hover {
     background-color : #dcdcdc;
 }
 
 .btn-uniq {
     font-size : 12px;
     border : 0;
-    margin-bottom : 5px;
-    width : 20%;
+    margin : 0 5px 5px 5px;
+    width : 15%;
     cursor : pointer;
-    border-radius : 5px;    
+    border-radius : 5px;
 }
 
 .tab {
@@ -222,7 +234,7 @@ button:disabled {
     color : #666;
 }
 
-.custom-link { 
+.custom-link {
     cursor : pointer;
 }
 
@@ -400,7 +412,7 @@ button:disabled {
     padding: 3px 5px 3px 5px;
 }
 
-.date-picker { 
+.date-picker {
     margin : 10px 0 10px 0;
 }
 
@@ -521,7 +533,7 @@ label {
     padding : 10px 0 10px 0;
     overflow-wrap : break-word;
     text-align: left;
-    
+
 }
 
 .message .self-message {
@@ -609,3 +621,37 @@ label {
 .workingBoard{background: #F4CE46; color:#fff}
 .defaultBoard{background: #FB7D44; color:#fff}
 .doneBoard{background: #00B961; color:#fff}
+
+
+.infoContainer {
+    background-color : rgb(249, 247, 247);
+}
+
+.infoTable {
+    width : 100%;
+}
+
+.infoTable td {
+    font-size : 11px;
+}
+
+.infoTable thead tr th:first-child {
+    text-align: right;
+}
+
+.infoTable thead tr th:nth-child(2) {
+    text-align : center;
+}
+
+.infoTable tbody tr td:first-child{
+    text-align : right;
+    width:50%;
+}
+
+.infoTable tbody tr td:nth-child(2) {
+    text-align : center;
+}
+
+.infoContainer {
+    overflow-y: scroll;
+}

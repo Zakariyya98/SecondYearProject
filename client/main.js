@@ -21,7 +21,7 @@ const githubOAuth = electronOauth2(oauthConfig, windowParams);
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
-//let signUpWindow
+let signUpWindow
 
 var windows = new Map();
 
@@ -66,6 +66,32 @@ function createSprintWindow(name, data) {
   }
 }
 
+//create sprint details window
+function createSprintInfoWindow(name, sprint_data) {
+  if(windows.get(name) == undefined) {
+    let window = new BrowserWindow({
+      width : 400,
+      height : 700,
+      parent : win, 
+      center : true,
+      title : 'Sprint Details'
+    })
+
+    window.webContents.on('did-finish-load', () => {
+      window.webContents.send('load-table', sprint_data);
+    })
+
+    window.on('closed', () => {
+      window = null;
+      windows.set(name, undefined);
+    })
+
+    windows.set(name, window);
+    window.loadFile('./sprintDetails.html');
+  }
+}
+
+//create a graph window
 function createGraphWindow(name, graph_type, graph_data, target_data) {
   if (windows.get(name) == undefined) {
     let window = new BrowserWindow({
@@ -121,7 +147,11 @@ function createWindow() {
 
   // and load the index.html of the app.
   win.loadFile('./index.html')
+<<<<<<< HEAD
   signUpWindow.loadFile('./Login Content/login.html')
+=======
+   signUpWindow.loadFile('./Login Content/login.html')
+>>>>>>> c7d949a0ba37b0938bb61fa7b9ddf6e99e222d2b
 
   // Open the DevTools.
   //win.webContents.openDevTools()
@@ -130,6 +160,10 @@ function createWindow() {
   ipc.on('switchPage', function() {
       win.show()
       signUpWindow.close()
+  })
+
+  ipc.on('getUserEmail', (event, data) => {
+    win.webContents.send('getUserEmail', data);
   })
 
   ipc.on('closePage', function () {
@@ -213,6 +247,10 @@ ipc.on('addNewSprint', (event, data) => {
 
 ipc.on('createGraphWindow', (event, name, graph_type, graph_data, target_data) => {
   createGraphWindow(name, graph_type, graph_data, target_data);
+})
+
+ipc.on('displaySprintDetails', (event, data) => {
+  createSprintInfoWindow('sprint info', data);
 })
 
 ipc.on('createSprintWindow', (event, name, data) => {

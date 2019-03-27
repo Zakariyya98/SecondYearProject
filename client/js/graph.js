@@ -9,25 +9,47 @@ ipcRenderer.on('createMembersChart', (event, graph_data) => {
         data: {
             labels: Object.keys(graph_data),
             datasets: [{
-                label: "Tasks",
+                label: "Assigned Tasks",
                 backgroundColor: "rgba(54, 162, 235, 0.2)",
-                data: Object.values(graph_data),
+                data: Object.values(graph_data).map(person => {
+                    return person['assigned'];
+                }),
                 borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2
+            }, {
+                label: "Completed Tasks",
+                backgroundColor: "rgba(66, 244, 92, 0.2)",
+                data: Object.values(graph_data).map(person => {
+                    return person['completed'];
+                }),
+                borderColor: 'rgba(66, 244, 92, 1)',
                 borderWidth: 2
             }]
         },
         options: {
             legend: {
-                display: false
+                display: true
             },
             title: {
                 display: true,
-                text: 'Task Distribution'
+                text: 'Member Task Distribution'
             },
             responsive: true,
             maintainAspectRatio: false,
             scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Group Members'
+                    }
+                }],
                 yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Tasks'
+                    },
                     ticks: {
                         beginAtZero: true,
                         stepSize: 1
@@ -62,7 +84,19 @@ ipcRenderer.on('createDayFrequencyChart', (event, graph_data) => {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Weekday'
+                    }
+                }],
                 yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Tasks Completed'
+                    },
                     ticks: {
                         beginAtZero: true,
                         stepSize: 1
